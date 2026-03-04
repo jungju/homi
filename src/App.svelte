@@ -24,6 +24,11 @@
   const TZ = 'Asia/Seoul';
   const BUILD_VERSION = 'unknown';
 
+  interface VersionInfo {
+    buildTime: string;
+    commit: string;
+  }
+
   interface LogItem {
     id: string;
     text: string;
@@ -31,7 +36,11 @@
 
   let now = dayjs().tz(TZ);
   let online = true;
+  let buildVersion = BUILD_VERSION;
+  let versionInfo: VersionInfo | null = null;
+
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
+  let versionTimer: ReturnType<typeof setTimeout> | undefined;
   let scheduler: SchedulerEngine | undefined;
 
   let schedules: ScheduleItem[] = [];
@@ -119,6 +128,29 @@
     }
   }
 
+  async function fetchVersion() {
+    try {
+      const res = await fetch(`version.json?ts=${Date.now()}`);
+      if (!res.ok) return;
+      const payload = (await res.json()) as VersionInfo;
+
+      if (payload.commit && versionInfo?.commit && payload.commit !== versionInfo.commit) {
+        location.reload();
+        return;
+      }
+
+      versionInfo = payload;
+      buildVersion = payload.commit?.slice(0, 7) || BUILD_VERSION;
+    } catch {
+      // ignore
+    }
+  }
+
+  async function pollVersionLoop() {
+    await fetchVersion();
+    versionTimer = setTimeout(pollVersionLoop, 60_000);
+  }
+
   function tickClock() {
     now = getNow();
     updateNextSchedule();
@@ -138,6 +170,7 @@
 
     updateNextSchedule();
     tickClock();
+    pollVersionLoop();
 
     scheduler = new SchedulerEngine(
       () => getNow(),
@@ -164,6 +197,9 @@
     if (clockTimer) {
       clearTimeout(clockTimer);
     }
+    if (versionTimer) {
+      clearTimeout(versionTimer);
+    }
     scheduler?.stop();
     window.removeEventListener('online', handleOnline);
     window.removeEventListener('offline', handleOnline);
@@ -176,7 +212,7 @@
     <div class="status-row">
       <span class="time">{now.format('YYYY-MM-DD HH:mm:ss')} KST</span>
       <span class:online class="badge">{online ? 'Online' : 'Offline'}</span>
-      <span class="badge">build {BUILD_VERSION}</span>
+      <span class="badge">build {buildVersion}</span>
       <button class="settings-btn" type="button" on:click={() => (settingsOpen = !settingsOpen)}
         >설정</button
       >
