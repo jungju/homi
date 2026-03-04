@@ -9,7 +9,14 @@
     formatSchedule,
     getDefaultSchedules,
     type ScheduleItem,
+    type ScheduleType
   } from './lib/scheduler';
+  import {
+    buildSchedule,
+    loadSchedules,
+    normalizeOnceDatetimeInput,
+    saveSchedules
+  } from './lib/settings';
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -27,11 +34,18 @@
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
   let scheduler: SchedulerEngine | undefined;
 
-  let schedules: ScheduleItem[] = getDefaultSchedules(now);
+  let schedules: ScheduleItem[] = [];
   let nextScheduleText = '-';
   let logs: LogItem[] = [];
   let hasPendingSound = false;
   let alertAudio: HTMLAudioElement | null = null;
+
+  let settingsOpen = false;
+  let formLabel = '';
+  let formType: ScheduleType = 'daily';
+  let formTime = '07:00';
+  let formDatetime = '';
+  let formEnabled = true;
 
   function getNow() {
     return dayjs().tz(TZ);
@@ -41,7 +55,7 @@
     const stamp = getNow().format('YYYY-MM-DD HH:mm:ss');
     const nextItem = {
       id: crypto.randomUUID(),
-      text: `[${stamp}] ${text}`,
+      text: `[${stamp}] ${text}`
     };
     logs = [nextItem, ...logs].slice(0, 120);
   }
@@ -51,6 +65,43 @@
     nextScheduleText = nextEvent
       ? `${nextEvent.runAt.tz(TZ).format('MM-DD HH:mm')} · ${nextEvent.schedule.label}`
       : '활성 스케줄 없음';
+  }
+
+  function syncSchedules(next: ScheduleItem[]) {
+    schedules = next;
+    saveSchedules(schedules);
+    updateNextSchedule();
+    scheduler?.refresh();
+  }
+
+  function addSchedule() {
+    const result = buildSchedule({
+      label: formLabel,
+      type: formType,
+      enabled: formEnabled,
+      time: formTime,
+      datetime: formDatetime
+    });
+
+    if (!result.ok) {
+      alert(result.message);
+      return;
+    }
+
+    syncSchedules([result.value, ...schedules]);
+    formLabel = '';
+    formType = 'daily';
+    formTime = '07:00';
+    formDatetime = normalizeOnceDatetimeInput(getNow());
+    formEnabled = true;
+  }
+
+  function toggleSchedule(id: string) {
+    syncSchedules(schedules.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s)));
+  }
+
+  function removeSchedule(id: string) {
+    syncSchedules(schedules.filter((s) => s.id !== id));
   }
 
   async function playPendingSound() {
@@ -80,6 +131,11 @@
 
   onMount(() => {
     online = navigator.onLine;
+
+    const defaults = getDefaultSchedules(getNow());
+    schedules = loadSchedules(defaults);
+    formDatetime = normalizeOnceDatetimeInput(getNow());
+
     updateNextSchedule();
     tickClock();
 
@@ -89,7 +145,13 @@
       ({ schedule, triggerAt }) => {
         appendLog(`${schedule.label} 이벤트 발생 (${triggerAt.tz(TZ).format('HH:mm:ss')})`);
         hasPendingSound = true;
-      },
+
+        if (schedule.type === 'once') {
+          syncSchedules(
+            schedules.map((s) => (s.id === schedule.id ? { ...s, enabled: false } : s))
+          );
+        }
+      }
     );
 
     scheduler.start();
@@ -115,7 +177,9 @@
       <span class="time">{now.format('YYYY-MM-DD HH:mm:ss')} KST</span>
       <span class:online class="badge">{online ? 'Online' : 'Offline'}</span>
       <span class="badge">build {BUILD_VERSION}</span>
-      <button class="settings-btn" type="button">설정</button>
+      <button class="settings-btn" type="button" on:click={() => (settingsOpen = !settingsOpen)}
+        >설정</button
+      >
     </div>
   </header>
 
@@ -125,13 +189,13 @@
       <p class="muted">다음 이벤트: {nextScheduleText}</p>
       <ul>
         {#each schedules as item}
-          <li>{formatSchedule(item)}</li>
+          <li>{formatSchedule(item)} {item.enabled ? '' : '(비활성)'}</li>
         {/each}
       </ul>
     </article>
 
     <article class="panel">
-      <h2>알림 로그 {#if soundPending}<span class="pending-dot">●</span>{/if}</h2>
+      <h2>알림 로그 {#if hasPendingSound}<span class="pending-dot">●</span>{/if}</h2>
       {#if logs.length === 0}
         <p class="muted">아직 기록이 없습니다.</p>
       {:else}
@@ -155,6 +219,45 @@
       <audio bind:this={alertAudio} preload="auto" src="/sounds/chime.mp3"></audio>
     </div>
   </footer>
+
+  {#if settingsOpen}
+    <section class="panel settings-panel">
+      <h2>설정</h2>
+      <div class="settings-form">
+        <input placeholder="알림 이름" bind:value={formLabel} />
+        <select bind:value={formType}>
+          <option value="daily">daily HH:mm</option>
+          <option value="hourly">hourly</option>
+          <option value="once">once datetime</option>
+        </select>
+        {#if formType === 'daily'}
+          <input type="time" bind:value={formTime} />
+        {/if}
+        {#if formType === 'once'}
+          <input type="datetime-local" bind:value={formDatetime} />
+        {/if}
+        <label class="check"><input type="checkbox" bind:checked={formEnabled} /> enable</label>
+        <button type="button" on:click={addSchedule}>스케줄 추가</button>
+      </div>
+
+      <ul class="settings-list">
+        {#each schedules as item}
+          <li>
+            <div>
+              <strong>{item.label}</strong>
+              <p class="muted">{formatSchedule(item)}</p>
+            </div>
+            <div class="actions">
+              <button type="button" on:click={() => toggleSchedule(item.id)}
+                >{item.enabled ? 'disable' : 'enable'}</button
+              >
+              <button type="button" class="danger" on:click={() => removeSchedule(item.id)}>삭제</button>
+            </div>
+          </li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
 </main>
 
 <style>
@@ -230,7 +333,9 @@
   }
 
   .settings-btn,
-  button {
+  button,
+  input,
+  select {
     border: 1px solid #3f4853;
     background: #1a212a;
     color: #eef3f8;
@@ -309,6 +414,47 @@
   .sound-badge.active {
     color: #ffd98d;
     border-color: #9a6e1d;
+  }
+
+  .settings-panel {
+    margin-top: -0.3rem;
+  }
+
+  .settings-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .check {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .settings-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .settings-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #2d333b;
+    border-radius: 10px;
+    padding: 0.65rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.45rem;
+  }
+
+  .danger {
+    border-color: #7a2f2f;
+    color: #ffb0b0;
   }
 
   button:disabled {
