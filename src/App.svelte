@@ -17,6 +17,11 @@
   const TZ = 'Asia/Seoul';
   const BUILD_VERSION = 'unknown';
 
+  interface LogItem {
+    id: string;
+    text: string;
+  }
+
   let now = dayjs().tz(TZ);
   let online = true;
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
@@ -24,9 +29,21 @@
 
   let schedules: ScheduleItem[] = getDefaultSchedules(now);
   let nextScheduleText = '-';
+  let logs: LogItem[] = [];
+  let hasPendingSound = false;
+  let alertAudio: HTMLAudioElement | null = null;
 
   function getNow() {
     return dayjs().tz(TZ);
+  }
+
+  function appendLog(text: string) {
+    const stamp = getNow().format('YYYY-MM-DD HH:mm:ss');
+    const nextItem = {
+      id: crypto.randomUUID(),
+      text: `[${stamp}] ${text}`,
+    };
+    logs = [nextItem, ...logs].slice(0, 120);
   }
 
   function updateNextSchedule() {
@@ -34,6 +51,21 @@
     nextScheduleText = nextEvent
       ? `${nextEvent.runAt.tz(TZ).format('MM-DD HH:mm')} · ${nextEvent.schedule.label}`
       : '활성 스케줄 없음';
+  }
+
+  async function playPendingSound() {
+    if (!hasPendingSound || !alertAudio) {
+      return;
+    }
+
+    try {
+      alertAudio.currentTime = 0;
+      await alertAudio.play();
+      hasPendingSound = false;
+      appendLog('사운드 수동 재생');
+    } catch {
+      appendLog('사운드 재생 실패 (브라우저 권한 확인 필요)');
+    }
   }
 
   function tickClock() {
@@ -55,7 +87,8 @@
       () => getNow(),
       () => schedules,
       ({ schedule, triggerAt }) => {
-        console.info(`[Homi Scheduler] ${schedule.label} at ${triggerAt.toISOString()}`);
+        appendLog(`${schedule.label} 이벤트 발생 (${triggerAt.tz(TZ).format('HH:mm:ss')})`);
+        hasPendingSound = true;
       },
     );
 
@@ -99,16 +132,28 @@
 
     <article class="panel">
       <h2>알림 로그</h2>
-      <p class="muted">아직 기록이 없습니다.</p>
+      {#if logs.length === 0}
+        <p class="muted">아직 기록이 없습니다.</p>
+      {:else}
+        <ul class="log-list">
+          {#each logs as entry (entry.id)}
+            <li>{entry.text}</li>
+          {/each}
+        </ul>
+      {/if}
     </article>
   </section>
 
   <footer class="panel sound-panel">
     <div>
       <h2>사운드 있음</h2>
-      <p class="muted">새 알림이 생기면 여기에서 수동 재생합니다.</p>
+      <p class="muted">{hasPendingSound ? '대기 중인 알림음이 있습니다.' : '대기 중인 알림음이 없습니다.'}</p>
     </div>
-    <button type="button" disabled>재생</button>
+    <div class="sound-controls">
+      <span class:active={hasPendingSound} class="sound-badge">{hasPendingSound ? 'ON' : 'OFF'}</span>
+      <button type="button" on:click={playPendingSound} disabled={!hasPendingSound}>재생</button>
+      <audio bind:this={alertAudio} preload="auto" src="/sounds/chime.mp3"></audio>
+    </div>
   </footer>
 </main>
 
@@ -152,6 +197,10 @@
   h1 {
     font-size: 1.25rem;
     letter-spacing: 0.04em;
+  }
+
+  h2 {
+    font-size: 1rem;
   }
 
   .status-row {
@@ -204,6 +253,7 @@
     padding: 1rem;
     display: grid;
     gap: 0.8rem;
+    align-content: start;
   }
 
   ul {
@@ -218,6 +268,12 @@
     font-size: 0.95rem;
   }
 
+  .log-list {
+    max-height: 54vh;
+    overflow: auto;
+    padding-right: 0.4rem;
+  }
+
   .muted {
     color: #8995a1;
     font-size: 0.9rem;
@@ -227,10 +283,34 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+  }
+
+  .sound-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .sound-badge {
+    border: 1px solid #4b5562;
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.75rem;
+    color: #93a0ac;
+  }
+
+  .sound-badge.active {
+    color: #ffd98d;
+    border-color: #9a6e1d;
   }
 
   button:disabled {
     opacity: 0.5;
+  }
+
+  audio {
+    display: none;
   }
 
   @media (max-width: 960px) {
@@ -246,6 +326,11 @@
 
     .status-row {
       justify-content: flex-start;
+    }
+
+    .sound-panel {
+      flex-direction: column;
+      align-items: flex-start;
     }
   }
 </style>
