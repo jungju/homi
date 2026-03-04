@@ -1,8 +1,15 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import dayjs from 'dayjs';
   import utc from 'dayjs/plugin/utc';
   import timezone from 'dayjs/plugin/timezone';
+  import {
+    SchedulerEngine,
+    findNextEvent,
+    formatSchedule,
+    getDefaultSchedules,
+    type ScheduleItem,
+  } from './lib/scheduler';
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -11,13 +18,27 @@
   const BUILD_VERSION = 'unknown';
 
   let now = dayjs().tz(TZ);
-  let online = navigator.onLine;
+  let online = true;
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
+  let scheduler: SchedulerEngine | undefined;
 
-  const todaySchedule = ['07:00 기상 알림', '09:00 오늘 일정 확인', '매시간 정각 알림'];
+  let schedules: ScheduleItem[] = getDefaultSchedules(now);
+  let nextScheduleText = '-';
+
+  function getNow() {
+    return dayjs().tz(TZ);
+  }
+
+  function updateNextSchedule() {
+    const nextEvent = findNextEvent(schedules, getNow());
+    nextScheduleText = nextEvent
+      ? `${nextEvent.runAt.tz(TZ).format('MM-DD HH:mm')} · ${nextEvent.schedule.label}`
+      : '활성 스케줄 없음';
+  }
 
   function tickClock() {
-    now = dayjs().tz(TZ);
+    now = getNow();
+    updateNextSchedule();
     clockTimer = setTimeout(tickClock, 1000);
   }
 
@@ -25,14 +46,30 @@
     online = navigator.onLine;
   }
 
-  tickClock();
-  window.addEventListener('online', handleOnline);
-  window.addEventListener('offline', handleOnline);
+  onMount(() => {
+    online = navigator.onLine;
+    updateNextSchedule();
+    tickClock();
+
+    scheduler = new SchedulerEngine(
+      () => getNow(),
+      () => schedules,
+      ({ schedule, triggerAt }) => {
+        console.info(`[Homi Scheduler] ${schedule.label} at ${triggerAt.toISOString()}`);
+      },
+    );
+
+    scheduler.start();
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOnline);
+  });
 
   onDestroy(() => {
     if (clockTimer) {
       clearTimeout(clockTimer);
     }
+    scheduler?.stop();
     window.removeEventListener('online', handleOnline);
     window.removeEventListener('offline', handleOnline);
   });
@@ -52,9 +89,10 @@
   <section class="content-grid">
     <article class="panel">
       <h2>오늘 일정</h2>
+      <p class="muted">다음 이벤트: {nextScheduleText}</p>
       <ul>
-        {#each todaySchedule as item}
-          <li>{item}</li>
+        {#each schedules as item}
+          <li>{formatSchedule(item)}</li>
         {/each}
       </ul>
     </article>
