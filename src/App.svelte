@@ -131,7 +131,7 @@
     </article>
 
     <article class="panel">
-      <h2>알림 로그</h2>
+      <h2>알림 로그 {#if soundPending}<span class="pending-dot">●</span>{/if}</h2>
       {#if logs.length === 0}
         <p class="muted">아직 기록이 없습니다.</p>
       {:else}
@@ -272,6 +272,12 @@
     max-height: 54vh;
     overflow: auto;
     padding-right: 0.4rem;
+  }
+
+  .pending-dot {
+    margin-left: 0.4rem;
+    color: #ff8a8a;
+    font-size: 0.85rem;
   }
 
   .muted {
