@@ -24,7 +24,7 @@
   let schedules: ScheduleItem[] = [];
   let hasPendingSound = false;
   let speaking = false;
-  let speech = '안녕하세요. Homi 준비 완료.';
+  let speech = '윤솔아 얼른 씻어. 오늘 일찍 자고.';
 
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
   let versionTimer: ReturnType<typeof setTimeout> | undefined;
@@ -33,16 +33,16 @@
   let scheduler: SchedulerEngine | undefined;
 
   const englishLines = [
-    'You are doing great today.',
-    'Keep going, one step at a time.',
-    'Take a deep breath and smile.',
-    'You have got this.',
-    'Let us make this minute count.',
-    'Stay curious and stay kind.',
-    'Small progress is still progress.',
-    'Your future self will thank you.',
-    'Focus on what matters now.',
-    'Great energy. Keep moving.'
+    '윤솔아 얼른 씻어. 오늘 일찍 자고.',
+    '윤솔아, 오늘도 정말 잘하고 있어.',
+    '숙제 10분만 집중하고 쉬자.',
+    '가방 챙기고 내일 준비 미리 하자.',
+    '양치하고 물 한 잔 마시면 완벽해.',
+    '조금씩 해도 충분히 멋진 발전이야.',
+    '오늘 있었던 좋은 일 하나만 떠올려 보자.',
+    '지금은 쉬는 시간, 몸을 쭉 펴 보자.',
+    '일찍 자면 내일 더 힘이 나!',
+    '윤솔이는 소중하고 멋진 아이야.'
   ];
   function getNow() {
     return dayjs().tz(TZ);
