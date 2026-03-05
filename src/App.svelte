@@ -16,6 +16,12 @@
     commit: string;
   }
 
+  interface StoryLine {
+    text: string;
+    photo: '/photos/yunsol.jpg' | '/photos/dad.jpg';
+    alt: string;
+  }
+
   let now = dayjs().tz(TZ);
   let online = true;
   let buildVersion = BUILD_VERSION;
@@ -26,6 +32,8 @@
   let speaking = false;
   let speech = '윤솔아 얼른 씻어. 오늘 일찍 자고.';
   let showPhoto = false;
+  let currentPhotoSrc: '/photos/yunsol.jpg' | '/photos/dad.jpg' = '/photos/yunsol.jpg';
+  let currentPhotoAlt = '윤솔 사진';
 
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
   let versionTimer: ReturnType<typeof setTimeout> | undefined;
@@ -34,17 +42,53 @@
   let photoTimer: ReturnType<typeof setTimeout> | undefined;
   let scheduler: SchedulerEngine | undefined;
 
-  const storyLines = [
-    '윤솔아 얼른 씻어. 오늘 일찍 자고.',
-    '사진 속 윤솔이 표정은 에너지가 넘쳐서 보는 사람도 웃게 해.',
-    '오늘의 윤솔이는 씩씩한 탐험가 같아. 눈빛이 반짝반짝해.',
-    '이 표정은 하고 싶은 말이 가득한 표정이야. 너무 사랑스럽다.',
-    '윤솔아, 가방 챙기고 단정히 준비하면 내일 아침이 훨씬 편해.',
-    '윤솔이는 소중하고 멋진 아이야. 천천히 해도 괜찮아.',
-    '작은 습관이 큰 힘이 돼. 양치하고 물 한 잔 마시자.',
-    '오늘 있었던 좋은 일 하나만 말해볼래? 그게 오늘의 보물이야.',
-    '일찍 자면 내일 더 똑똑하고 더 기분 좋게 시작할 수 있어.',
-    '윤솔아, 오늘도 최고야. 잘했고, 지금도 충분히 멋져.'
+  const storyLines: StoryLine[] = [
+    { text: '윤솔아 얼른 씻어. 오늘 일찍 자고.', photo: '/photos/yunsol.jpg', alt: '윤솔 사진' },
+    {
+      text: '사진 속 윤솔이 표정은 에너지가 넘쳐서 보는 사람도 웃게 해.',
+      photo: '/photos/yunsol.jpg',
+      alt: '윤솔 사진'
+    },
+    {
+      text: '오늘의 윤솔이는 씩씩한 탐험가 같아. 눈빛이 반짝반짝해.',
+      photo: '/photos/yunsol.jpg',
+      alt: '윤솔 사진'
+    },
+    {
+      text: '이 표정은 하고 싶은 말이 가득한 표정이야. 너무 사랑스럽다.',
+      photo: '/photos/yunsol.jpg',
+      alt: '윤솔 사진'
+    },
+    {
+      text: '윤솔아, 가방 챙기고 단정히 준비하면 내일 아침이 훨씬 편해.',
+      photo: '/photos/yunsol.jpg',
+      alt: '윤솔 사진'
+    },
+    {
+      text: '윤솔이는 소중하고 멋진 아이야. 천천히 해도 괜찮아.',
+      photo: '/photos/yunsol.jpg',
+      alt: '윤솔 사진'
+    },
+    {
+      text: '윤솔이 아빠 표정이 정말 따뜻하고 유쾌해요. 웃는 모습이 너무 좋아요.',
+      photo: '/photos/dad.jpg',
+      alt: '윤솔이 아빠 사진'
+    },
+    {
+      text: '자연스럽고 자신감 있는 미소가 가족을 편안하게 해주는 얼굴이에요.',
+      photo: '/photos/dad.jpg',
+      alt: '윤솔이 아빠 사진'
+    },
+    {
+      text: '오늘도 수고 많았어요. 이 미소처럼 가볍게 마무리해요.',
+      photo: '/photos/dad.jpg',
+      alt: '윤솔이 아빠 사진'
+    },
+    {
+      text: '아빠의 따뜻한 표정이 아이에게 든든함을 주는 최고의 신호예요.',
+      photo: '/photos/dad.jpg',
+      alt: '윤솔이 아빠 사진'
+    }
   ];
   function getNow() {
     return dayjs().tz(TZ);
@@ -109,8 +153,10 @@
   }
 
   function speakStoryEveryMinute() {
-    const base = storyLines[Math.floor(Math.random() * storyLines.length)];
-    const line = `${base} 웃는 모습이 너무 좋아.`;
+    const pick = storyLines[Math.floor(Math.random() * storyLines.length)];
+    const line = `${pick.text} 웃는 모습이 너무 좋아.`;
+    currentPhotoSrc = pick.photo;
+    currentPhotoAlt = pick.alt;
     showPhoto = true;
     if (photoTimer) clearTimeout(photoTimer);
     photoTimer = setTimeout(() => {
@@ -198,7 +244,7 @@
 
     {#if showPhoto}
       <div class="photo-card">
-        <img src="/photos/yunsol.jpg" alt="윤솔 사진" />
+        <img src={currentPhotoSrc} alt={currentPhotoAlt} />
       </div>
     {/if}
   </section>
