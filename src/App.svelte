@@ -29,8 +29,21 @@
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
   let versionTimer: ReturnType<typeof setTimeout> | undefined;
   let speakTimer: ReturnType<typeof setTimeout> | undefined;
+  let englishTimer: ReturnType<typeof setTimeout> | undefined;
   let scheduler: SchedulerEngine | undefined;
 
+  const englishLines = [
+    'You are doing great today.',
+    'Keep going, one step at a time.',
+    'Take a deep breath and smile.',
+    'You have got this.',
+    'Let us make this minute count.',
+    'Stay curious and stay kind.',
+    'Small progress is still progress.',
+    'Your future self will thank you.',
+    'Focus on what matters now.',
+    'Great energy. Keep moving.'
+  ];
   function getNow() {
     return dayjs().tz(TZ);
   }
@@ -47,7 +60,7 @@
   function speakOut(message: string) {
     if (!('speechSynthesis' in window)) return;
     const utter = new SpeechSynthesisUtterance(message);
-    utter.lang = 'ko-KR';
+    utter.lang = /[가-힣]/.test(message) ? 'ko-KR' : 'en-US';
     utter.rate = 1;
     utter.pitch = 1;
     window.speechSynthesis.cancel();
@@ -87,12 +100,19 @@
     setSpeech(online ? '연결 상태 양호.' : '네트워크 연결이 끊겼어요.');
   }
 
+  function speakEnglishEveryMinute() {
+    const line = englishLines[Math.floor(Math.random() * englishLines.length)];
+    setSpeech(line);
+    speakOut(line);
+    englishTimer = setTimeout(speakEnglishEveryMinute, 60_000);
+  }
   onMount(() => {
     online = navigator.onLine;
     schedules = getDefaultSchedules(getNow());
 
     tickClock();
     pollVersionLoop();
+    englishTimer = setTimeout(speakEnglishEveryMinute, 60_000);
 
     const next = findNextEvent(schedules, getNow());
     if (next) setSpeech(`다음 일정: ${next.schedule.label}`);
@@ -122,6 +142,7 @@
     if (clockTimer) clearTimeout(clockTimer);
     if (versionTimer) clearTimeout(versionTimer);
     if (speakTimer) clearTimeout(speakTimer);
+    if (englishTimer) clearTimeout(englishTimer);
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     scheduler?.stop();
     window.removeEventListener('online', handleOnline);
