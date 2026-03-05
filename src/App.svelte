@@ -16,12 +16,6 @@
     commit: string;
   }
 
-  interface StoryLine {
-    text: string;
-    photo?: '/photos/yunsol.jpg' | '/photos/dad.jpg' | '/photos/study.jpg';
-    alt?: string;
-  }
-
   let now = dayjs().tz(TZ);
   let online = true;
   let buildVersion = BUILD_VERSION;
@@ -30,50 +24,25 @@
   let schedules: ScheduleItem[] = [];
   let hasPendingSound = false;
   let speaking = false;
-  let speech = '윤솔아 얼른 씻어. 오늘 일찍 자고.';
-  let showPhoto = false;
-  let currentPhotoSrc: '/photos/yunsol.jpg' | '/photos/dad.jpg' | '/photos/study.jpg' = '/photos/yunsol.jpg';
-  let currentPhotoAlt = '윤솔 사진';
+  let speech = 'Ready.';
 
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
   let versionTimer: ReturnType<typeof setTimeout> | undefined;
   let speakTimer: ReturnType<typeof setTimeout> | undefined;
   let storyTimer: ReturnType<typeof setTimeout> | undefined;
-  let photoTimer: ReturnType<typeof setTimeout> | undefined;
   let scheduler: SchedulerEngine | undefined;
 
-  const storyLines: StoryLine[] = [
-    { text: 'Time to wash up and get ready for bed. || 얼른 씻고 잘 준비하자.' },
-    { text: 'Pack your school bag now. || 지금 가방 챙기자.' },
-    { text: 'You are doing great today. || 오늘도 정말 잘하고 있어.' },
-    { text: 'Let us focus for ten minutes. || 10분만 집중해서 공부하자.' },
-    { text: 'Great job. Keep going. || 아주 잘했어, 계속 해보자.' },
-    {
-      text: 'I can see your study book clearly. Great effort. || 공부하는 모습이 정말 멋져. 집중력이 좋아.',
-      photo: '/photos/study.jpg',
-      alt: '공부하는 사진'
-    },
-    {
-      text: 'Agree means to have the same opinion. || agree는 동의하다는 뜻이야.',
-      photo: '/photos/study.jpg',
-      alt: '공부 단어 사진'
-    },
-    {
-      text: 'Classroom means a room for learning. || classroom은 교실이라는 뜻이야.',
-      photo: '/photos/study.jpg',
-      alt: '공부 단어 사진'
-    },
-    {
-      text: 'Yunsol looks full of bright energy. || 윤솔이 표정이 에너지 넘치고 너무 사랑스러워.',
-      photo: '/photos/yunsol.jpg',
-      alt: '윤솔 사진'
-    },
-    {
-      text: 'Dad has a warm and kind smile. || 아빠의 따뜻한 미소가 정말 좋아요.',
-      photo: '/photos/dad.jpg',
-      alt: '윤솔이 아빠 사진'
-    }
+  const storyLines = [
+    'Time to wash up and get ready for bed. || 얼른 씻고 잘 준비하자.',
+    'Pack your school bag now. || 지금 가방 챙기자.',
+    'You are doing great today. || 오늘도 정말 잘하고 있어.',
+    'Let us focus for ten minutes. || 10분만 집중해서 공부하자.',
+    'Great job. Keep going. || 아주 잘했어, 계속 해보자.',
+    'Agree means to have the same opinion. || agree는 동의하다는 뜻이야.',
+    'Classroom means a room for learning. || classroom은 교실이라는 뜻이야.',
+    'Early sleep gives you more energy. || 일찍 자면 내일 더 힘이 나.'
   ];
+
   function getNow() {
     return dayjs().tz(TZ);
   }
@@ -82,9 +51,7 @@
     speech = message.replace(' || ', ' / ');
     speaking = true;
     if (speakTimer) clearTimeout(speakTimer);
-    speakTimer = setTimeout(() => {
-      speaking = false;
-    }, 2800);
+    speakTimer = setTimeout(() => (speaking = false), 2800);
   }
 
   function speakOut(message: string) {
@@ -95,14 +62,8 @@
       const [en, ko] = message.split(' || ');
       const enUtter = new SpeechSynthesisUtterance(en.trim());
       enUtter.lang = 'en-US';
-      enUtter.rate = 1;
-      enUtter.pitch = 1;
-
       const koUtter = new SpeechSynthesisUtterance(ko.trim());
       koUtter.lang = 'ko-KR';
-      koUtter.rate = 1;
-      koUtter.pitch = 1;
-
       enUtter.onend = () => window.speechSynthesis.speak(koUtter);
       window.speechSynthesis.speak(enUtter);
       return;
@@ -110,8 +71,6 @@
 
     const utter = new SpeechSynthesisUtterance(message);
     utter.lang = /[가-힣]/.test(message) ? 'ko-KR' : 'en-US';
-    utter.rate = 1;
-    utter.pitch = 1;
     window.speechSynthesis.speak(utter);
   }
 
@@ -120,12 +79,10 @@
       const res = await fetch(`version.json?ts=${Date.now()}`);
       if (!res.ok) return;
       const payload = (await res.json()) as VersionInfo;
-
       if (payload.commit && versionInfo?.commit && payload.commit !== versionInfo.commit) {
         location.reload();
         return;
       }
-
       versionInfo = payload;
       buildVersion = payload.commit?.slice(0, 7) || BUILD_VERSION;
     } catch {
@@ -139,9 +96,7 @@
   }
 
   function handleVisibilityOrFocus() {
-    if (!document.hidden) {
-      fetchVersion();
-    }
+    if (!document.hidden) fetchVersion();
   }
 
   function tickClock() {
@@ -155,25 +110,12 @@
   }
 
   function speakStoryEveryMinute() {
-    const pick = storyLines[Math.floor(Math.random() * storyLines.length)];
-    const line = pick.text;
-
-    if (pick.photo) {
-      currentPhotoSrc = pick.photo;
-      currentPhotoAlt = pick.alt ?? '사진';
-      showPhoto = true;
-      if (photoTimer) clearTimeout(photoTimer);
-      photoTimer = setTimeout(() => {
-        showPhoto = false;
-      }, 9000);
-    } else {
-      showPhoto = false;
-    }
-
+    const line = storyLines[Math.floor(Math.random() * storyLines.length)];
     setSpeech(line);
     speakOut(line);
     storyTimer = setTimeout(speakStoryEveryMinute, 60_000);
   }
+
   onMount(() => {
     online = navigator.onLine;
     schedules = getDefaultSchedules(getNow());
@@ -199,7 +141,6 @@
         }
       }
     );
-
     scheduler.start();
 
     window.addEventListener('online', handleOnline);
@@ -213,7 +154,6 @@
     if (versionTimer) clearTimeout(versionTimer);
     if (speakTimer) clearTimeout(speakTimer);
     if (storyTimer) clearTimeout(storyTimer);
-    if (photoTimer) clearTimeout(photoTimer);
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     scheduler?.stop();
     window.removeEventListener('online', handleOnline);
@@ -248,232 +188,31 @@
     <div class="speech-bubble">
       <p>{speech}</p>
     </div>
-
-    {#if showPhoto}
-      <div class="photo-card">
-        <img src={currentPhotoSrc} alt={currentPhotoAlt} />
-      </div>
-    {/if}
   </section>
 </main>
 
 <style>
-  :global(body) {
-    margin: 0;
-    min-height: 100vh;
-    background: radial-gradient(circle at 50% 20%, #cce6ff 0%, #8fc9ff 55%, #5ea8f0 100%);
-    color: #10233f;
-    overflow: hidden;
-    user-select: none;
-  }
-
-  :global(#app) {
-    min-height: 100vh;
-  }
-
-  .stage {
-    min-height: 100vh;
-    display: grid;
-    grid-template-rows: auto 1fr;
-    gap: 1rem;
-    padding: 1rem;
-    font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-  }
-
-  .topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #7cb9f3;
-    border-radius: 16px;
-    padding: 0.8rem 1rem;
-    background: rgba(244, 250, 255, 0.86);
-  }
-
-  h1,
-  p {
-    margin: 0;
-  }
-
-  .status-row {
-    display: flex;
-    gap: 0.45rem;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  .time {
-    color: #b9cae5;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-  }
-
-  .badge {
-    border: 1px solid #7baee3;
-    border-radius: 999px;
-    padding: 0.15rem 0.55rem;
-    font-size: 0.72rem;
-    color: #1f426d;
-    background: rgba(255, 255, 255, 0.7);
-  }
-
-  .online {
-    border-color: #2d8f63;
-    color: #9dffca;
-  }
-
-  .pending {
-    border-color: #936125;
-    color: #ffd89b;
-  }
-
-  .face-wrap {
-    position: relative;
-    display: grid;
-    place-items: center;
-    min-height: 0;
-  }
-
-  .halo {
-    position: absolute;
-    width: min(72vw, 680px);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(120, 196, 255, 0.15));
-    filter: blur(3px);
-    animation: pulse 4s ease-in-out infinite;
-  }
-
-  .face {
-    z-index: 1;
-    width: min(58vw, 520px);
-    aspect-ratio: 1 / 0.78;
-    border-radius: 26px;
-    border: 1px solid #72b7f5;
-    background: linear-gradient(180deg, rgba(236, 247, 255, 0.98), rgba(206, 232, 255, 0.96));
-    box-shadow: inset 0 0 42px rgba(255, 255, 255, 0.55);
-    display: grid;
-    grid-template-rows: 1fr auto;
-    padding: 1.2rem;
-  }
-
-  .eyes {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    gap: 1.2rem;
-  }
-
-  .eye {
-    height: min(16vw, 120px);
-    border-radius: 16px;
-    border: 1px solid #7bb9ef;
-    background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.98), rgba(157, 214, 255, 0.55));
-    display: grid;
-    place-items: center;
-    animation: blink 6s infinite;
-  }
-
-  .pupil {
-    width: 22%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: #0b1d3a;
-    box-shadow: 0 0 22px rgba(8, 26, 58, 0.9);
-  }
-
-  .mouth {
-    justify-self: center;
-    width: 42%;
-    height: 12px;
-    border-radius: 999px;
-    background: #8db5f8;
-    opacity: 0.85;
-    transition: all 0.25s ease;
-  }
-
-  .speaking .mouth {
-    height: 28px;
-    border-radius: 14px;
-    background: #9cc5ff;
-    box-shadow: 0 0 18px rgba(156, 197, 255, 0.4);
-  }
-
-  .mouth.alert {
-    background: #ffd08b;
-    box-shadow: 0 0 18px rgba(255, 204, 128, 0.4);
-  }
-
-  .speech-bubble {
-    z-index: 2;
-    margin-top: 1rem;
-    width: min(72vw, 760px);
-    border: 1px solid #7bb0e8;
-    border-radius: 16px;
-    padding: 0.85rem 1rem;
-    background: rgba(255, 255, 255, 0.84);
-    font-size: clamp(1rem, 1.6vw, 1.25rem);
-    text-align: center;
-    color: #123a63;
-  }
-
-  .photo-card {
-    position: absolute;
-    z-index: 4;
-    left: 50%;
-    top: 52%;
-    transform: translate(-50%, -50%);
-    width: min(58vw, 460px);
-    border: 2px solid #7bb0e8;
-    border-radius: 18px;
-    padding: 0.35rem;
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 14px 34px rgba(24, 62, 107, 0.32);
-  }
-
-  .photo-card img {
-    width: 100%;
-    display: block;
-    border-radius: 10px;
-  }
-
-  @keyframes blink {
-    0%,
-    47%,
-    52%,
-    100% {
-      transform: scaleY(1);
-    }
-    49% {
-      transform: scaleY(0.06);
-    }
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      transform: scale(1);
-      opacity: 0.7;
-    }
-    50% {
-      transform: scale(1.04);
-      opacity: 1;
-    }
-  }
-
-  @media (max-width: 960px) {
-    .topbar {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .status-row {
-      justify-content: flex-start;
-    }
-
-    .face {
-      width: min(90vw, 520px);
-    }
-  }
+  :global(body) { margin:0; min-height:100vh; background: radial-gradient(circle at 50% 20%, #cce6ff 0%, #8fc9ff 55%, #5ea8f0 100%); color:#10233f; overflow:hidden; user-select:none; }
+  :global(#app) { min-height:100vh; }
+  .stage { min-height:100vh; display:grid; grid-template-rows:auto 1fr; gap:1rem; padding:1rem; font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; border:1px solid #7cb9f3; border-radius:16px; padding:.8rem 1rem; background:rgba(244,250,255,.86); }
+  h1,p { margin:0; }
+  .status-row { display:flex; gap:.45rem; flex-wrap:wrap; justify-content:flex-end; }
+  .time { color:#b9cae5; font-weight:600; letter-spacing:.03em; }
+  .badge { border:1px solid #7baee3; border-radius:999px; padding:.15rem .55rem; font-size:.72rem; color:#1f426d; background:rgba(255,255,255,.7); }
+  .online { border-color:#2d8f63; color:#167e4f; }
+  .pending { border-color:#936125; color:#7e4b12; }
+  .face-wrap { position:relative; display:grid; place-items:center; min-height:0; }
+  .halo { position:absolute; width:min(72vw,680px); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.9), rgba(120,196,255,.15)); filter:blur(3px); animation:pulse 4s ease-in-out infinite; }
+  .face { z-index:1; width:min(58vw,520px); aspect-ratio:1/.78; border-radius:26px; border:1px solid #72b7f5; background:linear-gradient(180deg, rgba(236,247,255,.98), rgba(206,232,255,.96)); box-shadow:inset 0 0 42px rgba(255,255,255,.55); display:grid; grid-template-rows:1fr auto; padding:1.2rem; }
+  .eyes { display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:1.2rem; }
+  .eye { height:min(16vw,120px); border-radius:16px; border:1px solid #7bb9ef; background:radial-gradient(circle at 50% 35%, rgba(255,255,255,.98), rgba(157,214,255,.55)); display:grid; place-items:center; animation:blink 6s infinite; }
+  .pupil { width:22%; aspect-ratio:1; border-radius:50%; background:#0b1d3a; box-shadow:0 0 22px rgba(8,26,58,.9); }
+  .mouth { justify-self:center; width:42%; height:12px; border-radius:999px; background:#8db5f8; opacity:.85; transition:all .25s ease; }
+  .speaking .mouth { height:28px; border-radius:14px; background:#9cc5ff; box-shadow:0 0 18px rgba(156,197,255,.4); }
+  .mouth.alert { background:#ffd08b; box-shadow:0 0 18px rgba(255,204,128,.4); }
+  .speech-bubble { z-index:2; margin-top:1rem; width:min(72vw,760px); border:1px solid #7bb0e8; border-radius:16px; padding:.85rem 1rem; background:rgba(255,255,255,.84); font-size:clamp(1rem,1.6vw,1.25rem); text-align:center; color:#123a63; }
+  @keyframes blink {0%,47%,52%,100%{transform:scaleY(1)}49%{transform:scaleY(.06)}}
+  @keyframes pulse {0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.04);opacity:1}}
+  @media (max-width:960px){ .topbar{flex-direction:column;align-items:flex-start;gap:.5rem}.status-row{justify-content:flex-start}.face{width:min(90vw,520px)} }
 </style>
