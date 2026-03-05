@@ -192,8 +192,8 @@
   :global(body) {
     margin: 0;
     min-height: 100vh;
-    background: radial-gradient(circle at 50% 20%, #1f3354 0%, #0a0f17 60%);
-    color: #eaf2ff;
+    background: radial-gradient(circle at 50% 20%, #cce6ff 0%, #8fc9ff 55%, #5ea8f0 100%);
+    color: #10233f;
     overflow: hidden;
     user-select: none;
   }
@@ -215,10 +215,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid #35507a;
+    border: 1px solid #7cb9f3;
     border-radius: 16px;
     padding: 0.8rem 1rem;
-    background: rgba(9, 14, 24, 0.82);
+    background: rgba(244, 250, 255, 0.86);
   }
 
   h1,
@@ -240,11 +240,12 @@
   }
 
   .badge {
-    border: 1px solid #4f6991;
+    border: 1px solid #7baee3;
     border-radius: 999px;
     padding: 0.15rem 0.55rem;
     font-size: 0.72rem;
-    color: #d7e6ff;
+    color: #1f426d;
+    background: rgba(255, 255, 255, 0.7);
   }
 
   .online {
@@ -269,8 +270,8 @@
     width: min(72vw, 680px);
     aspect-ratio: 1;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(98, 161, 255, 0.22), rgba(11, 17, 28, 0));
-    filter: blur(4px);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(120, 196, 255, 0.15));
+    filter: blur(3px);
     animation: pulse 4s ease-in-out infinite;
   }
 
@@ -279,9 +280,9 @@
     width: min(58vw, 520px);
     aspect-ratio: 1 / 0.78;
     border-radius: 26px;
-    border: 1px solid #406194;
-    background: linear-gradient(180deg, rgba(20, 34, 58, 0.95), rgba(9, 15, 24, 0.96));
-    box-shadow: inset 0 0 42px rgba(75, 132, 230, 0.22);
+    border: 1px solid #72b7f5;
+    background: linear-gradient(180deg, rgba(236, 247, 255, 0.98), rgba(206, 232, 255, 0.96));
+    box-shadow: inset 0 0 42px rgba(255, 255, 255, 0.55);
     display: grid;
     grid-template-rows: 1fr auto;
     padding: 1.2rem;
@@ -297,8 +298,8 @@
   .eye {
     height: min(16vw, 120px);
     border-radius: 16px;
-    border: 1px solid #4f6ea0;
-    background: radial-gradient(circle at 50% 35%, rgba(129, 196, 255, 0.88), rgba(28, 63, 114, 0.35));
+    border: 1px solid #7bb9ef;
+    background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.98), rgba(157, 214, 255, 0.55));
     display: grid;
     place-items: center;
     animation: blink 6s infinite;
@@ -338,13 +339,13 @@
     z-index: 2;
     margin-top: 1rem;
     width: min(72vw, 760px);
-    border: 1px solid #3f5d8d;
+    border: 1px solid #7bb0e8;
     border-radius: 16px;
     padding: 0.85rem 1rem;
-    background: rgba(10, 16, 27, 0.88);
+    background: rgba(255, 255, 255, 0.84);
     font-size: clamp(1rem, 1.6vw, 1.25rem);
     text-align: center;
-    color: #e2ecff;
+    color: #123a63;
   }
 
   @keyframes blink {
