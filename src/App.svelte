@@ -25,6 +25,7 @@
   let hasPendingSound = false;
   let speaking = false;
   let speech = '윤솔아 얼른 씻어. 오늘 일찍 자고.';
+  let showPhoto = true;
 
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
   let versionTimer: ReturnType<typeof setTimeout> | undefined;
@@ -50,6 +51,7 @@
 
   function setSpeech(message: string) {
     speech = message;
+    showPhoto = /윤솔|사진/.test(message);
     speaking = true;
     if (speakTimer) clearTimeout(speakTimer);
     speakTimer = setTimeout(() => {
@@ -185,6 +187,12 @@
     <div class="speech-bubble">
       <p>{speech}</p>
     </div>
+
+    {#if showPhoto}
+      <div class="photo-card">
+        <img src="/photos/yunsol.jpg" alt="윤솔 사진" />
+      </div>
+    {/if}
   </section>
 </main>
 
@@ -346,6 +354,23 @@
     font-size: clamp(1rem, 1.6vw, 1.25rem);
     text-align: center;
     color: #123a63;
+  }
+
+  .photo-card {
+    z-index: 2;
+    margin-top: 0.7rem;
+    width: min(34vw, 240px);
+    border: 1px solid #7bb0e8;
+    border-radius: 14px;
+    padding: 0.3rem;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 8px 20px rgba(24, 62, 107, 0.2);
+  }
+
+  .photo-card img {
+    width: 100%;
+    display: block;
+    border-radius: 10px;
   }
 
   @keyframes blink {
