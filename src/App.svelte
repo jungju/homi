@@ -18,7 +18,7 @@
 
   interface StoryLine {
     text: string;
-    photo?: '/photos/yunsol.jpg' | '/photos/dad.jpg';
+    photo?: '/photos/yunsol.jpg' | '/photos/dad.jpg' | '/photos/study.jpg';
     alt?: string;
   }
 
@@ -32,7 +32,7 @@
   let speaking = false;
   let speech = '윤솔아 얼른 씻어. 오늘 일찍 자고.';
   let showPhoto = false;
-  let currentPhotoSrc: '/photos/yunsol.jpg' | '/photos/dad.jpg' = '/photos/yunsol.jpg';
+  let currentPhotoSrc: '/photos/yunsol.jpg' | '/photos/dad.jpg' | '/photos/study.jpg' = '/photos/yunsol.jpg';
   let currentPhotoAlt = '윤솔 사진';
 
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
@@ -43,33 +43,33 @@
   let scheduler: SchedulerEngine | undefined;
 
   const storyLines: StoryLine[] = [
-    { text: '윤솔아 얼른 씻어. 오늘 일찍 자고.' },
-    { text: '가방 챙기고 내일 준비 미리 하자.' },
-    { text: '양치하고 물 한 잔 마시면 완벽해.' },
-    { text: 'You are doing great. Keep smiling.' },
-    { text: 'Great job today. Let us rest early tonight.' },
+    { text: 'Time to wash up and get ready for bed. || 얼른 씻고 잘 준비하자.' },
+    { text: 'Pack your school bag now. || 지금 가방 챙기자.' },
+    { text: 'You are doing great today. || 오늘도 정말 잘하고 있어.' },
+    { text: 'Let us focus for ten minutes. || 10분만 집중해서 공부하자.' },
+    { text: 'Great job. Keep going. || 아주 잘했어, 계속 해보자.' },
     {
-      text: '사진 속 윤솔이 표정은 에너지가 넘쳐서 보는 사람도 웃게 해. 웃는 모습이 너무 좋아.',
+      text: 'I can see your study book clearly. Great effort. || 공부하는 모습이 정말 멋져. 집중력이 좋아.',
+      photo: '/photos/study.jpg',
+      alt: '공부하는 사진'
+    },
+    {
+      text: 'Agree means to have the same opinion. || agree는 동의하다는 뜻이야.',
+      photo: '/photos/study.jpg',
+      alt: '공부 단어 사진'
+    },
+    {
+      text: 'Classroom means a room for learning. || classroom은 교실이라는 뜻이야.',
+      photo: '/photos/study.jpg',
+      alt: '공부 단어 사진'
+    },
+    {
+      text: 'Yunsol looks full of bright energy. || 윤솔이 표정이 에너지 넘치고 너무 사랑스러워.',
       photo: '/photos/yunsol.jpg',
       alt: '윤솔 사진'
     },
     {
-      text: '오늘의 윤솔이는 씩씩한 탐험가 같아. 눈빛이 반짝반짝해.',
-      photo: '/photos/yunsol.jpg',
-      alt: '윤솔 사진'
-    },
-    {
-      text: '윤솔이 아빠 표정이 정말 따뜻하고 유쾌해요. 웃는 모습이 너무 좋아요.',
-      photo: '/photos/dad.jpg',
-      alt: '윤솔이 아빠 사진'
-    },
-    {
-      text: '자연스럽고 자신감 있는 미소가 가족을 편안하게 해주는 얼굴이에요.',
-      photo: '/photos/dad.jpg',
-      alt: '윤솔이 아빠 사진'
-    },
-    {
-      text: '오늘도 수고 많았어요. 이 미소처럼 가볍게 마무리해요.',
+      text: 'Dad has a warm and kind smile. || 아빠의 따뜻한 미소가 정말 좋아요.',
       photo: '/photos/dad.jpg',
       alt: '윤솔이 아빠 사진'
     }
@@ -79,7 +79,7 @@
   }
 
   function setSpeech(message: string) {
-    speech = message;
+    speech = message.replace(' || ', ' / ');
     speaking = true;
     if (speakTimer) clearTimeout(speakTimer);
     speakTimer = setTimeout(() => {
@@ -89,11 +89,29 @@
 
   function speakOut(message: string) {
     if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    if (message.includes(' || ')) {
+      const [en, ko] = message.split(' || ');
+      const enUtter = new SpeechSynthesisUtterance(en.trim());
+      enUtter.lang = 'en-US';
+      enUtter.rate = 1;
+      enUtter.pitch = 1;
+
+      const koUtter = new SpeechSynthesisUtterance(ko.trim());
+      koUtter.lang = 'ko-KR';
+      koUtter.rate = 1;
+      koUtter.pitch = 1;
+
+      enUtter.onend = () => window.speechSynthesis.speak(koUtter);
+      window.speechSynthesis.speak(enUtter);
+      return;
+    }
+
     const utter = new SpeechSynthesisUtterance(message);
     utter.lang = /[가-힣]/.test(message) ? 'ko-KR' : 'en-US';
     utter.rate = 1;
     utter.pitch = 1;
-    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utter);
   }
 
