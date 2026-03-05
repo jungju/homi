@@ -3,24 +3,13 @@
   import dayjs from 'dayjs';
   import utc from 'dayjs/plugin/utc';
   import timezone from 'dayjs/plugin/timezone';
-  import {
-    SchedulerEngine,
-    findNextEvent,
-    formatSchedule,
-    getDefaultSchedules,
-    type ScheduleItem
-  } from './lib/scheduler';
+  import { SchedulerEngine, findNextEvent, getDefaultSchedules, type ScheduleItem } from './lib/scheduler';
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
 
   const TZ = 'Asia/Seoul';
   const BUILD_VERSION = 'unknown';
-
-  interface LogItem {
-    id: string;
-    text: string;
-  }
 
   interface VersionInfo {
     buildTime: string;
@@ -33,28 +22,26 @@
   let versionInfo: VersionInfo | null = null;
 
   let schedules: ScheduleItem[] = [];
-  let nextScheduleText = '-';
-  let logs: LogItem[] = [];
   let hasPendingSound = false;
+  let speaking = false;
+  let speech = '안녕하세요. Homi 준비 완료.';
 
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
   let versionTimer: ReturnType<typeof setTimeout> | undefined;
+  let speakTimer: ReturnType<typeof setTimeout> | undefined;
   let scheduler: SchedulerEngine | undefined;
 
   function getNow() {
     return dayjs().tz(TZ);
   }
 
-  function appendLog(text: string) {
-    const stamp = getNow().format('YYYY-MM-DD HH:mm:ss');
-    logs = [{ id: crypto.randomUUID(), text: `[${stamp}] ${text}` }, ...logs].slice(0, 120);
-  }
-
-  function updateNextSchedule() {
-    const nextEvent = findNextEvent(schedules, getNow());
-    nextScheduleText = nextEvent
-      ? `${nextEvent.runAt.tz(TZ).format('MM-DD HH:mm')} · ${nextEvent.schedule.label}`
-      : '활성 스케줄 없음';
+  function setSpeech(message: string) {
+    speech = message;
+    speaking = true;
+    if (speakTimer) clearTimeout(speakTimer);
+    speakTimer = setTimeout(() => {
+      speaking = false;
+    }, 2800);
   }
 
   async function fetchVersion() {
@@ -82,32 +69,33 @@
 
   function tickClock() {
     now = getNow();
-    updateNextSchedule();
     clockTimer = setTimeout(tickClock, 1000);
   }
 
   function handleOnline() {
     online = navigator.onLine;
+    setSpeech(online ? '연결 상태 양호.' : '네트워크 연결이 끊겼어요.');
   }
 
   onMount(() => {
     online = navigator.onLine;
     schedules = getDefaultSchedules(getNow());
 
-    updateNextSchedule();
     tickClock();
     pollVersionLoop();
+
+    const next = findNextEvent(schedules, getNow());
+    if (next) setSpeech(`다음 일정: ${next.schedule.label}`);
 
     scheduler = new SchedulerEngine(
       () => getNow(),
       () => schedules,
       ({ schedule, triggerAt }) => {
-        appendLog(`${schedule.label} 이벤트 발생 (${triggerAt.tz(TZ).format('HH:mm:ss')})`);
         hasPendingSound = true;
+        setSpeech(`${schedule.label} · ${triggerAt.tz(TZ).format('HH:mm')}`);
 
         if (schedule.type === 'once') {
           schedules = schedules.map((s) => (s.id === schedule.id ? { ...s, enabled: false } : s));
-          updateNextSchedule();
         }
       }
     );
@@ -121,50 +109,37 @@
   onDestroy(() => {
     if (clockTimer) clearTimeout(clockTimer);
     if (versionTimer) clearTimeout(versionTimer);
+    if (speakTimer) clearTimeout(speakTimer);
     scheduler?.stop();
     window.removeEventListener('online', handleOnline);
     window.removeEventListener('offline', handleOnline);
   });
 </script>
 
-<main class="kiosk">
+<main class="stage">
   <header class="topbar">
     <h1>Homi</h1>
     <div class="status-row">
-      <span class="time">{now.format('YYYY-MM-DD HH:mm:ss')} KST</span>
-      <span class:online class="badge">{online ? 'Online' : 'Offline'}</span>
-      <span class="badge">build {buildVersion}</span>
+      <span class="time">{now.format('HH:mm:ss')}</span>
+      <span class:online class="badge">{online ? 'ONLINE' : 'OFFLINE'}</span>
+      <span class="badge">v{buildVersion}</span>
+      <span class:pending={hasPendingSound} class="badge">{hasPendingSound ? 'SOUND PENDING' : 'QUIET'}</span>
     </div>
   </header>
 
-  <section class="robot-face" aria-label="robot face dashboard">
-    <div class="eye left">
-      <h2>오늘 일정</h2>
-      <p class="muted">다음: {nextScheduleText}</p>
-      <ul>
-        {#each schedules as item}
-          <li>{formatSchedule(item)}</li>
-        {/each}
-      </ul>
+  <section class="face-wrap" aria-label="homi face">
+    <div class="halo"></div>
+
+    <div class="face {speaking ? 'speaking' : ''}">
+      <div class="eyes">
+        <div class="eye"><span class="pupil"></span></div>
+        <div class="eye"><span class="pupil"></span></div>
+      </div>
+      <div class="mouth {hasPendingSound ? 'alert' : ''}"></div>
     </div>
 
-    <div class="eye right">
-      <h2>알림 로그</h2>
-      {#if logs.length === 0}
-        <p class="muted">아직 기록 없음</p>
-      {:else}
-        <ul class="log-list">
-          {#each logs as entry (entry.id)}
-            <li>{entry.text}</li>
-          {/each}
-        </ul>
-      {/if}
-    </div>
-
-    <div class="mouth {hasPendingSound ? 'active' : ''}">
-      <span class="mouth-label">SOUND</span>
-      <strong>{hasPendingSound ? 'PENDING' : 'IDLE'}</strong>
-      <small>자동 재생 없음 · 수동 재생 연결 전용</small>
+    <div class="speech-bubble">
+      <p>{speech}</p>
     </div>
   </section>
 </main>
@@ -173,21 +148,22 @@
   :global(body) {
     margin: 0;
     min-height: 100vh;
-    background: radial-gradient(circle at top, #1f2937 0%, #0b0f16 65%);
+    background: radial-gradient(circle at 50% 20%, #1f3354 0%, #0a0f17 60%);
     color: #eaf2ff;
     overflow: hidden;
+    user-select: none;
   }
 
   :global(#app) {
     min-height: 100vh;
   }
 
-  .kiosk {
+  .stage {
     min-height: 100vh;
-    padding: 1.2rem;
     display: grid;
     grid-template-rows: auto 1fr;
     gap: 1rem;
+    padding: 1rem;
     font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
   }
 
@@ -195,128 +171,175 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid #2c3b52;
-    border-radius: 14px;
-    padding: 0.85rem 1rem;
-    background: rgba(13, 18, 24, 0.9);
+    border: 1px solid #35507a;
+    border-radius: 16px;
+    padding: 0.8rem 1rem;
+    background: rgba(9, 14, 24, 0.82);
   }
 
   h1,
-  h2,
   p {
     margin: 0;
   }
 
   .status-row {
     display: flex;
-    align-items: center;
-    gap: 0.6rem;
+    gap: 0.45rem;
     flex-wrap: wrap;
     justify-content: flex-end;
   }
 
   .time {
-    font-size: 0.9rem;
-    color: #99a8bd;
+    color: #b9cae5;
+    font-weight: 600;
+    letter-spacing: 0.03em;
   }
 
   .badge {
-    border: 1px solid #3f4f68;
+    border: 1px solid #4f6991;
     border-radius: 999px;
-    font-size: 0.75rem;
-    padding: 0.2rem 0.55rem;
-    color: #d7e3f4;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.72rem;
+    color: #d7e6ff;
   }
 
   .online {
-    color: #8ef8b6;
-    border-color: #2f8057;
+    border-color: #2d8f63;
+    color: #9dffca;
   }
 
-  .robot-face {
+  .pending {
+    border-color: #936125;
+    color: #ffd89b;
+  }
+
+  .face-wrap {
     position: relative;
-    border: 1px solid #2d3a4e;
-    border-radius: 24px;
-    background: linear-gradient(160deg, rgba(17, 24, 39, 0.94), rgba(10, 14, 22, 0.96));
-    padding: 1rem;
+    display: grid;
+    place-items: center;
+    min-height: 0;
+  }
+
+  .halo {
+    position: absolute;
+    width: min(72vw, 680px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(98, 161, 255, 0.22), rgba(11, 17, 28, 0));
+    filter: blur(4px);
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  .face {
+    z-index: 1;
+    width: min(58vw, 520px);
+    aspect-ratio: 1 / 0.78;
+    border-radius: 26px;
+    border: 1px solid #406194;
+    background: linear-gradient(180deg, rgba(20, 34, 58, 0.95), rgba(9, 15, 24, 0.96));
+    box-shadow: inset 0 0 42px rgba(75, 132, 230, 0.22);
+    display: grid;
+    grid-template-rows: 1fr auto;
+    padding: 1.2rem;
+  }
+
+  .eyes {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr auto;
-    gap: 1rem;
-    min-height: 0;
-    box-shadow: inset 0 0 40px rgba(64, 117, 255, 0.12);
+    align-items: center;
+    gap: 1.2rem;
   }
 
   .eye {
-    border: 1px solid #3b4d68;
-    border-radius: 18px;
-    background: radial-gradient(circle at top, rgba(38, 78, 143, 0.28), rgba(16, 26, 40, 0.95));
-    padding: 0.9rem;
+    height: min(16vw, 120px);
+    border-radius: 16px;
+    border: 1px solid #4f6ea0;
+    background: radial-gradient(circle at 50% 35%, rgba(129, 196, 255, 0.88), rgba(28, 63, 114, 0.35));
     display: grid;
-    align-content: start;
-    gap: 0.6rem;
-    min-height: 0;
+    place-items: center;
+    animation: blink 6s infinite;
+  }
+
+  .pupil {
+    width: 22%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #0b1d3a;
+    box-shadow: 0 0 22px rgba(8, 26, 58, 0.9);
   }
 
   .mouth {
-    grid-column: 1 / -1;
-    border: 1px solid #3b4d68;
+    justify-self: center;
+    width: 42%;
+    height: 12px;
+    border-radius: 999px;
+    background: #8db5f8;
+    opacity: 0.85;
+    transition: all 0.25s ease;
+  }
+
+  .speaking .mouth {
+    height: 28px;
     border-radius: 14px;
-    padding: 0.8rem 1rem;
-    display: grid;
-    gap: 0.2rem;
-    justify-items: center;
-    background: rgba(9, 14, 22, 0.9);
-    color: #9eb0c8;
+    background: #9cc5ff;
+    box-shadow: 0 0 18px rgba(156, 197, 255, 0.4);
   }
 
-  .mouth.active {
-    border-color: #8c5a22;
-    color: #ffdca5;
-    box-shadow: inset 0 0 24px rgba(255, 169, 56, 0.2);
+  .mouth.alert {
+    background: #ffd08b;
+    box-shadow: 0 0 18px rgba(255, 204, 128, 0.4);
   }
 
-  .mouth-label {
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
+  .speech-bubble {
+    z-index: 2;
+    margin-top: 1rem;
+    width: min(72vw, 760px);
+    border: 1px solid #3f5d8d;
+    border-radius: 16px;
+    padding: 0.85rem 1rem;
+    background: rgba(10, 16, 27, 0.88);
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    text-align: center;
+    color: #e2ecff;
   }
 
-  ul {
-    margin: 0;
-    padding-left: 1rem;
-    display: grid;
-    gap: 0.4rem;
+  @keyframes blink {
+    0%,
+    47%,
+    52%,
+    100% {
+      transform: scaleY(1);
+    }
+    49% {
+      transform: scaleY(0.06);
+    }
   }
 
-  li {
-    font-size: 0.9rem;
-    color: #d6e4ff;
-  }
-
-  .log-list {
-    max-height: 44vh;
-    overflow: auto;
-    padding-right: 0.4rem;
-  }
-
-  .muted {
-    color: #8ea0b8;
-    font-size: 0.88rem;
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    50% {
+      transform: scale(1.04);
+      opacity: 1;
+    }
   }
 
   @media (max-width: 960px) {
-    .robot-face {
-      grid-template-columns: 1fr;
-    }
-
     .topbar {
       flex-direction: column;
       align-items: flex-start;
-      gap: 0.6rem;
+      gap: 0.5rem;
     }
 
     .status-row {
       justify-content: flex-start;
+    }
+
+    .face {
+      width: min(90vw, 520px);
     }
   }
 </style>
