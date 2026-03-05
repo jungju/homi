@@ -25,12 +25,13 @@
   let hasPendingSound = false;
   let speaking = false;
   let speech = '윤솔아 얼른 씻어. 오늘 일찍 자고.';
-  let showPhoto = true;
+  let showPhoto = false;
 
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
   let versionTimer: ReturnType<typeof setTimeout> | undefined;
   let speakTimer: ReturnType<typeof setTimeout> | undefined;
   let storyTimer: ReturnType<typeof setTimeout> | undefined;
+  let photoTimer: ReturnType<typeof setTimeout> | undefined;
   let scheduler: SchedulerEngine | undefined;
 
   const storyLines = [
@@ -51,7 +52,6 @@
 
   function setSpeech(message: string) {
     speech = message;
-    showPhoto = /윤솔|사진/.test(message);
     speaking = true;
     if (speakTimer) clearTimeout(speakTimer);
     speakTimer = setTimeout(() => {
@@ -109,7 +109,14 @@
   }
 
   function speakStoryEveryMinute() {
-    const line = storyLines[Math.floor(Math.random() * storyLines.length)];
+    const base = storyLines[Math.floor(Math.random() * storyLines.length)];
+    const line = `${base} 웃는 모습이 너무 좋아.`;
+    showPhoto = true;
+    if (photoTimer) clearTimeout(photoTimer);
+    photoTimer = setTimeout(() => {
+      showPhoto = false;
+    }, 9000);
+
     setSpeech(line);
     speakOut(line);
     storyTimer = setTimeout(speakStoryEveryMinute, 60_000);
@@ -153,6 +160,7 @@
     if (versionTimer) clearTimeout(versionTimer);
     if (speakTimer) clearTimeout(speakTimer);
     if (storyTimer) clearTimeout(storyTimer);
+    if (photoTimer) clearTimeout(photoTimer);
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     scheduler?.stop();
     window.removeEventListener('online', handleOnline);
@@ -357,14 +365,17 @@
   }
 
   .photo-card {
-    z-index: 2;
-    margin-top: 0.7rem;
-    width: min(34vw, 240px);
-    border: 1px solid #7bb0e8;
-    border-radius: 14px;
-    padding: 0.3rem;
-    background: rgba(255, 255, 255, 0.86);
-    box-shadow: 0 8px 20px rgba(24, 62, 107, 0.2);
+    position: absolute;
+    z-index: 4;
+    left: 50%;
+    top: 52%;
+    transform: translate(-50%, -50%);
+    width: min(58vw, 460px);
+    border: 2px solid #7bb0e8;
+    border-radius: 18px;
+    padding: 0.35rem;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 14px 34px rgba(24, 62, 107, 0.32);
   }
 
   .photo-card img {
