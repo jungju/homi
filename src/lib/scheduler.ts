@@ -33,6 +33,13 @@ export function getDefaultSchedules(now: Dayjs): ScheduleItem[] {
       enabled: true,
     },
     {
+      id: 'school-go',
+      label: '오전 8시40분입니다. 학교 가세요. 가방 챙기고 단정히 하고 나가요.',
+      type: 'daily',
+      time: '08:40',
+      enabled: true,
+    },
+    {
       id: 'check-today',
       label: '오늘 일정 확인',
       type: 'daily',

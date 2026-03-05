@@ -44,6 +44,16 @@
     }, 2800);
   }
 
+  function speakOut(message: string) {
+    if (!('speechSynthesis' in window)) return;
+    const utter = new SpeechSynthesisUtterance(message);
+    utter.lang = 'ko-KR';
+    utter.rate = 1;
+    utter.pitch = 1;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  }
+
   async function fetchVersion() {
     try {
       const res = await fetch(`version.json?ts=${Date.now()}`);
@@ -92,7 +102,9 @@
       () => schedules,
       ({ schedule, triggerAt }) => {
         hasPendingSound = true;
-        setSpeech(`${schedule.label} · ${triggerAt.tz(TZ).format('HH:mm')}`);
+        const line = `${schedule.label} · ${triggerAt.tz(TZ).format('HH:mm')}`;
+        setSpeech(line);
+        speakOut(schedule.label);
 
         if (schedule.type === 'once') {
           schedules = schedules.map((s) => (s.id === schedule.id ? { ...s, enabled: false } : s));
@@ -110,6 +122,7 @@
     if (clockTimer) clearTimeout(clockTimer);
     if (versionTimer) clearTimeout(versionTimer);
     if (speakTimer) clearTimeout(speakTimer);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     scheduler?.stop();
     window.removeEventListener('online', handleOnline);
     window.removeEventListener('offline', handleOnline);
