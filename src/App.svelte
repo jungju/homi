@@ -87,7 +87,13 @@
 
   async function pollVersionLoop() {
     await fetchVersion();
-    versionTimer = setTimeout(pollVersionLoop, 60_000);
+    versionTimer = setTimeout(pollVersionLoop, 30_000);
+  }
+
+  function handleVisibilityOrFocus() {
+    if (!document.hidden) {
+      fetchVersion();
+    }
   }
 
   function tickClock() {
@@ -136,6 +142,8 @@
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOnline);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
   });
 
   onDestroy(() => {
@@ -147,6 +155,8 @@
     scheduler?.stop();
     window.removeEventListener('online', handleOnline);
     window.removeEventListener('offline', handleOnline);
+    window.removeEventListener('focus', handleVisibilityOrFocus);
+    document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
   });
 </script>
 
