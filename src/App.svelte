@@ -29,20 +29,20 @@
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
   let versionTimer: ReturnType<typeof setTimeout> | undefined;
   let speakTimer: ReturnType<typeof setTimeout> | undefined;
-  let englishTimer: ReturnType<typeof setTimeout> | undefined;
+  let storyTimer: ReturnType<typeof setTimeout> | undefined;
   let scheduler: SchedulerEngine | undefined;
 
-  const englishLines = [
+  const storyLines = [
     '윤솔아 얼른 씻어. 오늘 일찍 자고.',
-    '윤솔아, 오늘도 정말 잘하고 있어.',
-    '숙제 10분만 집중하고 쉬자.',
-    '가방 챙기고 내일 준비 미리 하자.',
-    '양치하고 물 한 잔 마시면 완벽해.',
-    '조금씩 해도 충분히 멋진 발전이야.',
-    '오늘 있었던 좋은 일 하나만 떠올려 보자.',
-    '지금은 쉬는 시간, 몸을 쭉 펴 보자.',
-    '일찍 자면 내일 더 힘이 나!',
-    '윤솔이는 소중하고 멋진 아이야.'
+    '사진 속 윤솔이 표정은 에너지가 넘쳐서 보는 사람도 웃게 해.',
+    '오늘의 윤솔이는 씩씩한 탐험가 같아. 눈빛이 반짝반짝해.',
+    '이 표정은 하고 싶은 말이 가득한 표정이야. 너무 사랑스럽다.',
+    '윤솔아, 가방 챙기고 단정히 준비하면 내일 아침이 훨씬 편해.',
+    '윤솔이는 소중하고 멋진 아이야. 천천히 해도 괜찮아.',
+    '작은 습관이 큰 힘이 돼. 양치하고 물 한 잔 마시자.',
+    '오늘 있었던 좋은 일 하나만 말해볼래? 그게 오늘의 보물이야.',
+    '일찍 자면 내일 더 똑똑하고 더 기분 좋게 시작할 수 있어.',
+    '윤솔아, 오늘도 최고야. 잘했고, 지금도 충분히 멋져.'
   ];
   function getNow() {
     return dayjs().tz(TZ);
@@ -106,11 +106,11 @@
     setSpeech(online ? '연결 상태 양호.' : '네트워크 연결이 끊겼어요.');
   }
 
-  function speakEnglishEveryMinute() {
-    const line = englishLines[Math.floor(Math.random() * englishLines.length)];
+  function speakStoryEveryMinute() {
+    const line = storyLines[Math.floor(Math.random() * storyLines.length)];
     setSpeech(line);
     speakOut(line);
-    englishTimer = setTimeout(speakEnglishEveryMinute, 60_000);
+    storyTimer = setTimeout(speakStoryEveryMinute, 60_000);
   }
   onMount(() => {
     online = navigator.onLine;
@@ -118,7 +118,7 @@
 
     tickClock();
     pollVersionLoop();
-    englishTimer = setTimeout(speakEnglishEveryMinute, 60_000);
+    storyTimer = setTimeout(speakStoryEveryMinute, 60_000);
 
     const next = findNextEvent(schedules, getNow());
     if (next) setSpeech(`다음 일정: ${next.schedule.label}`);
@@ -150,7 +150,7 @@
     if (clockTimer) clearTimeout(clockTimer);
     if (versionTimer) clearTimeout(versionTimer);
     if (speakTimer) clearTimeout(speakTimer);
-    if (englishTimer) clearTimeout(englishTimer);
+    if (storyTimer) clearTimeout(storyTimer);
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     scheduler?.stop();
     window.removeEventListener('online', handleOnline);
