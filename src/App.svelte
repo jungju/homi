@@ -18,8 +18,8 @@
 
   interface StoryLine {
     text: string;
-    photo: '/photos/yunsol.jpg' | '/photos/dad.jpg';
-    alt: string;
+    photo?: '/photos/yunsol.jpg' | '/photos/dad.jpg';
+    alt?: string;
   }
 
   let now = dayjs().tz(TZ);
@@ -43,29 +43,18 @@
   let scheduler: SchedulerEngine | undefined;
 
   const storyLines: StoryLine[] = [
-    { text: '윤솔아 얼른 씻어. 오늘 일찍 자고.', photo: '/photos/yunsol.jpg', alt: '윤솔 사진' },
+    { text: '윤솔아 얼른 씻어. 오늘 일찍 자고.' },
+    { text: '가방 챙기고 내일 준비 미리 하자.' },
+    { text: '양치하고 물 한 잔 마시면 완벽해.' },
+    { text: 'You are doing great. Keep smiling.' },
+    { text: 'Great job today. Let us rest early tonight.' },
     {
-      text: '사진 속 윤솔이 표정은 에너지가 넘쳐서 보는 사람도 웃게 해.',
+      text: '사진 속 윤솔이 표정은 에너지가 넘쳐서 보는 사람도 웃게 해. 웃는 모습이 너무 좋아.',
       photo: '/photos/yunsol.jpg',
       alt: '윤솔 사진'
     },
     {
       text: '오늘의 윤솔이는 씩씩한 탐험가 같아. 눈빛이 반짝반짝해.',
-      photo: '/photos/yunsol.jpg',
-      alt: '윤솔 사진'
-    },
-    {
-      text: '이 표정은 하고 싶은 말이 가득한 표정이야. 너무 사랑스럽다.',
-      photo: '/photos/yunsol.jpg',
-      alt: '윤솔 사진'
-    },
-    {
-      text: '윤솔아, 가방 챙기고 단정히 준비하면 내일 아침이 훨씬 편해.',
-      photo: '/photos/yunsol.jpg',
-      alt: '윤솔 사진'
-    },
-    {
-      text: '윤솔이는 소중하고 멋진 아이야. 천천히 해도 괜찮아.',
       photo: '/photos/yunsol.jpg',
       alt: '윤솔 사진'
     },
@@ -81,11 +70,6 @@
     },
     {
       text: '오늘도 수고 많았어요. 이 미소처럼 가볍게 마무리해요.',
-      photo: '/photos/dad.jpg',
-      alt: '윤솔이 아빠 사진'
-    },
-    {
-      text: '아빠의 따뜻한 표정이 아이에게 든든함을 주는 최고의 신호예요.',
       photo: '/photos/dad.jpg',
       alt: '윤솔이 아빠 사진'
     }
@@ -154,14 +138,19 @@
 
   function speakStoryEveryMinute() {
     const pick = storyLines[Math.floor(Math.random() * storyLines.length)];
-    const line = `${pick.text} 웃는 모습이 너무 좋아.`;
-    currentPhotoSrc = pick.photo;
-    currentPhotoAlt = pick.alt;
-    showPhoto = true;
-    if (photoTimer) clearTimeout(photoTimer);
-    photoTimer = setTimeout(() => {
+    const line = pick.text;
+
+    if (pick.photo) {
+      currentPhotoSrc = pick.photo;
+      currentPhotoAlt = pick.alt ?? '사진';
+      showPhoto = true;
+      if (photoTimer) clearTimeout(photoTimer);
+      photoTimer = setTimeout(() => {
+        showPhoto = false;
+      }, 9000);
+    } else {
       showPhoto = false;
-    }, 9000);
+    }
 
     setSpeech(line);
     speakOut(line);
@@ -173,7 +162,7 @@
 
     tickClock();
     pollVersionLoop();
-    storyTimer = setTimeout(speakStoryEveryMinute, 60_000);
+    speakStoryEveryMinute();
 
     const next = findNextEvent(schedules, getNow());
     if (next) setSpeech(`다음 일정: ${next.schedule.label}`);
