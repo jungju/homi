@@ -1,0 +1,407 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/machine/product.v1.schema.json",
+  "title": "Homi Machine Product Contract V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "documentType",
+    "schemaRef",
+    "authoritative",
+    "generated",
+    "updated",
+    "rules",
+    "routes",
+    "storage",
+    "modes",
+    "engines",
+    "importExportPolicy",
+    "notificationPolicy",
+    "securityPolicy",
+    "sampleBundlePolicy",
+    "sourceTypeEnum"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "homi.machine.product.v1"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "documentType": {
+      "type": "string",
+      "const": "product"
+    },
+    "schemaRef": {
+      "type": "string",
+      "const": "schemas/machine/product.v1.schema.json"
+    },
+    "authoritative": {
+      "type": "boolean",
+      "const": true
+    },
+    "generated": {
+      "type": "boolean",
+      "const": false
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "statement"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^product\\.[a-z0-9_.-]+$"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "path",
+          "routeType",
+          "overlay",
+          "purpose"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^route\\.[a-z0-9_.-]+$"
+          },
+          "path": {
+            "type": "string"
+          },
+          "routeType": {
+            "type": "string",
+            "enum": [
+              "page",
+              "overlay"
+            ]
+          },
+          "overlay": {
+            "type": "boolean"
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "backend",
+        "key",
+        "storeType",
+        "schemaRef",
+        "loadFunction",
+        "saveFunction"
+      ],
+      "properties": {
+        "backend": {
+          "type": "string",
+          "const": "localStorage"
+        },
+        "key": {
+          "type": "string",
+          "const": "homi.store.v1"
+        },
+        "storeType": {
+          "type": "string",
+          "const": "HomiStoreV1"
+        },
+        "schemaRef": {
+          "type": "string",
+          "const": "schemas/domain/store.v1.schema.json"
+        },
+        "loadFunction": {
+          "type": "string",
+          "const": "loadStore"
+        },
+        "saveFunction": {
+          "type": "string",
+          "const": "saveStore"
+        }
+      }
+    },
+    "modes": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^mode\\.[a-z0-9_.-]+$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "engines": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "schemaVersion",
+          "schemaRef"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "schedule",
+              "dictation"
+            ]
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "const": 1
+          },
+          "schemaRef": {
+            "type": "string",
+            "pattern": "^schemas/domain/engines/.+\\.schema\\.json$"
+          }
+        }
+      }
+    },
+    "importExportPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entryRoute",
+        "allowedImportMethods",
+        "bundleSchemaRef",
+        "previewBeforeConfirm",
+        "applyMode",
+        "datasetIdConflictPolicy",
+        "limits"
+      ],
+      "properties": {
+        "entryRoute": {
+          "type": "string",
+          "const": "/backup"
+        },
+        "allowedImportMethods": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "type": "string",
+            "enum": [
+              "url",
+              "text",
+              "file",
+              "sample"
+            ]
+          }
+        },
+        "bundleSchemaRef": {
+          "type": "string",
+          "const": "schemas/domain/homi-bundle.v1.schema.json"
+        },
+        "previewBeforeConfirm": {
+          "type": "boolean",
+          "const": true
+        },
+        "applyMode": {
+          "type": "string",
+          "const": "replace"
+        },
+        "datasetIdConflictPolicy": {
+          "type": "string",
+          "enum": [
+            "regenerate"
+          ]
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "maxBundleBytes",
+            "maxDatasetsPerBundle",
+            "maxItemsPerDataset",
+            "maxStringLength"
+          ],
+          "properties": {
+            "maxBundleBytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxDatasetsPerBundle": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxItemsPerDataset": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxStringLength": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "notificationPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dictationRunning",
+        "default"
+      ],
+      "properties": {
+        "dictationRunning": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "osNotificationAllowed",
+            "fallbackChannel"
+          ],
+          "properties": {
+            "osNotificationAllowed": {
+              "type": "boolean",
+              "const": false
+            },
+            "fallbackChannel": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "default": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "osNotificationAllowed",
+            "fallbackChannel"
+          ],
+          "properties": {
+            "osNotificationAllowed": {
+              "type": "boolean"
+            },
+            "fallbackChannel": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "securityPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dangerousSchemes",
+        "allowedUrlSchemes",
+        "allowLocalhostHttp",
+        "renderTextOnly",
+        "externalFetchWarning",
+        "corsFailureMessageRequired"
+      ],
+      "properties": {
+        "dangerousSchemes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowedUrlSchemes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowLocalhostHttp": {
+          "type": "boolean"
+        },
+        "renderTextOnly": {
+          "type": "boolean",
+          "const": true
+        },
+        "externalFetchWarning": {
+          "type": "boolean"
+        },
+        "corsFailureMessageRequired": {
+          "type": "boolean"
+        }
+      }
+    },
+    "sampleBundlePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "schemaRef",
+        "flow"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "const": "public/samples/homi.sample.homi.json"
+        },
+        "schemaRef": {
+          "type": "string",
+          "const": "schemas/domain/homi-bundle.v1.schema.json"
+        },
+        "flow": {
+          "type": "string",
+          "const": "preview_then_confirm"
+        }
+      }
+    },
+    "sourceTypeEnum": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "string",
+        "enum": [
+          "manual",
+          "sample",
+          "url",
+          "file",
+          "text"
+        ]
+      }
+    }
+  }
+}

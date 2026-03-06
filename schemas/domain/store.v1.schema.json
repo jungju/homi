@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/domain/store.v1.schema.json",
+  "title": "Homi v1 StoreV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "storeVersion",
+    "updatedAt",
+    "datasetsByEngine"
+  ],
+  "properties": {
+    "storeVersion": {
+      "const": 1
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "datasetsByEngine": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "maxItems": 50,
+        "items": {
+          "$ref": "./dataset.v1.schema.json"
+        }
+      }
+    },
+    "ui": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "lastOpenedEngineId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^[a-z][a-z0-9-]{0,39}$"
+        }
+      }
+    }
+  }
+}

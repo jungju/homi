@@ -1,0 +1,17 @@
+{
+  "screenId": "home.default",
+  "state": "기본 모드",
+  "route": "http://127.0.0.1:4173/",
+  "deterministicAssertions": [
+    "home-root is visible",
+    "home-face is visible",
+    "home-bubble is visible",
+    "home-mode-text shows 기본 모드",
+    "engine entry buttons are visible"
+  ],
+  "capturedAt": "2026-03-06T16:46:20.978Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  }
+}

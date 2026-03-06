@@ -1,0 +1,65 @@
+{
+  "id": "homi.machine.fixtures.v1",
+  "version": "v1",
+  "documentType": "fixtures",
+  "schemaRef": "schemas/machine/fixtures.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "fixtures": [
+    {
+      "id": "fixture.bundle.min.v1",
+      "path": "tests/fixtures/bundle.min.v1.json",
+      "schemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+      "purpose": "최소 import 동작 및 dictation/schedule 동시 검증",
+      "tags": [
+        "import",
+        "smoke",
+        "p0"
+      ],
+      "usedByTests": [
+        "test.p0.import.preview_before_confirm",
+        "test.p0.dictation.start_sets_mode",
+        "test.p1.schedule.toggle_enabled"
+      ],
+      "securityClassification": "trusted_test_data",
+      "mutability": "fixed",
+      "sampleBundle": false
+    },
+    {
+      "id": "fixture.bundle.xss.v1",
+      "path": "tests/fixtures/bundle.xss.v1.json",
+      "schemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+      "purpose": "텍스트 렌더링/XSS 미실행 검증",
+      "tags": [
+        "security",
+        "xss",
+        "p0"
+      ],
+      "usedByTests": [
+        "test.p0.security.text_render_only"
+      ],
+      "securityClassification": "untrusted_input_simulation",
+      "mutability": "fixed",
+      "sampleBundle": false
+    },
+    {
+      "id": "sample.bundle.homi.v1",
+      "path": "public/samples/homi.sample.homi.json",
+      "schemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+      "purpose": "기본 샘플 번들 등록",
+      "tags": [
+        "sample",
+        "backup",
+        "v1"
+      ],
+      "usedByTests": [
+        "test.p0.backup.overlay_contract",
+        "test.p0.import.preview_before_confirm"
+      ],
+      "securityClassification": "public_sample_data",
+      "mutability": "fixed",
+      "sampleBundle": true
+    }
+  ]
+}

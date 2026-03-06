@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/ai-ui-review-result.schema.json",
+  "title": "Homi v1 AI UI Review Result",
+  "type": "object",
+  "required": ["screenId", "verdict", "confidence", "issues", "summary", "artifacts", "createdAt"],
+  "additionalProperties": false,
+  "properties": {
+    "screenId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "route": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "state": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["pass", "warn", "fail"]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "severity", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "evidence": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "suggestedFix": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["artifactDir", "screenshot", "testIds", "visibleText", "ariaSnapshot", "meta"],
+      "additionalProperties": false,
+      "properties": {
+        "artifactDir": { "type": "string", "maxLength": 400 },
+        "screenshot": { "type": "string", "maxLength": 400 },
+        "testIds": { "type": "string", "maxLength": 400 },
+        "visibleText": { "type": "string", "maxLength": 400 },
+        "ariaSnapshot": { "type": "string", "maxLength": 400 },
+        "meta": { "type": "string", "maxLength": 400 }
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "model": {
+      "type": "string",
+      "maxLength": 200
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "verdict": { "const": "fail" }
+        },
+        "required": ["verdict"]
+      },
+      "then": {
+        "properties": {
+          "issues": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}
+

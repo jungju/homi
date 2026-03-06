@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/machine/dependency-graph.v1.schema.json",
+  "title": "Homi Generated Dependency Graph V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "documentType",
+    "schemaRef",
+    "authoritative",
+    "generated",
+    "generatedAt",
+    "generatedFrom",
+    "nodes",
+    "edges"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "homi.machine.dependency-graph.v1"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "documentType": {
+      "type": "string",
+      "const": "dependency-graph"
+    },
+    "schemaRef": {
+      "type": "string",
+      "const": "schemas/machine/dependency-graph.v1.schema.json"
+    },
+    "authoritative": {
+      "type": "boolean",
+      "const": false
+    },
+    "generated": {
+      "type": "boolean",
+      "const": true
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "generatedFrom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest"
+      ],
+      "properties": {
+        "manifest": {
+          "type": "string"
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "path"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "authoritative": {
+            "type": "boolean"
+          },
+          "generated": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from",
+          "to",
+          "reason"
+        ],
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

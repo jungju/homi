@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/machine/ai-review.v1.schema.json",
+  "title": "Homi Machine AI Review Contract V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "documentType",
+    "schemaRef",
+    "authoritative",
+    "generated",
+    "updated",
+    "gatePolicy",
+    "expectedOutputSchema",
+    "artifactContract",
+    "forbiddenHallucinationRules",
+    "screens"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "homi.machine.ai-review.v1"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "documentType": {
+      "type": "string",
+      "const": "ai-review"
+    },
+    "schemaRef": {
+      "type": "string",
+      "const": "schemas/machine/ai-review.v1.schema.json"
+    },
+    "authoritative": {
+      "type": "boolean",
+      "const": true
+    },
+    "generated": {
+      "type": "boolean",
+      "const": false
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "gatePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "deterministicFirstGate",
+        "aiCanOverrideDeterministic",
+        "defaultGateBehavior"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ai\\.gate\\.[a-z0-9_.-]+$"
+        },
+        "deterministicFirstGate": {
+          "type": "boolean",
+          "const": true
+        },
+        "aiCanOverrideDeterministic": {
+          "type": "boolean",
+          "const": false
+        },
+        "defaultGateBehavior": {
+          "type": "string",
+          "enum": [
+            "soft_fail"
+          ]
+        }
+      }
+    },
+    "expectedOutputSchema": {
+      "type": "string",
+      "const": "schemas/ai-ui-review-result.schema.json"
+    },
+    "artifactContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactDir",
+        "requiredPerScreen",
+        "outputDir"
+      ],
+      "properties": {
+        "artifactDir": {
+          "type": "string"
+        },
+        "requiredPerScreen": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "type": "string"
+          }
+        },
+        "outputDir": {
+          "type": "string"
+        }
+      }
+    },
+    "forbiddenHallucinationRules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "statement"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ai\\.forbidden\\.[a-z0-9_.-]+$"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "screens": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "route",
+          "state",
+          "requiredArtifacts",
+          "promptInputs",
+          "rubricChecks",
+          "hardFailConditions",
+          "softFailConditions",
+          "contractRefs"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9._-]+$"
+          },
+          "route": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "requiredArtifacts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "promptInputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "rubricChecks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "severity",
+                "level",
+                "statement",
+                "contractRefs"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^ai\\.[a-z0-9_.-]+$"
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ]
+                },
+                "level": {
+                  "type": "string",
+                  "enum": [
+                    "must",
+                    "should"
+                  ]
+                },
+                "statement": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "contractRefs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^(product|ui|flow|ai|test)\\.[a-z0-9_.-]+$"
+                  }
+                }
+              }
+            }
+          },
+          "hardFailConditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "softFailConditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "contractRefs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^(product|ui|flow|ai|test)\\.[a-z0-9_.-]+$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/machine/read-sets.v1.schema.json",
+  "title": "Homi Machine Read Sets V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "documentType",
+    "schemaRef",
+    "authoritative",
+    "generated",
+    "updated",
+    "taskSets"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "homi.machine.read-sets.v1"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "documentType": {
+      "type": "string",
+      "const": "read-sets"
+    },
+    "schemaRef": {
+      "type": "string",
+      "const": "schemas/machine/read-sets.v1.schema.json"
+    },
+    "authoritative": {
+      "type": "boolean",
+      "const": true
+    },
+    "generated": {
+      "type": "boolean",
+      "const": false
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "taskSets": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "taskType",
+          "mustRead",
+          "shouldRead",
+          "mayRead",
+          "forbiddenAsAuthority"
+        ],
+        "properties": {
+          "taskType": {
+            "type": "string",
+            "enum": [
+              "ui_change",
+              "import_logic_change",
+              "schema_change",
+              "test_change",
+              "ai_review_change",
+              "documentation_governance_change"
+            ]
+          },
+          "mustRead": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "shouldRead": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mayRead": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "forbiddenAsAuthority": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

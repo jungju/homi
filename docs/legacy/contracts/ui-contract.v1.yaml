@@ -1,0 +1,170 @@
+# contracts/ui-contract.v1.yaml
+# Homi v1 UI Contract Registry (machine-readable)
+# - 목적: ui-dom-contract.md / SPEC.md의 핵심 UI 계약을 "기계가 검증"하도록 고정
+# - 참고: 이 파일의 testid 이름/의미 변경은 v1에서 금지(= v2로 올려야 함)
+
+version: 1
+contractId: "homi-ui-contract-v1"
+storageKey: "homi.store.v1"
+
+globals:
+  # 항상 존재해야 하는 전역 컨테이너(권장 DOM 골격)
+  mustTestIds:
+    - app-root
+    - toast-root
+    # 홈은 overlay가 떠도 DOM에 남아있어야 한다(게임 의도: 얼굴 세계 유지)
+    - home-root
+    - home-face
+    - home-bubble
+    - home-mode-text
+
+  # v1에서 사용 금지(헤더/글로벌 네비 금지 원칙)
+  mustNotTestIds:
+    - global-header
+    - global-nav
+    - top-navbar
+
+modes:
+  # 홈 말풍선에 항상 텍스트로 표시되어야 하는 v1 모드(고정)
+  allowedModeTexts:
+    - "기본 모드"
+    - "받아쓰기 실행모드"
+
+routes:
+  - id: home
+    path: "/"
+    mustTestIds:
+      - home-open-engines
+      - home-engine-btn-schedule
+      - home-engine-btn-dictation
+    mustNotTestIds:
+      - overlay-root
+      - backup-root
+      - engine-root
+    mustTextEquals:
+      # 기본 진입 상태는 기본 모드(초기 계약)
+      home-mode-text: "기본 모드"
+
+  - id: backup_overlay
+    path: "/backup"
+    mustTestIds:
+      - overlay-root
+      - backup-root
+
+      # Import 입력(3종)
+      - backup-url-input
+      - backup-url-preview-btn
+      - backup-json-textarea
+      - backup-text-preview-btn
+      - backup-file-input
+      - backup-file-preview-btn
+
+      # Preview/Confirm/Error
+      - backup-preview
+      - backup-confirm
+      - backup-error
+
+      # Export/Sample
+      - backup-export-btn
+      - backup-sample-load-btn
+
+      # Overlay 공통
+      - overlay-title
+      - overlay-close
+    mustAttributes:
+      overlay-root:
+        data-overlay-kind: "backup"
+    mustNotTestIds:
+      # backup는 엔진 실행 UI가 아니다
+      - engine-root
+      - dictation-root
+
+  - id: engine_overlay_dictation
+    path: "/engines/dictation"
+    mustTestIds:
+      - overlay-root
+      - engine-root
+      - engine-datasets-list
+      - engine-empty-state
+      - overlay-title
+      - overlay-close
+    mustAttributes:
+      overlay-root:
+        data-overlay-kind: "engine"
+        data-engine-id: "dictation"
+      engine-root:
+        data-engine-id: "dictation"
+    mustNotTestIds:
+      # Import UI는 /backup 전용
+      - backup-url-input
+      - backup-json-textarea
+      - backup-file-input
+
+  - id: engine_overlay_schedule
+    path: "/engines/schedule"
+    mustTestIds:
+      - overlay-root
+      - engine-root
+      - engine-datasets-list
+      - engine-empty-state
+      - overlay-title
+      - overlay-close
+    mustAttributes:
+      overlay-root:
+        data-overlay-kind: "engine"
+        data-engine-id: "schedule"
+      engine-root:
+        data-engine-id: "schedule"
+    mustNotTestIds:
+      # Import UI는 /backup 전용
+      - backup-url-input
+      - backup-json-textarea
+      - backup-file-input
+
+uiRules:
+  # 계약: Import UI는 /backup에서만 존재
+  importEntryPoint:
+    onlyAllowedRoute: "/backup"
+    forbiddenRoutes:
+      - "/engines/dictation"
+      - "/engines/schedule"
+
+  # 계약: Import는 미리보기 후 확정
+  importFlow:
+    mustHavePreviewBeforeConfirm: true
+    confirmButtonTestId: "backup-confirm"
+    previewPanelTestId: "backup-preview"
+    errorPanelTestId: "backup-error"
+
+  # 계약: Replace(전체 교체) only
+  importApplyMode:
+    mode: "replace"
+
+  # 계약: URL 스킴 제한
+  urlImport:
+    allowSchemes:
+      - "https"
+    allowLocalhostHttp: true
+    forbidSchemes:
+      - "javascript"
+
+dictationRules:
+  # 계약: dictation 실행 중 모드 텍스트
+  runningModeText: "받아쓰기 실행모드"
+  idleModeText: "기본 모드"
+  autoAdvanceSeconds: 10
+  mustTestIdsWhenRunning:
+    - dictation-root
+    - dictation-progress
+    - dictation-progress-index
+    - dictation-progress-total
+    - dictation-next
+    - dictation-exit
+    - dictation-mode-a
+    - dictation-mode-b
+
+scheduleRules:
+  # 계약: schedule 알림은 dictation 실행 중 OS Notification 금지, 토스트만
+  mustUseToastDuringDictation: true
+  scheduleToastTestId: "schedule-toast"
+  toastRootTestId: "toast-root"

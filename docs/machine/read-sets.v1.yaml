@@ -1,0 +1,148 @@
+{
+  "id": "homi.machine.read-sets.v1",
+  "version": "v1",
+  "documentType": "read-sets",
+  "schemaRef": "schemas/machine/read-sets.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "taskSets": [
+    {
+      "taskType": "ui_change",
+      "mustRead": [
+        "docs/machine/manifest.v1.yaml",
+        "docs/machine/truth-order.v1.yaml",
+        "docs/machine/ui.v1.yaml",
+        "docs/machine/flows.v1.yaml",
+        "docs/machine/tests.v1.yaml",
+        "src/App.svelte"
+      ],
+      "shouldRead": [
+        "docs/machine/product.v1.yaml",
+        "docs/machine/coverage.v1.yaml"
+      ],
+      "mayRead": [
+        "tests/e2e/qa-homi.spec.ts",
+        "tests/helpers/capture-ui-artifacts.ts"
+      ],
+      "forbiddenAsAuthority": [
+        "README.md",
+        "docs/legacy/*",
+        "test-results/*"
+      ]
+    },
+    {
+      "taskType": "import_logic_change",
+      "mustRead": [
+        "docs/machine/product.v1.yaml",
+        "docs/machine/flows.v1.yaml",
+        "docs/machine/tests.v1.yaml",
+        "schemas/domain/homi-bundle.v1.schema.json",
+        "schemas/domain/dataset-payload.v1.schema.json",
+        "schemas/domain/dataset.v1.schema.json",
+        "src/lib/homi.ts",
+        "src/App.svelte"
+      ],
+      "shouldRead": [
+        "docs/machine/ui.v1.yaml",
+        "docs/machine/fixtures.v1.yaml"
+      ],
+      "mayRead": [
+        "tests/e2e/qa-homi.spec.ts"
+      ],
+      "forbiddenAsAuthority": [
+        "README.md",
+        "docs/legacy/*",
+        "test-results/*"
+      ]
+    },
+    {
+      "taskType": "schema_change",
+      "mustRead": [
+        "docs/machine/manifest.v1.yaml",
+        "docs/machine/change-policy.v1.yaml",
+        "schemas/machine/*.schema.json",
+        "schemas/domain/*.schema.json",
+        "schemas/domain/engines/*.schema.json"
+      ],
+      "shouldRead": [
+        "docs/machine/product.v1.yaml",
+        "docs/machine/fixtures.v1.yaml"
+      ],
+      "mayRead": [
+        "scripts/validate-domain-schemas.mjs"
+      ],
+      "forbiddenAsAuthority": [
+        "README.md",
+        "docs/legacy/*",
+        "test-results/*"
+      ]
+    },
+    {
+      "taskType": "test_change",
+      "mustRead": [
+        "docs/machine/tests.v1.yaml",
+        "docs/machine/ui.v1.yaml",
+        "docs/machine/flows.v1.yaml",
+        "tests/e2e/qa-homi.spec.ts"
+      ],
+      "shouldRead": [
+        "docs/machine/coverage.v1.yaml",
+        "docs/machine/fixtures.v1.yaml"
+      ],
+      "mayRead": [
+        "test-results/.last-run.json"
+      ],
+      "forbiddenAsAuthority": [
+        "README.md",
+        "docs/legacy/*",
+        "test-results/*"
+      ]
+    },
+    {
+      "taskType": "ai_review_change",
+      "mustRead": [
+        "docs/machine/ai-review.v1.yaml",
+        "docs/machine/tests.v1.yaml",
+        "schemas/ai-ui-review-result.schema.json",
+        "scripts/ai-ui-review.mjs"
+      ],
+      "shouldRead": [
+        "docs/machine/ui.v1.yaml",
+        "docs/machine/flows.v1.yaml"
+      ],
+      "mayRead": [
+        "test-results/ai-artifacts/*",
+        "test-results/ai-reviews/*"
+      ],
+      "forbiddenAsAuthority": [
+        "README.md",
+        "docs/legacy/*",
+        "test-results/*"
+      ]
+    },
+    {
+      "taskType": "documentation_governance_change",
+      "mustRead": [
+        "docs/machine/manifest.v1.yaml",
+        "docs/machine/truth-order.v1.yaml",
+        "docs/machine/read-sets.v1.yaml",
+        "docs/machine/change-policy.v1.yaml",
+        "schemas/machine/manifest.v1.schema.json"
+      ],
+      "shouldRead": [
+        "docs/machine/work-items.v1.yaml",
+        "scripts/validate-machine-docs.mjs"
+      ],
+      "mayRead": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "forbiddenAsAuthority": [
+        "README.md",
+        "docs/legacy/*",
+        "test-results/*"
+      ]
+    }
+  ]
+}

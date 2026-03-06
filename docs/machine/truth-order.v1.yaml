@@ -1,0 +1,141 @@
+{
+  "id": "homi.machine.truth-order.v1",
+  "version": "v1",
+  "documentType": "truth-order",
+  "schemaRef": "schemas/machine/truth-order.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "orderedSources": [
+    {
+      "rank": 1,
+      "id": "manifest",
+      "path": "docs/machine/manifest.v1.yaml",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 2,
+      "id": "truth_order",
+      "path": "docs/machine/truth-order.v1.yaml",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 3,
+      "id": "change_policy",
+      "path": "docs/machine/change-policy.v1.yaml",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 4,
+      "id": "product",
+      "path": "docs/machine/product.v1.yaml",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 5,
+      "id": "ui",
+      "path": "docs/machine/ui.v1.yaml",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 6,
+      "id": "flows",
+      "path": "docs/machine/flows.v1.yaml",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 7,
+      "id": "domain_schemas",
+      "path": "schemas/domain/*",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 8,
+      "id": "tests",
+      "path": "docs/machine/tests.v1.yaml",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 9,
+      "id": "fixtures",
+      "path": "docs/machine/fixtures.v1.yaml",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 10,
+      "id": "ai_review",
+      "path": "docs/machine/ai-review.v1.yaml",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 11,
+      "id": "work_items",
+      "path": "docs/machine/work-items.v1.yaml",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "rank": 12,
+      "id": "coverage",
+      "path": "docs/machine/coverage.v1.yaml",
+      "authoritative": false,
+      "generated": true
+    },
+    {
+      "rank": 13,
+      "id": "dependency_graph",
+      "path": "docs/machine/dependency-graph.v1.yaml",
+      "authoritative": false,
+      "generated": true
+    }
+  ],
+  "conflictRules": [
+    {
+      "id": "conflict.first_source_wins",
+      "description": "orderedSources에서 rank가 더 낮은(숫자가 작은) source가 우선한다.",
+      "resolution": "first_source_wins"
+    },
+    {
+      "id": "conflict.product_over_tests",
+      "description": "제품 규칙 충돌 시 tests보다 product/flows를 우선한다.",
+      "higherSource": "docs/machine/product.v1.yaml",
+      "lowerSource": "docs/machine/tests.v1.yaml",
+      "resolution": "prefer_higher"
+    },
+    {
+      "id": "conflict.domain_over_fixtures",
+      "description": "fixture와 스키마 충돌 시 domain schema를 우선한다.",
+      "higherSource": "schemas/domain/*",
+      "lowerSource": "docs/machine/fixtures.v1.yaml",
+      "resolution": "prefer_higher"
+    },
+    {
+      "id": "conflict.ai_cannot_override_deterministic",
+      "description": "AI 리뷰 규칙은 deterministic contract 결과를 덮어쓸 수 없다.",
+      "higherSource": "docs/machine/tests.v1.yaml",
+      "lowerSource": "docs/machine/ai-review.v1.yaml",
+      "resolution": "prefer_higher"
+    }
+  ],
+  "generatedExclusionRules": [
+    {
+      "id": "generated.non_authoritative",
+      "paths": [
+        "docs/machine/coverage.v1.yaml",
+        "docs/machine/dependency-graph.v1.yaml",
+        "test-results/*"
+      ],
+      "behavior": "must_not_be_used_as_source_of_truth"
+    }
+  ]
+}

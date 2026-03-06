@@ -1,0 +1,88 @@
+{
+  "screenId": "schedule.overlay",
+  "items": [
+    {
+      "id": "app-root",
+      "text": "우리집 기본 일정를 사용안함 상태로 바꿨습니다.\n\n좋아요. 자료가 꽤 모였어요. 지금 바로 엔진으로 이동해서 이어가보세요.\n\n현재 모드: 기본 모드\n\n📅\n스케줄 열기\n🎧\n받아쓰기 열기\n브레인 설정\n닫기\n\n페이지: /engines/schedule\n\n새 자료 세트\n자료 세트\n전체 선택\n전체 해제\n선택 내보내기\n우리집 기본 일정\n\n아이템 2개 · 마지막 수정 2026-03-06T16:46:23.742Z\n\nsource: {\"type\":\"sample\",\"importedAt\":\"2026-03-06T16:46:23.660Z\",\"bundleId\":\"bundle_sample_all_v1\"}\n\n사용안함\n편집\n삭제\n1분마다 알림\n\n아이템 1개 · 마지막 수정 2026-03-06T16:46:23.660Z\n\nsource: {\"type\":\"sample\",\"importedAt\":\"2026-03-06T16:46:23.660Z\",\"bundleId\":\"bundle_sample_all_v1\"}\n\n사용함\n편집\n삭제"
+    },
+    {
+      "id": "toast-root",
+      "text": "우리집 기본 일정를 사용안함 상태로 바꿨습니다."
+    },
+    {
+      "id": "home-root",
+      "text": "좋아요. 자료가 꽤 모였어요. 지금 바로 엔진으로 이동해서 이어가보세요.\n\n현재 모드: 기본 모드\n\n📅\n스케줄 열기\n🎧\n받아쓰기 열기\n브레인 설정"
+    },
+    {
+      "id": "home-face"
+    },
+    {
+      "id": "home-bubble",
+      "text": "좋아요. 자료가 꽤 모였어요. 지금 바로 엔진으로 이동해서 이어가보세요.\n\n현재 모드: 기본 모드"
+    },
+    {
+      "id": "home-mode-text",
+      "text": "현재 모드: 기본 모드"
+    },
+    {
+      "id": "home-open-engines",
+      "text": "📅\n스케줄 열기\n🎧\n받아쓰기 열기"
+    },
+    {
+      "id": "home-engine-btn-schedule",
+      "text": "📅\n스케줄 열기"
+    },
+    {
+      "id": "home-engine-btn-dictation",
+      "text": "🎧\n받아쓰기 열기"
+    },
+    {
+      "id": "home-open-backup",
+      "text": "브레인 설정"
+    },
+    {
+      "id": "overlay-root",
+      "text": "닫기\n\n페이지: /engines/schedule\n\n새 자료 세트\n자료 세트\n전체 선택\n전체 해제\n선택 내보내기\n우리집 기본 일정\n\n아이템 2개 · 마지막 수정 2026-03-06T16:46:23.742Z\n\nsource: {\"type\":\"sample\",\"importedAt\":\"2026-03-06T16:46:23.660Z\",\"bundleId\":\"bundle_sample_all_v1\"}\n\n사용안함\n편집\n삭제\n1분마다 알림\n\n아이템 1개 · 마지막 수정 2026-03-06T16:46:23.660Z\n\nsource: {\"type\":\"sample\",\"importedAt\":\"2026-03-06T16:46:23.660Z\",\"bundleId\":\"bundle_sample_all_v1\"}\n\n사용함\n편집\n삭제"
+    },
+    {
+      "id": "engine-root",
+      "text": "닫기\n\n페이지: /engines/schedule\n\n새 자료 세트\n자료 세트\n전체 선택\n전체 해제\n선택 내보내기\n우리집 기본 일정\n\n아이템 2개 · 마지막 수정 2026-03-06T16:46:23.742Z\n\nsource: {\"type\":\"sample\",\"importedAt\":\"2026-03-06T16:46:23.660Z\",\"bundleId\":\"bundle_sample_all_v1\"}\n\n사용안함\n편집\n삭제\n1분마다 알림\n\n아이템 1개 · 마지막 수정 2026-03-06T16:46:23.660Z\n\nsource: {\"type\":\"sample\",\"importedAt\":\"2026-03-06T16:46:23.660Z\",\"bundleId\":\"bundle_sample_all_v1\"}\n\n사용함\n편집\n삭제"
+    },
+    {
+      "id": "overlay-close",
+      "text": "닫기"
+    },
+    {
+      "id": "overlay-title",
+      "text": "페이지: /engines/schedule"
+    },
+    {
+      "id": "engine-dataset-add",
+      "text": "새 자료 세트"
+    },
+    {
+      "id": "engine-datasets-list",
+      "text": "자료 세트\n전체 선택\n전체 해제\n선택 내보내기\n우리집 기본 일정\n\n아이템 2개 · 마지막 수정 2026-03-06T16:46:23.742Z\n\nsource: {\"type\":\"sample\",\"importedAt\":\"2026-03-06T16:46:23.660Z\",\"bundleId\":\"bundle_sample_all_v1\"}\n\n사용안함\n편집\n삭제\n1분마다 알림\n\n아이템 1개 · 마지막 수정 2026-03-06T16:46:23.660Z\n\nsource: {\"type\":\"sample\",\"importedAt\":\"2026-03-06T16:46:23.660Z\",\"bundleId\":\"bundle_sample_all_v1\"}\n\n사용함\n편집\n삭제"
+    },
+    {
+      "id": "engine-empty-state",
+      "text": "아직 데이터가 없습니다."
+    },
+    {
+      "id": "dataset-row",
+      "text": "우리집 기본 일정\n\n아이템 2개 · 마지막 수정 2026-03-06T16:46:23.742Z\n\nsource: {\"type\":\"sample\",\"importedAt\":\"2026-03-06T16:46:23.660Z\",\"bundleId\":\"bundle_sample_all_v1\"}\n\n사용안함\n편집\n삭제"
+    },
+    {
+      "id": "schedule-enabled-toggle",
+      "text": "사용안함"
+    },
+    {
+      "id": "dataset-row",
+      "text": "1분마다 알림\n\n아이템 1개 · 마지막 수정 2026-03-06T16:46:23.660Z\n\nsource: {\"type\":\"sample\",\"importedAt\":\"2026-03-06T16:46:23.660Z\",\"bundleId\":\"bundle_sample_all_v1\"}\n\n사용함\n편집\n삭제"
+    },
+    {
+      "id": "schedule-enabled-toggle",
+      "text": "사용함"
+    }
+  ]
+}

@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/machine/ui.v1.schema.json",
+  "title": "Homi Machine UI Contract V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "documentType",
+    "schemaRef",
+    "authoritative",
+    "generated",
+    "updated",
+    "rules",
+    "global",
+    "routes",
+    "overlayContract",
+    "datasetRowContract",
+    "dictationRunnerContract",
+    "scheduleContract",
+    "toastContract"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "homi.machine.ui.v1"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "documentType": {
+      "type": "string",
+      "const": "ui"
+    },
+    "schemaRef": {
+      "type": "string",
+      "const": "schemas/machine/ui.v1.schema.json"
+    },
+    "authoritative": {
+      "type": "boolean",
+      "const": true
+    },
+    "generated": {
+      "type": "boolean",
+      "const": false
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "statement"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ui\\.[a-z0-9_.-]+$"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "global": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requiredTestIds",
+        "forbiddenTestIds"
+      ],
+      "properties": {
+        "requiredTestIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "forbiddenTestIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "path",
+          "requiredTestIds",
+          "forbiddenTestIds"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ui\\.route\\.[a-z0-9_.-]+$"
+          },
+          "path": {
+            "type": "string"
+          },
+          "requiredTestIds": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "forbiddenTestIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requiredAttributes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "overlayContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "overlayRootTestId",
+        "overlayCloseTestId",
+        "overlayTitleTestId",
+        "engineOverlayKind",
+        "backupOverlayKind"
+      ],
+      "properties": {
+        "overlayRootTestId": {
+          "type": "string"
+        },
+        "overlayCloseTestId": {
+          "type": "string"
+        },
+        "overlayTitleTestId": {
+          "type": "string"
+        },
+        "engineOverlayKind": {
+          "type": "string",
+          "const": "engine"
+        },
+        "backupOverlayKind": {
+          "type": "string",
+          "const": "backup"
+        }
+      }
+    },
+    "datasetRowContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rowTestId",
+        "openActionTestId",
+        "requiredAttributes"
+      ],
+      "properties": {
+        "rowTestId": {
+          "type": "string",
+          "const": "dataset-row"
+        },
+        "openActionTestId": {
+          "type": "string",
+          "const": "dataset-open"
+        },
+        "requiredAttributes": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dictationRunnerContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requiredTestIds"
+      ],
+      "properties": {
+        "requiredTestIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "scheduleContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabledToggleTestId"
+      ],
+      "properties": {
+        "enabledToggleTestId": {
+          "type": "string",
+          "const": "schedule-enabled-toggle"
+        }
+      }
+    },
+    "toastContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rootTestId",
+        "scheduleToastTestId"
+      ],
+      "properties": {
+        "rootTestId": {
+          "type": "string",
+          "const": "toast-root"
+        },
+        "scheduleToastTestId": {
+          "type": "string",
+          "const": "schedule-toast"
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export type SourceType = 'manual' | 'sample' | 'url' | 'file';
+export type SourceType = 'manual' | 'sample' | 'url' | 'file' | 'text';
 export type EngineId = 'schedule' | 'dictation';
 export type BundleType = 'sample' | 'import' | 'backup';
 
@@ -136,7 +136,7 @@ export const ENGINE_REGISTRY: EngineDefinition[] = [
 
 const SourceSchema = z
   .object({
-    type: z.enum(['manual', 'sample', 'url', 'file']),
+    type: z.enum(['manual', 'sample', 'url', 'file', 'text']),
     importedAt: z.string().optional(),
     bundleId: z.string().optional(),
     url: z.union([z.string(), z.null()]).optional(),

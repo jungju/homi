@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/domain/dataset.v1.schema.json",
+  "title": "Homi v1 DataSetV1 (Stored)",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "id",
+    "engineId",
+    "engineSchemaVersion",
+    "title",
+    "items",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "engineId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40,
+      "pattern": "^[a-z][a-z0-9-]{0,39}$"
+    },
+    "engineSchemaVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10000
+    },
+    "items": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 10000,
+      "items": {
+        "type": "object"
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "tags": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 10000
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "manual",
+            "sample",
+            "url",
+            "file",
+            "text"
+          ]
+        },
+        "importedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "bundleId": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 2000
+        },
+        "originalDatasetId": {
+          "type": "string",
+          "maxLength": 200
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "engineId": {
+            "const": "dictation"
+          }
+        },
+        "required": [
+          "engineId"
+        ]
+      },
+      "then": {
+        "properties": {
+          "engineSchemaVersion": {
+            "const": 1
+          },
+          "items": {
+            "items": {
+              "$ref": "./engines/dictation.item.v1.schema.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "engineId": {
+            "const": "schedule"
+          }
+        },
+        "required": [
+          "engineId"
+        ]
+      },
+      "then": {
+        "properties": {
+          "engineSchemaVersion": {
+            "const": 1
+          },
+          "items": {
+            "items": {
+              "$ref": "./engines/schedule.item.v1.schema.json"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "screenId": "schedule.overlay",
+  "state": "비활성 토글",
+  "route": "http://127.0.0.1:4173/engines/schedule",
+  "deterministicAssertions": [
+    "schedule dataset list is visible",
+    "schedule-enabled-toggle interaction available"
+  ],
+  "capturedAt": "2026-03-06T16:46:23.908Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  }
+}

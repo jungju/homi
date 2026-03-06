@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/machine/fixtures.v1.schema.json",
+  "title": "Homi Machine Fixtures Registry V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "documentType",
+    "schemaRef",
+    "authoritative",
+    "generated",
+    "updated",
+    "fixtures"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "homi.machine.fixtures.v1"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "documentType": {
+      "type": "string",
+      "const": "fixtures"
+    },
+    "schemaRef": {
+      "type": "string",
+      "const": "schemas/machine/fixtures.v1.schema.json"
+    },
+    "authoritative": {
+      "type": "boolean",
+      "const": true
+    },
+    "generated": {
+      "type": "boolean",
+      "const": false
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "fixtures": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "path",
+          "schemaRef",
+          "purpose",
+          "tags",
+          "usedByTests",
+          "securityClassification",
+          "mutability",
+          "sampleBundle"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(fixture|sample)\\.[a-z0-9_.-]+$"
+          },
+          "path": {
+            "type": "string"
+          },
+          "schemaRef": {
+            "type": "string",
+            "pattern": "^schemas/domain/.+\\.schema\\.json$"
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "usedByTests": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^test\\.(p0|p1|p2|ai)\\.[a-z0-9_.-]+$"
+            }
+          },
+          "securityClassification": {
+            "type": "string",
+            "enum": [
+              "trusted_test_data",
+              "untrusted_input_simulation",
+              "public_sample_data"
+            ]
+          },
+          "mutability": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "generated"
+            ]
+          },
+          "sampleBundle": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

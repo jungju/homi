@@ -1,0 +1,159 @@
+{
+  "id": "homi.machine.coverage.v1",
+  "version": "v1",
+  "documentType": "coverage",
+  "schemaRef": "schemas/machine/coverage.v1.schema.json",
+  "authoritative": false,
+  "generated": true,
+  "generatedAt": "2026-03-06T16:48:00.489Z",
+  "generatedFrom": {
+    "testsContract": "docs/machine/tests.v1.yaml",
+    "testCode": [
+      "tests/e2e/qa-homi.spec.ts"
+    ],
+    "testResults": "test-results/.last-run.json#status=passed"
+  },
+  "summary": {
+    "totalScenarios": 15,
+    "coveredScenarios": 7,
+    "partialScenarios": 7,
+    "gapScenarios": 1
+  },
+  "rows": [
+    {
+      "scenarioId": "test.p0.home.base_layout",
+      "priority": "P0",
+      "type": "automated",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.overlay.engine_stack",
+      "priority": "P0",
+      "type": "automated",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.backup.overlay_contract",
+      "priority": "P0",
+      "type": "automated",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.import.preview_before_confirm",
+      "priority": "P0",
+      "type": "automated",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.import.replace_only",
+      "priority": "P0",
+      "type": "automated",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.import.entry_backup_only",
+      "priority": "P0",
+      "type": "manual",
+      "coverageStatus": "partial",
+      "evidence": [
+        "manual scenario registered in tests.v1.yaml"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.dictation.start_sets_mode",
+      "priority": "P0",
+      "type": "automated",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.dictation.timer_next_exit",
+      "priority": "P0",
+      "type": "manual",
+      "coverageStatus": "partial",
+      "evidence": [
+        "manual scenario registered in tests.v1.yaml"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.schedule.no_interrupt_during_dictation",
+      "priority": "P0",
+      "type": "automated",
+      "coverageStatus": "gap",
+      "evidence": [
+        "implementation mapping missing"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.security.javascript_scheme_block",
+      "priority": "P0",
+      "type": "manual",
+      "coverageStatus": "partial",
+      "evidence": [
+        "manual scenario registered in tests.v1.yaml"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.security.text_render_only",
+      "priority": "P0",
+      "type": "manual",
+      "coverageStatus": "partial",
+      "evidence": [
+        "manual scenario registered in tests.v1.yaml"
+      ]
+    },
+    {
+      "scenarioId": "test.p1.schedule.toggle_enabled",
+      "priority": "P1",
+      "type": "automated",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p1.source_type_text_roundtrip",
+      "priority": "P1",
+      "type": "manual",
+      "coverageStatus": "partial",
+      "evidence": [
+        "manual scenario registered in tests.v1.yaml"
+      ]
+    },
+    {
+      "scenarioId": "test.ai.home.intent",
+      "priority": "P1",
+      "type": "ai",
+      "coverageStatus": "partial",
+      "evidence": [
+        "ai review summary exists"
+      ]
+    },
+    {
+      "scenarioId": "test.ai.backup.preview_visible",
+      "priority": "P1",
+      "type": "ai",
+      "coverageStatus": "partial",
+      "evidence": [
+        "ai review summary exists"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/machine/manifest.v1.schema.json",
+  "title": "Homi Machine Manifest V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "documentType",
+    "schemaRef",
+    "authoritative",
+    "generated",
+    "updated",
+    "project",
+    "parserHints",
+    "truthOrderPath",
+    "artifactRegistry",
+    "schemaRegistry",
+    "authorityPolicy"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "homi.machine.manifest.v1"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "documentType": {
+      "type": "string",
+      "const": "manifest"
+    },
+    "schemaRef": {
+      "type": "string",
+      "const": "schemas/machine/manifest.v1.schema.json"
+    },
+    "authoritative": {
+      "type": "boolean",
+      "const": true
+    },
+    "generated": {
+      "type": "boolean",
+      "const": false
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "root"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "const": "homi"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "static-webapp"
+          ]
+        },
+        "root": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "parserHints": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "truthOrderPath": {
+      "type": "string",
+      "const": "docs/machine/truth-order.v1.yaml"
+    },
+    "artifactRegistry": {
+      "type": "array",
+      "minItems": 13,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "path",
+          "kind",
+          "documentType",
+          "schemaRef",
+          "authoritative",
+          "generated",
+          "role"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_.-]+$"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._/*{}-]+$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "machine_doc"
+            ]
+          },
+          "documentType": {
+            "type": "string",
+            "enum": [
+              "manifest",
+              "truth-order",
+              "read-sets",
+              "change-policy",
+              "product",
+              "ui",
+              "flows",
+              "tests",
+              "fixtures",
+              "ai-review",
+              "work-items",
+              "coverage",
+              "dependency-graph"
+            ]
+          },
+          "schemaRef": {
+            "type": "string",
+            "pattern": "^schemas/machine/.+\\.schema\\.json$"
+          },
+          "authoritative": {
+            "type": "boolean"
+          },
+          "generated": {
+            "type": "boolean"
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "schemaRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "machine",
+        "domain",
+        "integration"
+      ],
+      "properties": {
+        "machine": {
+          "type": "array",
+          "minItems": 12,
+          "items": {
+            "type": "string",
+            "pattern": "^schemas/machine/.+\\.schema\\.json$"
+          }
+        },
+        "domain": {
+          "type": "array",
+          "minItems": 6,
+          "items": {
+            "type": "string",
+            "pattern": "^schemas/domain/.+\\.schema\\.json$"
+          }
+        },
+        "integration": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^schemas/.+\\.schema\\.json$"
+          }
+        }
+      }
+    },
+    "authorityPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "readmeIsAuthoritative",
+        "legacyDocsAuthoritative",
+        "generatedArtifactsAuthoritative"
+      ],
+      "properties": {
+        "readmeIsAuthoritative": {
+          "type": "boolean",
+          "const": false
+        },
+        "legacyDocsAuthoritative": {
+          "type": "boolean",
+          "const": false
+        },
+        "generatedArtifactsAuthoritative": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,2054 @@
+{
+  "id": "homi.machine.dependency-graph.v1",
+  "version": "v1",
+  "documentType": "dependency-graph",
+  "schemaRef": "schemas/machine/dependency-graph.v1.schema.json",
+  "authoritative": false,
+  "generated": true,
+  "generatedAt": "2026-03-06T16:48:00.794Z",
+  "generatedFrom": {
+    "manifest": "docs/machine/manifest.v1.yaml"
+  },
+  "nodes": [
+    {
+      "id": "resolved.docs/legacy/ai-review-rubrics/backup.overlay.md",
+      "path": "docs/legacy/ai-review-rubrics/backup.overlay.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/ai-review-rubrics/dictation.running.md",
+      "path": "docs/legacy/ai-review-rubrics/dictation.running.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/ai-review-rubrics/home.default.md",
+      "path": "docs/legacy/ai-review-rubrics/home.default.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/ai-review-rubrics/schedule.toast.during-dictation.md",
+      "path": "docs/legacy/ai-review-rubrics/schedule.toast.during-dictation.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/ai-review-rubrics/shared.md",
+      "path": "docs/legacy/ai-review-rubrics/shared.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/ai-ui-review-spec.md",
+      "path": "docs/legacy/ai-ui-review-spec.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/contracts/ui-contract.v1.yaml",
+      "path": "docs/legacy/contracts/ui-contract.v1.yaml",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/coverage-matrix.v1.yaml",
+      "path": "docs/legacy/coverage-matrix.v1.yaml",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/manifest.yaml",
+      "path": "docs/legacy/manifest.yaml",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/qa-automation.md",
+      "path": "docs/legacy/qa-automation.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/qa-coverage-matrix.md",
+      "path": "docs/legacy/qa-coverage-matrix.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/qa-fixtures.md",
+      "path": "docs/legacy/qa-fixtures.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/qa-runbook.md",
+      "path": "docs/legacy/qa-runbook.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/reference-map.md",
+      "path": "docs/legacy/reference-map.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/SPEC.md",
+      "path": "docs/legacy/SPEC.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/TASK.md",
+      "path": "docs/legacy/TASK.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/UI_TESTS.md",
+      "path": "docs/legacy/UI_TESTS.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.docs/legacy/ui-dom-contract.md",
+      "path": "docs/legacy/ui-dom-contract.md",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.ai_review",
+      "path": "docs/machine/ai-review.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.change_policy",
+      "path": "docs/machine/change-policy.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.coverage",
+      "path": "docs/machine/coverage.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": false,
+      "generated": true
+    },
+    {
+      "id": "docs.machine.dependency_graph",
+      "path": "docs/machine/dependency-graph.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": false,
+      "generated": true
+    },
+    {
+      "id": "docs.machine.fixtures",
+      "path": "docs/machine/fixtures.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.flows",
+      "path": "docs/machine/flows.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.manifest",
+      "path": "docs/machine/manifest.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.product",
+      "path": "docs/machine/product.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.read_sets",
+      "path": "docs/machine/read-sets.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.tests",
+      "path": "docs/machine/tests.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.truth_order",
+      "path": "docs/machine/truth-order.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.ui",
+      "path": "docs/machine/ui.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "docs.machine.work_items",
+      "path": "docs/machine/work-items.v1.yaml",
+      "kind": "machine_doc",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "resolved.public/samples/homi.sample.homi.json",
+      "path": "public/samples/homi.sample.homi.json",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "schema.integration.schemas/ai-ui-review-result.schema.json",
+      "path": "schemas/ai-ui-review-result.schema.json",
+      "kind": "schema_integration",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.domain.schemas/domain/dataset-payload.v1.schema.json",
+      "path": "schemas/domain/dataset-payload.v1.schema.json",
+      "kind": "schema_domain",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.domain.schemas/domain/dataset.v1.schema.json",
+      "path": "schemas/domain/dataset.v1.schema.json",
+      "kind": "schema_domain",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.domain.schemas/domain/engines/dictation.item.v1.schema.json",
+      "path": "schemas/domain/engines/dictation.item.v1.schema.json",
+      "kind": "schema_domain",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.domain.schemas/domain/engines/schedule.item.v1.schema.json",
+      "path": "schemas/domain/engines/schedule.item.v1.schema.json",
+      "kind": "schema_domain",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.domain.schemas/domain/homi-bundle.v1.schema.json",
+      "path": "schemas/domain/homi-bundle.v1.schema.json",
+      "kind": "schema_domain",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.domain.schemas/domain/store.v1.schema.json",
+      "path": "schemas/domain/store.v1.schema.json",
+      "kind": "schema_domain",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/ai-review.v1.schema.json",
+      "path": "schemas/machine/ai-review.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/change-policy.v1.schema.json",
+      "path": "schemas/machine/change-policy.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/coverage.v1.schema.json",
+      "path": "schemas/machine/coverage.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/dependency-graph.v1.schema.json",
+      "path": "schemas/machine/dependency-graph.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/fixtures.v1.schema.json",
+      "path": "schemas/machine/fixtures.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/flows.v1.schema.json",
+      "path": "schemas/machine/flows.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/manifest.v1.schema.json",
+      "path": "schemas/machine/manifest.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/product.v1.schema.json",
+      "path": "schemas/machine/product.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/read-sets.v1.schema.json",
+      "path": "schemas/machine/read-sets.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/tests.v1.schema.json",
+      "path": "schemas/machine/tests.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/truth-order.v1.schema.json",
+      "path": "schemas/machine/truth-order.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/ui.v1.schema.json",
+      "path": "schemas/machine/ui.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "schema.machine.schemas/machine/work-items.v1.schema.json",
+      "path": "schemas/machine/work-items.v1.schema.json",
+      "kind": "schema_machine",
+      "authoritative": true,
+      "generated": false
+    },
+    {
+      "id": "resolved.scripts/ai-ui-review.mjs",
+      "path": "scripts/ai-ui-review.mjs",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.scripts/build-coverage-matrix.mjs",
+      "path": "scripts/build-coverage-matrix.mjs",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.scripts/build-dependency-graph.mjs",
+      "path": "scripts/build-dependency-graph.mjs",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.scripts/next-step.mjs",
+      "path": "scripts/next-step.mjs",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.scripts/validate-domain-schemas.mjs",
+      "path": "scripts/validate-domain-schemas.mjs",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.scripts/validate-machine-docs.mjs",
+      "path": "scripts/validate-machine-docs.mjs",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.src/App.svelte",
+      "path": "src/App.svelte",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.src/lib/homi.ts",
+      "path": "src/lib/homi.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/e2e/qa-homi.spec.ts",
+      "path": "tests/e2e/qa-homi.spec.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/fixtures/bundle.min.v1.json",
+      "path": "tests/fixtures/bundle.min.v1.json",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/fixtures/bundle.xss.v1.json",
+      "path": "tests/fixtures/bundle.xss.v1.json",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/helpers/capture-ui-artifacts.ts",
+      "path": "tests/helpers/capture-ui-artifacts.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    }
+  ],
+  "edges": [
+    {
+      "from": "docs/machine/ai-review.v1.yaml",
+      "to": "schemas/ai-ui-review-result.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/ai-review.v1.yaml",
+      "to": "schemas/machine/ai-review.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/ai-review.v1.yaml",
+      "to": "schemas/machine/ai-review.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "docs/machine/ai-review.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "docs/machine/flows.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "docs/machine/product.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "docs/machine/tests.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "docs/machine/ui.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "docs/machine/work-items.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/ai-ui-review-result.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/domain/dataset-payload.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/domain/dataset.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/domain/engines/dictation.item.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/domain/engines/schedule.item.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/domain/store.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/ai-review.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/change-policy.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/change-policy.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/change-policy.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/coverage.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/dependency-graph.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/fixtures.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/flows.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/manifest.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/product.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/read-sets.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/tests.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/truth-order.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/ui.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "schemas/machine/work-items.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "scripts/ai-ui-review.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "src/App.svelte",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "src/lib/homi.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/change-policy.v1.yaml",
+      "to": "tests/e2e/qa-homi.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/coverage.v1.yaml",
+      "to": "docs/machine/tests.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/coverage.v1.yaml",
+      "to": "schemas/machine/coverage.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/coverage.v1.yaml",
+      "to": "schemas/machine/coverage.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/coverage.v1.yaml",
+      "to": "tests/e2e/qa-homi.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/ai-review-rubrics/backup.overlay.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/ai-review-rubrics/dictation.running.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/ai-review-rubrics/home.default.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/ai-review-rubrics/schedule.toast.during-dictation.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/ai-review-rubrics/shared.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/ai-ui-review-spec.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/contracts/ui-contract.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/coverage-matrix.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/manifest.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/qa-automation.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/qa-coverage-matrix.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/qa-fixtures.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/qa-runbook.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/reference-map.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/SPEC.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/TASK.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/UI_TESTS.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/legacy/ui-dom-contract.md",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/ai-review.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/change-policy.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/coverage.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/fixtures.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/flows.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/manifest.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/product.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/read-sets.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/tests.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/truth-order.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/ui.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "docs/machine/work-items.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "public/samples/homi.sample.homi.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/ai-ui-review-result.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/domain/dataset-payload.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/domain/dataset.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/domain/engines/dictation.item.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/domain/engines/schedule.item.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/domain/store.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/ai-review.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/change-policy.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/coverage.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/dependency-graph.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/dependency-graph.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/fixtures.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/flows.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/manifest.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/product.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/read-sets.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/tests.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/truth-order.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/ui.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "schemas/machine/work-items.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "scripts/ai-ui-review.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "scripts/build-coverage-matrix.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "scripts/build-dependency-graph.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "scripts/next-step.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "scripts/validate-domain-schemas.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "scripts/validate-machine-docs.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "src/App.svelte",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "src/lib/homi.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/e2e/qa-homi.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/fixtures/bundle.min.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/fixtures/bundle.xss.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/helpers/capture-ui-artifacts.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "public/samples/homi.sample.homi.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "schemas/machine/fixtures.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "schemas/machine/fixtures.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "tests/fixtures/bundle.min.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "tests/fixtures/bundle.xss.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/flows.v1.yaml",
+      "to": "schemas/machine/flows.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/flows.v1.yaml",
+      "to": "schemas/machine/flows.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/ai-review.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/ai-review.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/change-policy.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/change-policy.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/coverage.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/coverage.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/dependency-graph.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/dependency-graph.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/fixtures.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/fixtures.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/flows.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/flows.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/manifest.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/product.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/product.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/read-sets.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/read-sets.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/tests.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/tests.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/truth-order.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/truth-order.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/truth-order.v1.yaml",
+      "reason": "truth_order_path"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/ui.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/ui.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/work-items.v1.yaml",
+      "reason": "artifact_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "docs/machine/work-items.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/ai-ui-review-result.schema.json",
+      "reason": "integration_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/ai-ui-review-result.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/dataset-payload.v1.schema.json",
+      "reason": "domain_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/dataset-payload.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/dataset.v1.schema.json",
+      "reason": "domain_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/dataset.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/engines/dictation.item.v1.schema.json",
+      "reason": "domain_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/engines/dictation.item.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/engines/schedule.item.v1.schema.json",
+      "reason": "domain_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/engines/schedule.item.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "domain_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/store.v1.schema.json",
+      "reason": "domain_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/domain/store.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/ai-review.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/ai-review.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/change-policy.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/change-policy.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/coverage.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/coverage.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/dependency-graph.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/dependency-graph.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/fixtures.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/fixtures.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/flows.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/flows.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/manifest.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/manifest.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/manifest.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/product.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/product.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/read-sets.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/read-sets.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/tests.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/tests.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/truth-order.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/truth-order.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/ui.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/ui.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/work-items.v1.schema.json",
+      "reason": "machine_schema_registry"
+    },
+    {
+      "from": "docs/machine/manifest.v1.yaml",
+      "to": "schemas/machine/work-items.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/product.v1.yaml",
+      "to": "public/samples/homi.sample.homi.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/product.v1.yaml",
+      "to": "schemas/domain/engines/dictation.item.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/product.v1.yaml",
+      "to": "schemas/domain/engines/schedule.item.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/product.v1.yaml",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/product.v1.yaml",
+      "to": "schemas/domain/store.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/product.v1.yaml",
+      "to": "schemas/machine/product.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/product.v1.yaml",
+      "to": "schemas/machine/product.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/ai-review-rubrics/backup.overlay.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/ai-review-rubrics/dictation.running.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/ai-review-rubrics/home.default.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/ai-review-rubrics/schedule.toast.during-dictation.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/ai-review-rubrics/shared.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/ai-ui-review-spec.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/contracts/ui-contract.v1.yaml",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/coverage-matrix.v1.yaml",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/manifest.yaml",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/qa-automation.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/qa-coverage-matrix.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/qa-fixtures.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/qa-runbook.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/reference-map.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/SPEC.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/TASK.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/UI_TESTS.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/legacy/ui-dom-contract.md",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/ai-review.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/change-policy.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/coverage.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/fixtures.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/flows.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/manifest.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/product.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/tests.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/truth-order.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/ui.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "docs/machine/work-items.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/ai-ui-review-result.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/domain/dataset-payload.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/domain/dataset-payload.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/domain/dataset.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/domain/dataset.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/domain/engines/dictation.item.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/domain/engines/schedule.item.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/domain/store.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/ai-review.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/change-policy.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/coverage.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/dependency-graph.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/fixtures.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/flows.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/manifest.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/manifest.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/product.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/read-sets.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/read-sets.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/read-sets.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/tests.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/truth-order.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/ui.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "schemas/machine/work-items.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "scripts/ai-ui-review.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "scripts/validate-domain-schemas.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "scripts/validate-machine-docs.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "src/App.svelte",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "src/lib/homi.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "tests/e2e/qa-homi.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/read-sets.v1.yaml",
+      "to": "tests/helpers/capture-ui-artifacts.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/tests.v1.yaml",
+      "to": "schemas/machine/tests.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/tests.v1.yaml",
+      "to": "schemas/machine/tests.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/tests.v1.yaml",
+      "to": "tests/e2e/qa-homi.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/ai-review.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/change-policy.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/coverage.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/dependency-graph.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/fixtures.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/flows.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/manifest.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/product.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/tests.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/ui.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "docs/machine/work-items.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "schemas/domain/dataset-payload.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "schemas/domain/dataset.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "schemas/domain/engines/dictation.item.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "schemas/domain/engines/schedule.item.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "schemas/domain/store.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "schemas/machine/truth-order.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/truth-order.v1.yaml",
+      "to": "schemas/machine/truth-order.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/ui.v1.yaml",
+      "to": "schemas/machine/ui.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/ui.v1.yaml",
+      "to": "schemas/machine/ui.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/ai-review.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/change-policy.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/coverage.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/fixtures.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/flows.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/manifest.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/product.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/read-sets.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/tests.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/truth-order.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "docs/machine/ui.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/domain/dataset-payload.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/domain/dataset.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/domain/engines/dictation.item.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/domain/engines/schedule.item.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/domain/store.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/ai-review.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/change-policy.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/coverage.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/dependency-graph.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/fixtures.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/flows.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/manifest.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/manifest.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/product.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/read-sets.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/tests.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/tests.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/truth-order.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/ui.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/work-items.v1.schema.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/work-items.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/work-items.v1.schema.json",
+      "reason": "schema_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "scripts/ai-ui-review.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "scripts/build-coverage-matrix.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "scripts/build-dependency-graph.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "scripts/next-step.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "scripts/validate-domain-schemas.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "scripts/validate-machine-docs.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/e2e/qa-homi.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/helpers/capture-ui-artifacts.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "schemas/machine/ai-review.v1.schema.json",
+      "to": "schemas/ai-ui-review-result.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "schemas/machine/manifest.v1.schema.json",
+      "to": "docs/machine/truth-order.v1.yaml",
+      "reason": "path_ref"
+    },
+    {
+      "from": "schemas/machine/product.v1.schema.json",
+      "to": "public/samples/homi.sample.homi.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "schemas/machine/product.v1.schema.json",
+      "to": "schemas/domain/homi-bundle.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "schemas/machine/product.v1.schema.json",
+      "to": "schemas/domain/store.v1.schema.json",
+      "reason": "path_ref"
+    }
+  ]
+}

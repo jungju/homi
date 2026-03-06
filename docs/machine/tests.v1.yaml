@@ -1,0 +1,460 @@
+{
+  "id": "homi.machine.tests.v1",
+  "version": "v1",
+  "documentType": "tests",
+  "schemaRef": "schemas/machine/tests.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "scenarios": [
+    {
+      "id": "test.p0.home.base_layout",
+      "title": "홈 기본 화면은 얼굴/말풍선/모드 텍스트를 보여야 한다.",
+      "priority": "P0",
+      "type": "automated",
+      "contractRefs": [
+        "ui.home.face_visible",
+        "ui.home.bubble_visible",
+        "ui.home.mode_text_visible",
+        "ui.home.no_global_header"
+      ],
+      "preconditions": [
+        "localStorage clear"
+      ],
+      "actions": [
+        "route=/ 접속"
+      ],
+      "assertions": [
+        "home-face visible",
+        "home-bubble visible",
+        "home-mode-text contains 기본 모드",
+        "home-engine-btn-schedule/dictation visible"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/home.default*.png",
+        "test-results/ai-artifacts/home.default*.dom-testids.json"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.home.base_layout"
+      }
+    },
+    {
+      "id": "test.p0.overlay.engine_stack",
+      "title": "엔진 라우트는 홈 위 오버레이로 열린다.",
+      "priority": "P0",
+      "type": "automated",
+      "contractRefs": [
+        "ui.overlay.engine_contract",
+        "ui.home.face_visible"
+      ],
+      "preconditions": [
+        "route=/"
+      ],
+      "actions": [
+        "home-engine-btn-dictation 클릭"
+      ],
+      "assertions": [
+        "overlay-root visible",
+        "overlay-root data-overlay-kind=engine",
+        "home-root remains mounted"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/engine.overlay*.png"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.overlay.engine_stack"
+      }
+    },
+    {
+      "id": "test.p0.backup.overlay_contract",
+      "title": "backup 오버레이는 import/export 제어를 모두 제공한다.",
+      "priority": "P0",
+      "type": "automated",
+      "contractRefs": [
+        "ui.overlay.backup_contract",
+        "product.import.entry_route.backup_only"
+      ],
+      "preconditions": [
+        "route=/backup"
+      ],
+      "actions": [
+        "샘플 버튼 클릭으로 preview 생성"
+      ],
+      "assertions": [
+        "backup-url-input/text/file control visible",
+        "backup-preview visible",
+        "backup-confirm visible"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/backup.overlay*.png"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.backup.overlay_contract"
+      }
+    },
+    {
+      "id": "test.p0.import.preview_before_confirm",
+      "title": "import는 preview 후 confirm 단계로만 반영된다.",
+      "priority": "P0",
+      "type": "automated",
+      "contractRefs": [
+        "product.import.preview_required",
+        "flow.import.preview_before_confirm"
+      ],
+      "preconditions": [
+        "backup overlay open"
+      ],
+      "actions": [
+        "sample/text/url/file preview 생성",
+        "confirm 클릭"
+      ],
+      "assertions": [
+        "confirm 버튼은 preview 생성 후 활성 가능",
+        "confirm 이후 replace 안내 메시지 표시"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/backup.overlay*.meta.json"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.import.preview_before_confirm"
+      }
+    },
+    {
+      "id": "test.p0.import.replace_only",
+      "title": "import 적용 모드는 replace only다.",
+      "priority": "P0",
+      "type": "automated",
+      "contractRefs": [
+        "product.import.apply_mode.replace",
+        "flow.import.confirm_replace"
+      ],
+      "preconditions": [
+        "기존 store에 dataset 존재"
+      ],
+      "actions": [
+        "backup에서 import confirm 수행"
+      ],
+      "assertions": [
+        "기존 dataset이 교체됨",
+        "append/merge 경로 미존재"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/backup.overlay*.visible-text.txt"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.import.replace_only"
+      }
+    },
+    {
+      "id": "test.p0.import.entry_backup_only",
+      "title": "import 입력 UI는 backup route에만 존재한다.",
+      "priority": "P0",
+      "type": "manual",
+      "contractRefs": [
+        "product.import.entry_route.backup_only",
+        "ui.engine.no_backup_import_controls"
+      ],
+      "preconditions": [
+        "route=/engines/dictation"
+      ],
+      "actions": [
+        "engine overlay DOM 확인"
+      ],
+      "assertions": [
+        "backup-url-input/json/file testid not present"
+      ],
+      "artifacts": [
+        "manual-check:engine-overlay-dom"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      }
+    },
+    {
+      "id": "test.p0.dictation.start_sets_mode",
+      "title": "dictation 시작 시 실행 모드 텍스트로 전환된다.",
+      "priority": "P0",
+      "type": "automated",
+      "contractRefs": [
+        "product.dictation.mode_text.required",
+        "flow.dictation.start_sets_mode",
+        "ui.dictation.runner_contract"
+      ],
+      "preconditions": [
+        "dictation dataset 존재"
+      ],
+      "actions": [
+        "dataset 선택 후 시작"
+      ],
+      "assertions": [
+        "dictation-root visible",
+        "home-mode-text contains 받아쓰기 실행모드",
+        "dictation-next/exit visible"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/dictation.running*.png"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.dictation.start_sets_mode"
+      }
+    },
+    {
+      "id": "test.p0.dictation.timer_next_exit",
+      "title": "dictation은 10초 자동 진행/Next 즉시 진행/종료 복귀를 만족한다.",
+      "priority": "P0",
+      "type": "manual",
+      "contractRefs": [
+        "product.dictation.auto_advance_10s",
+        "product.dictation.auto_exit_after_last_item"
+      ],
+      "preconditions": [
+        "dictation running"
+      ],
+      "actions": [
+        "10초 경과 관찰",
+        "Next 클릭",
+        "게임 나가기 클릭"
+      ],
+      "assertions": [
+        "progress 증가",
+        "Next 즉시 이동",
+        "종료 후 기본 모드"
+      ],
+      "artifacts": [
+        "manual-check:dictation-timer"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      }
+    },
+    {
+      "id": "test.p0.schedule.no_interrupt_during_dictation",
+      "title": "dictation 실행 중 schedule은 toast로만 안내한다.",
+      "priority": "P0",
+      "type": "automated",
+      "contractRefs": [
+        "product.schedule.no_os_notification_during_dictation",
+        "flow.schedule.reminder_non_interrupt",
+        "ui.toast.schedule_during_dictation"
+      ],
+      "preconditions": [
+        "schedule dataset repeatIntervalSec > 0",
+        "dictation running"
+      ],
+      "actions": [
+        "reminder tick 유도"
+      ],
+      "assertions": [
+        "schedule-toast visible",
+        "dictation state 유지"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/schedule.toast.during-dictation*.png"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      }
+    },
+    {
+      "id": "test.p0.security.javascript_scheme_block",
+      "title": "javascript: URL import는 차단된다.",
+      "priority": "P0",
+      "type": "manual",
+      "contractRefs": [
+        "product.security.block_javascript_scheme"
+      ],
+      "preconditions": [
+        "backup overlay open"
+      ],
+      "actions": [
+        "backup-url-input에 javascript:alert(1) 입력",
+        "preview 클릭"
+      ],
+      "assertions": [
+        "backup-error 노출",
+        "preview 생성 금지"
+      ],
+      "artifacts": [
+        "manual-check:url-scheme-block"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      }
+    },
+    {
+      "id": "test.p0.security.text_render_only",
+      "title": "XSS 문자열은 텍스트로 렌더링되고 실행되지 않는다.",
+      "priority": "P0",
+      "type": "manual",
+      "contractRefs": [
+        "product.security.render_text_only"
+      ],
+      "preconditions": [
+        "fixture bundle.xss.v1 준비"
+      ],
+      "actions": [
+        "backup에서 xss fixture preview"
+      ],
+      "assertions": [
+        "HTML 실행 이벤트 없음",
+        "문자열 텍스트 표시"
+      ],
+      "artifacts": [
+        "manual-check:xss-render"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      }
+    },
+    {
+      "id": "test.p1.schedule.toggle_enabled",
+      "title": "schedule dataset enabled 토글이 동작한다.",
+      "priority": "P1",
+      "type": "automated",
+      "contractRefs": [
+        "ui.dataset_row.required"
+      ],
+      "preconditions": [
+        "schedule dataset 존재"
+      ],
+      "actions": [
+        "첫 dataset toggle 클릭"
+      ],
+      "assertions": [
+        "토글 버튼 상태 변경"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/schedule.overlay*.png"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p1.schedule.toggle_enabled"
+      }
+    },
+    {
+      "id": "test.p1.source_type_text_roundtrip",
+      "title": "text import source 추적이 export/reimport 경로에서 유지된다.",
+      "priority": "P1",
+      "type": "manual",
+      "contractRefs": [
+        "product.import.bundle_level_only"
+      ],
+      "preconditions": [
+        "text import 가능한 fixture 준비"
+      ],
+      "actions": [
+        "text import",
+        "export",
+        "reimport"
+      ],
+      "assertions": [
+        "source.type=text 추적 확인"
+      ],
+      "artifacts": [
+        "manual-check:source-type-roundtrip"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "deterministic"
+      }
+    },
+    {
+      "id": "test.ai.home.intent",
+      "title": "AI 리뷰: 홈 화면은 얼굴 중심 의도를 만족한다.",
+      "priority": "P1",
+      "type": "ai",
+      "contractRefs": [
+        "ai.home.face_dominant",
+        "ai.home.mode_text_visible"
+      ],
+      "preconditions": [
+        "home.default artifact 캡처"
+      ],
+      "actions": [
+        "qa:ai-review 실행"
+      ],
+      "assertions": [
+        "verdict pass 또는 warn",
+        "hard fail code 부재"
+      ],
+      "artifacts": [
+        "test-results/ai-reviews/*.ai-review.json"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "ai_semantic"
+      }
+    },
+    {
+      "id": "test.ai.backup.preview_visible",
+      "title": "AI 리뷰: backup 화면에서 preview-before-confirm 의도를 만족한다.",
+      "priority": "P1",
+      "type": "ai",
+      "contractRefs": [
+        "ai.backup.preview_before_confirm_visible"
+      ],
+      "preconditions": [
+        "backup.overlay artifact 캡처"
+      ],
+      "actions": [
+        "qa:ai-review 실행"
+      ],
+      "assertions": [
+        "preview/confirm 의도 판정 결과 저장"
+      ],
+      "artifacts": [
+        "test-results/ai-reviews/*.ai-review.json"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "ai_semantic"
+      }
+    }
+  ]
+}

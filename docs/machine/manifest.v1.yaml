@@ -1,0 +1,186 @@
+{
+  "id": "homi.machine.manifest.v1",
+  "version": "v1",
+  "documentType": "manifest",
+  "schemaRef": "schemas/machine/manifest.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "project": {
+    "id": "homi",
+    "name": "homi",
+    "kind": "static-webapp",
+    "root": "."
+  },
+  "parserHints": {
+    "machineDocFormat": "json-compatible-yaml",
+    "encoding": "utf-8",
+    "pathStyle": "posix-relative"
+  },
+  "truthOrderPath": "docs/machine/truth-order.v1.yaml",
+  "artifactRegistry": [
+    {
+      "id": "docs.machine.manifest",
+      "path": "docs/machine/manifest.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "manifest",
+      "schemaRef": "schemas/machine/manifest.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "root_index"
+    },
+    {
+      "id": "docs.machine.truth_order",
+      "path": "docs/machine/truth-order.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "truth-order",
+      "schemaRef": "schemas/machine/truth-order.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "conflict_resolution"
+    },
+    {
+      "id": "docs.machine.read_sets",
+      "path": "docs/machine/read-sets.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "read-sets",
+      "schemaRef": "schemas/machine/read-sets.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "task_read_contract"
+    },
+    {
+      "id": "docs.machine.change_policy",
+      "path": "docs/machine/change-policy.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "change-policy",
+      "schemaRef": "schemas/machine/change-policy.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "versioning_policy"
+    },
+    {
+      "id": "docs.machine.product",
+      "path": "docs/machine/product.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "product",
+      "schemaRef": "schemas/machine/product.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "product_contract"
+    },
+    {
+      "id": "docs.machine.ui",
+      "path": "docs/machine/ui.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "ui",
+      "schemaRef": "schemas/machine/ui.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "ui_dom_contract"
+    },
+    {
+      "id": "docs.machine.flows",
+      "path": "docs/machine/flows.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "flows",
+      "schemaRef": "schemas/machine/flows.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "state_machine_contract"
+    },
+    {
+      "id": "docs.machine.tests",
+      "path": "docs/machine/tests.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "tests",
+      "schemaRef": "schemas/machine/tests.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "qa_registry"
+    },
+    {
+      "id": "docs.machine.fixtures",
+      "path": "docs/machine/fixtures.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "fixtures",
+      "schemaRef": "schemas/machine/fixtures.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "fixture_registry"
+    },
+    {
+      "id": "docs.machine.ai_review",
+      "path": "docs/machine/ai-review.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "ai-review",
+      "schemaRef": "schemas/machine/ai-review.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "ai_semantic_gate_contract"
+    },
+    {
+      "id": "docs.machine.work_items",
+      "path": "docs/machine/work-items.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "work-items",
+      "schemaRef": "schemas/machine/work-items.v1.schema.json",
+      "authoritative": true,
+      "generated": false,
+      "role": "work_tracking_registry"
+    },
+    {
+      "id": "docs.machine.coverage",
+      "path": "docs/machine/coverage.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "coverage",
+      "schemaRef": "schemas/machine/coverage.v1.schema.json",
+      "authoritative": false,
+      "generated": true,
+      "role": "generated_coverage_report"
+    },
+    {
+      "id": "docs.machine.dependency_graph",
+      "path": "docs/machine/dependency-graph.v1.yaml",
+      "kind": "machine_doc",
+      "documentType": "dependency-graph",
+      "schemaRef": "schemas/machine/dependency-graph.v1.schema.json",
+      "authoritative": false,
+      "generated": true,
+      "role": "generated_dependency_report"
+    }
+  ],
+  "schemaRegistry": {
+    "machine": [
+      "schemas/machine/manifest.v1.schema.json",
+      "schemas/machine/truth-order.v1.schema.json",
+      "schemas/machine/read-sets.v1.schema.json",
+      "schemas/machine/change-policy.v1.schema.json",
+      "schemas/machine/product.v1.schema.json",
+      "schemas/machine/ui.v1.schema.json",
+      "schemas/machine/flows.v1.schema.json",
+      "schemas/machine/tests.v1.schema.json",
+      "schemas/machine/fixtures.v1.schema.json",
+      "schemas/machine/ai-review.v1.schema.json",
+      "schemas/machine/work-items.v1.schema.json",
+      "schemas/machine/coverage.v1.schema.json",
+      "schemas/machine/dependency-graph.v1.schema.json"
+    ],
+    "domain": [
+      "schemas/domain/homi-bundle.v1.schema.json",
+      "schemas/domain/dataset-payload.v1.schema.json",
+      "schemas/domain/dataset.v1.schema.json",
+      "schemas/domain/store.v1.schema.json",
+      "schemas/domain/engines/dictation.item.v1.schema.json",
+      "schemas/domain/engines/schedule.item.v1.schema.json"
+    ],
+    "integration": [
+      "schemas/ai-ui-review-result.schema.json"
+    ]
+  },
+  "authorityPolicy": {
+    "readmeIsAuthoritative": false,
+    "legacyDocsAuthoritative": false,
+    "generatedArtifactsAuthoritative": false
+  }
+}

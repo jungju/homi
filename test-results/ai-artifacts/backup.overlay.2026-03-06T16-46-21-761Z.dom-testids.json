@@ -1,0 +1,89 @@
+{
+  "screenId": "backup.overlay",
+  "items": [
+    {
+      "id": "app-root",
+      "text": "기존 자료를 교체하고 총 3개 자료 세트를 가져왔습니다.\n\n안녕하세요! Homi에 오신 걸 환영해요. 오늘도 우리 가족처럼 따뜻하게 시작해볼까요?\n\n현재 모드: 기본 모드\n\n📅\n스케줄 열기\n🎧\n받아쓰기 열기\n브레인 설정\n닫기\n\n페이지: /backup\n\n백업\n\n현재 저장 데이터: 0개\n\n전체 Export\n브레인 입력\n\n브레인 URL 또는 JSON 텍스트를 넣어 가져올 수 있습니다.\n\n샘플 가져오기\n\n기본 샘플 뇌(스케줄 + 받아쓰기) 번들을 한 번에 가져올 수 있습니다.\n\n기본 샘플 뇌 가져오기\nURL Import\n가져오기\n\n허용 스킴: https:// (개발환경: http://localhost 허용)\n\nJSON 텍스트 Import\nJSON 텍스트\n텍스트로 가져오기\n\n브레인 JSON을 붙여넣으면 미리보기 후 확인 저장됩니다.\n\n파일 Import\n파일 선택\n또는 파일 입력\n\n파일 Import도 URL Import와 동일하게 미리보기 후 확인 저장됩니다."
+    },
+    {
+      "id": "toast-root",
+      "text": "기존 자료를 교체하고 총 3개 자료 세트를 가져왔습니다."
+    },
+    {
+      "id": "home-root",
+      "text": "안녕하세요! Homi에 오신 걸 환영해요. 오늘도 우리 가족처럼 따뜻하게 시작해볼까요?\n\n현재 모드: 기본 모드\n\n📅\n스케줄 열기\n🎧\n받아쓰기 열기\n브레인 설정"
+    },
+    {
+      "id": "home-face"
+    },
+    {
+      "id": "home-bubble",
+      "text": "안녕하세요! Homi에 오신 걸 환영해요. 오늘도 우리 가족처럼 따뜻하게 시작해볼까요?\n\n현재 모드: 기본 모드"
+    },
+    {
+      "id": "home-mode-text",
+      "text": "현재 모드: 기본 모드"
+    },
+    {
+      "id": "home-open-engines",
+      "text": "📅\n스케줄 열기\n🎧\n받아쓰기 열기"
+    },
+    {
+      "id": "home-engine-btn-schedule",
+      "text": "📅\n스케줄 열기"
+    },
+    {
+      "id": "home-engine-btn-dictation",
+      "text": "🎧\n받아쓰기 열기"
+    },
+    {
+      "id": "home-open-backup",
+      "text": "브레인 설정"
+    },
+    {
+      "id": "overlay-root",
+      "text": "닫기\n\n페이지: /backup\n\n백업\n\n현재 저장 데이터: 0개\n\n전체 Export\n브레인 입력\n\n브레인 URL 또는 JSON 텍스트를 넣어 가져올 수 있습니다.\n\n샘플 가져오기\n\n기본 샘플 뇌(스케줄 + 받아쓰기) 번들을 한 번에 가져올 수 있습니다.\n\n기본 샘플 뇌 가져오기\nURL Import\n가져오기\n\n허용 스킴: https:// (개발환경: http://localhost 허용)\n\nJSON 텍스트 Import\nJSON 텍스트\n텍스트로 가져오기\n\n브레인 JSON을 붙여넣으면 미리보기 후 확인 저장됩니다.\n\n파일 Import\n파일 선택\n또는 파일 입력\n\n파일 Import도 URL Import와 동일하게 미리보기 후 확인 저장됩니다."
+    },
+    {
+      "id": "engine-root",
+      "text": "닫기\n\n페이지: /backup\n\n백업\n\n현재 저장 데이터: 0개\n\n전체 Export\n브레인 입력\n\n브레인 URL 또는 JSON 텍스트를 넣어 가져올 수 있습니다.\n\n샘플 가져오기\n\n기본 샘플 뇌(스케줄 + 받아쓰기) 번들을 한 번에 가져올 수 있습니다.\n\n기본 샘플 뇌 가져오기\nURL Import\n가져오기\n\n허용 스킴: https:// (개발환경: http://localhost 허용)\n\nJSON 텍스트 Import\nJSON 텍스트\n텍스트로 가져오기\n\n브레인 JSON을 붙여넣으면 미리보기 후 확인 저장됩니다.\n\n파일 Import\n파일 선택\n또는 파일 입력\n\n파일 Import도 URL Import와 동일하게 미리보기 후 확인 저장됩니다."
+    },
+    {
+      "id": "overlay-close",
+      "text": "닫기"
+    },
+    {
+      "id": "overlay-title",
+      "text": "페이지: /backup"
+    },
+    {
+      "id": "backup-export-btn",
+      "text": "전체 Export"
+    },
+    {
+      "id": "backup-sample-load-btn",
+      "text": "기본 샘플 뇌 가져오기"
+    },
+    {
+      "id": "backup-url-input"
+    },
+    {
+      "id": "backup-url-preview-btn",
+      "text": "가져오기"
+    },
+    {
+      "id": "backup-json-textarea"
+    },
+    {
+      "id": "backup-text-preview-btn",
+      "text": "텍스트로 가져오기"
+    },
+    {
+      "id": "backup-file-preview-btn",
+      "text": "파일 선택"
+    },
+    {
+      "id": "backup-file-input"
+    }
+  ]
+}

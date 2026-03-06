@@ -89,6 +89,7 @@
   let dictationRunning = false;
   let dictationIntervalTimer: number | null = null;
   let dictationGameMode = false;
+  let selectedDictationDataset: DataSetV1 | null = null;
   let dictationFaceBlink = false;
   let dictationFaceBlinkTimeout: number | null = null;
   const LIMIT_BYTES = MAX_BUNDLE_JSON_BYTES;
@@ -276,7 +277,15 @@
 
   $: homeMood = getHomeMood();
   $: displayMood = blink ? 'wink' : homeMood;
-  $: homeModeText = getHomeModeLabel();
+  $:
+    homeModeText =
+      route.kind === 'engine' && route.engineId === 'dictation' && dictationGameMode
+        ? '현재 모드: 받아쓰기 실행모드'
+        : '현재 모드: 기본 모드';
+  $:
+    selectedDictationDataset = dictationDatasetId
+      ? getDatasetsByEngine(store, 'dictation').find((dataset) => dataset.id === dictationDatasetId) ?? null
+      : null;
 
   function getHomeMood(): HomeMood {
     if (preview) {
@@ -289,13 +298,6 @@
       return 'curious';
     }
     return totalDatasetCount() > 0 ? 'proud' : 'smile';
-  }
-
-  function getHomeModeLabel(): string {
-    if (route.kind === 'engine' && route.engineId === 'dictation' && dictationGameMode) {
-      return '현재 모드: 받아쓰기 실행모드';
-    }
-    return '현재 모드: 기본모드';
   }
 
   function triggerHomeWink() {
@@ -944,7 +946,7 @@
         : preview.sourceKind === 'sample'
           ? 'sample'
           : preview.sourceKind === 'text'
-            ? 'file'
+            ? 'text'
             : 'url';
 
     const replaceStore: HomiStoreV1 = createEmptyStore();
@@ -1011,15 +1013,18 @@
   });
 </script>
 
-<div class="layout home-layout">
+<div class="layout home-layout" data-testid="app-root">
   {#if message}
-    <div class={`toast ${message.type}`}>{message.text}</div>
+    <div data-testid="toast-root" class={`toast ${message.type}`}>{message.text}</div>
+    {#if message.type === 'ok' && message.text.startsWith('일정 알림:')}
+      <div data-testid="schedule-toast" class="toast ok">{message.text}</div>
+    {/if}
   {/if}
 
-  <main class="home">
+  <main class="home" data-testid="home-root">
       <section class="home-fullscreen">
         <div class="home-fullscreen__halo"></div>
-        <div class="home-face" role="img" aria-label="친근한 홈 캐릭터 얼굴">
+        <div class="home-face" data-testid="home-face" role="img" aria-label="친근한 홈 캐릭터 얼굴">
           <div class="home-face__frame">
             <div class="home-face__head" data-mood={displayMood}>
               <div class="home-face__eyes">
@@ -1034,13 +1039,17 @@
             </div>
           </div>
         </div>
-        <section class="home-dialog" role="status" aria-live="polite">
+        <section class="home-dialog" data-testid="home-bubble" role="status" aria-live="polite">
           <p class="home-msg">{homeGreeting()}</p>
-          <p class="home-mode">{homeModeText}</p>
+          <p data-testid="home-mode-text" class="home-mode">{homeModeText}</p>
         </section>
-        <div class="home-engine-row">
+        <div class="home-engine-row" data-testid="home-open-engines">
           {#each ENGINE_REGISTRY as engine}
-            <button class="home-engine-btn" on:click={() => onHomeEngineClick(engine.id)}>
+            <button
+              class="home-engine-btn"
+              data-testid={`home-engine-btn-${engine.id}`}
+              on:click={() => onHomeEngineClick(engine.id)}
+            >
               <span
                 class="engine-badge"
                 style={`--engine-color: ${ENGINE_VISUALS[engine.id]?.accent}; --engine-bg: ${ENGINE_VISUALS[engine.id]?.bg};`}
@@ -1051,7 +1060,14 @@
             </button>
           {/each}
         </div>
-        <button type="button" class="home-engine-btn" on:click={openSettingsPopup}>브레인 설정</button>
+        <button
+          type="button"
+          class="home-engine-btn"
+          data-testid="home-open-backup"
+          on:click={openSettingsPopup}
+        >
+          브레인 설정
+        </button>
       </section>
     </main>
 
@@ -1059,22 +1075,41 @@
     {@const meta = currentEngineMeta()}
     {@const currentEngineId: EngineId = route.engineId}
     {@const currentEngineDatasets = getDatasetsByEngine(store, currentEngineId).filter((dataset) => dataset.engineId === currentEngineId)}
-    {@const activeDictationDataset = getSelectedDictationDataset()}
-    <div class="popup-overlay" role="dialog" aria-modal="true" on:click={closePopup}>
-      <section class="popup-panel" on:click|stopPropagation>
-        <button type="button" class="popup-close" on:click={closePopup}>닫기</button>
-        <p class="muted">페이지: /engines/{currentEngineId}</p>
+    <div
+      class="popup-overlay"
+      data-testid="overlay-root"
+      data-overlay-kind="engine"
+      data-engine-id={currentEngineId}
+      role="dialog"
+      aria-modal="true"
+      on:click={closePopup}
+    >
+      <section
+        class="popup-panel"
+        data-testid="engine-root"
+        data-overlay-kind="engine"
+        data-engine-id={currentEngineId}
+        on:click|stopPropagation
+      >
+        <button type="button" class="popup-close" data-testid="overlay-close" on:click={closePopup}>닫기</button>
+        <p class="muted" data-testid="overlay-title">페이지: /engines/{currentEngineId}</p>
         <div class="popup-content">
           <section class="toolbar">
-            <button type="button" on:click={() => startAddDataset(currentEngineId)}>새 자료 세트</button>
+            <button
+              type="button"
+              data-testid="engine-dataset-add"
+              on:click={() => startAddDataset(currentEngineId)}
+            >
+              새 자료 세트
+            </button>
           </section>
 
-          {#if currentEngineId === 'dictation' && dictationGameMode && activeDictationDataset}
-            <section class="card dictation-game-screen">
-              <h3>받아쓰기 게임</h3>
+              {#if currentEngineId === 'dictation' && dictationGameMode && selectedDictationDataset}
+                <section class="card dictation-game-screen" data-testid="dictation-root">
+                  <h3>받아쓰기 게임</h3>
               <p class="muted">
                 모드: {dictationMode === 'korean' ? '한글쓰기(영어 발화)' : '영어쓰기(한국어 발화)'}
-                · 데이터셋: {activeDictationDataset.title}
+                · 데이터셋: {selectedDictationDataset.title}
               </p>
               <div class="home-face dictation-game-face" role="img" aria-label="받아쓰기 진행 중 얼굴">
                 <div class="home-face__frame dictation-game-face__frame">
@@ -1090,65 +1125,85 @@
                 </div>
               </div>
 
-              {#if activeDictationDataset.items.length > 0}
-                {@const currentDictationItem = getCurrentDictationItem(activeDictationDataset)}
+              {#if selectedDictationDataset.items.length > 0}
+                {@const currentDictationItem = getCurrentDictationItem(selectedDictationDataset)}
                 {#if currentDictationItem}
-                  <p class="count">
-                    진행: {dictationCurrentIndex + 1} / {activeDictationDataset.items.length}
+                  <p class="count" data-testid="dictation-progress">
+                    진행:
+                    <span data-testid="dictation-progress-index">{dictationCurrentIndex + 1}</span>
+                    /
+                    <span data-testid="dictation-progress-total">{selectedDictationDataset.items.length}</span>
                   </p>
-                  <p class="muted">현재 항목: {getDictationDisplayText(currentDictationItem)}</p>
+                  <p class="muted" data-testid="dictation-current-text">현재 항목: {getDictationDisplayText(currentDictationItem)}</p>
                 {/if}
               {/if}
 
               <p class="muted">10초마다 자동으로 다음 항목으로 넘어갑니다.</p>
-              <div class="inline">
-                <button on:click={onNextDictationItem}>Next</button>
-                <button on:click={stopDictationSession}>게임 나가기</button>
-              </div>
-            </section>
-          {/if}
+                  <div class="inline">
+                    <button data-testid="dictation-next" on:click={onNextDictationItem}>Next</button>
+                    <button data-testid="dictation-exit" on:click={stopDictationSession}>게임 나가기</button>
+                  </div>
+                </section>
+              {/if}
 
           {#if currentEngineId === 'dictation' && !dictationGameMode}
-            <section class="card">
+            <section class="card" data-testid="dictation-root">
               <h3>받아쓰기 실행</h3>
               <p class="muted">한글쓰기면 영어 발화, 영어쓰기면 한국어 발화</p>
               <p class="muted">학습 모드</p>
               <div class="inline">
                 <label class="inline">
-                  <input type="radio" name="dictationMode" bind:group={dictationMode} value="korean" />
+                  <input
+                    type="radio"
+                    name="dictationMode"
+                    data-testid="dictation-mode-a"
+                    bind:group={dictationMode}
+                    value="korean"
+                  />
                   한글쓰기
                 </label>
                 <label class="inline">
-                  <input type="radio" name="dictationMode" bind:group={dictationMode} value="english" />
+                  <input
+                    type="radio"
+                    name="dictationMode"
+                    data-testid="dictation-mode-b"
+                    bind:group={dictationMode}
+                    value="english"
+                  />
                   영어쓰기
                 </label>
               </div>
 
-              {#if activeDictationDataset}
+              {#if selectedDictationDataset}
                 <p class="muted">
-                  선택: {activeDictationDataset.title} · {activeDictationDataset.items.length}개
+                  선택: {selectedDictationDataset.title} · {selectedDictationDataset.items.length}개
                 </p>
-                <p class="count">
-                  진행: {activeDictationDataset.items.length > 0 ? dictationCurrentIndex + 1 : 0} / {activeDictationDataset.items.length}
+                <p class="count" data-testid="dictation-progress">
+                  진행:
+                  <span data-testid="dictation-progress-index">
+                    {selectedDictationDataset.items.length > 0 ? dictationCurrentIndex + 1 : 0}
+                  </span>
+                  /
+                  <span data-testid="dictation-progress-total">{selectedDictationDataset.items.length}</span>
                 </p>
-                {#if activeDictationDataset.items.length > 0}
-                  {@const currentDictationItem = getCurrentDictationItem(activeDictationDataset)}
+                {#if selectedDictationDataset.items.length > 0}
+                  {@const currentDictationItem = getCurrentDictationItem(selectedDictationDataset)}
                   {#if currentDictationItem}
-                    <p class="muted">현재 항목: {getDictationDisplayText(currentDictationItem)}</p>
+                    <p class="muted" data-testid="dictation-current-text">현재 항목: {getDictationDisplayText(currentDictationItem)}</p>
                   {/if}
                 {/if}
               {:else}
                 <p class="muted">실행할 데이터셋을 먼저 선택해주세요.</p>
               {/if}
 
-              <div class="inline">
-                <button on:click={startDictationSession} disabled={!activeDictationDataset}>시작</button>
-              </div>
-            </section>
-          {/if}
+                <div class="inline">
+                  <button on:click={startDictationSession} disabled={!selectedDictationDataset}>시작</button>
+                </div>
+              </section>
+            {/if}
 
           {#if currentEngineId !== 'dictation' || !dictationGameMode}
-            <section class="card">
+            <section class="card" data-testid="engine-datasets-list">
               <div class="inline header-row">
                 <h3>자료 세트</h3>
                 <button on:click={() => selectAllCurrentEngine(true)}>전체 선택</button>
@@ -1162,12 +1217,18 @@
                 </button>
               </div>
 
-              {#if currentEngineDatasets.length === 0}
-                <p class="muted">아직 데이터가 없습니다.</p>
-              {/if}
+              <p class="muted" data-testid="engine-empty-state" hidden={currentEngineDatasets.length !== 0}>
+                아직 데이터가 없습니다.
+              </p>
 
               {#each currentEngineDatasets as dataset}
-                <article class="dataset">
+                <article
+                  class="dataset"
+                  data-testid="dataset-row"
+                  data-engine-id={dataset.engineId}
+                  data-dataset-id={dataset.id}
+                  data-dataset-title={dataset.title}
+                >
                   <label class="item-check">
                     <input
                       type="checkbox"
@@ -1188,6 +1249,7 @@
                   <div class="dataset-actions">
                     {#if currentEngineId === 'schedule'}
                       <button
+                        data-testid="schedule-enabled-toggle"
                         class:disabled={isDatasetEnabled(dataset) === false}
                         on:click={() => toggleScheduleDatasetEnabled(dataset)}
                         type="button"
@@ -1198,6 +1260,7 @@
                     {#if currentEngineId === 'dictation'}
                       <button
                         type="button"
+                        data-testid="dataset-open"
                         class:dictation-selected={dictationDatasetId === dataset.id}
                         on:click={() => selectDictationDataset(dataset)}
                         class:disabled={dictationRunning}
@@ -1249,15 +1312,31 @@
   {/if}
 
   {#if route.kind === 'backup'}
-    <div class="popup-overlay" role="dialog" aria-modal="true" on:click={closePopup}>
-      <section class="popup-panel" on:click|stopPropagation>
-        <button type="button" class="popup-close" on:click={closePopup}>닫기</button>
+    <div
+      class="popup-overlay"
+      data-testid="overlay-root"
+      data-overlay-kind="backup"
+      role="dialog"
+      aria-modal="true"
+      on:click={closePopup}
+    >
+      <section
+        class="popup-panel"
+        data-testid="engine-root"
+        data-overlay-kind="backup"
+        on:click|stopPropagation
+      >
+        <button type="button" class="popup-close" data-testid="overlay-close" on:click={closePopup}>닫기</button>
+        <p class="muted" data-testid="overlay-title">페이지: /backup</p>
+        {#if message && message.type === 'error'}
+          <p data-testid="backup-error" class="error">{message.text}</p>
+        {/if}
         <div class="popup-content">
           <section class="card">
             <h2>백업</h2>
             <p class="muted">현재 저장 데이터: {totalDatasetCount()}개</p>
             <div class="inline">
-              <button on:click={exportAllForBackup} disabled={!hasDatasets()}>전체 Export</button>
+              <button data-testid="backup-export-btn" on:click={exportAllForBackup} disabled={!hasDatasets()}>전체 Export</button>
             </div>
           </section>
 
@@ -1269,19 +1348,26 @@
           <section class="card">
             <h3>샘플 가져오기</h3>
             <p class="muted">기본 샘플 뇌(스케줄 + 받아쓰기) 번들을 한 번에 가져올 수 있습니다.</p>
-            <button type="button" on:click={loadSampleBundle}>기본 샘플 뇌 가져오기</button>
+            <button
+              type="button"
+              data-testid="backup-sample-load-btn"
+              on:click={loadSampleBundle}
+            >
+              기본 샘플 뇌 가져오기
+            </button>
           </section>
 
           <section class="card">
             <h3>URL Import</h3>
             <div class="inline">
               <input
+                data-testid="backup-url-input"
                 placeholder="https://.../bundle.json"
                 bind:value={importUrl}
                 type="url"
                 inputmode="url"
               />
-              <button type="button" on:click={runUrlImport}>가져오기</button>
+              <button data-testid="backup-url-preview-btn" type="button" on:click={runUrlImport}>가져오기</button>
             </div>
             <p class="muted">{`허용 스킴: https://  (개발환경: http://localhost 허용)`}</p>
           </section>
@@ -1291,20 +1377,35 @@
             <label for="import-json-text-backup">JSON 텍스트</label>
             <textarea
               id="import-json-text-backup"
+              data-testid="backup-json-textarea"
               rows="10"
               bind:value={importJsonText}
               placeholder="브레인 JSON 붙여넣기 예: format:homi, version:1, datasets:..."
             ></textarea>
             <div class="inline">
-              <button type="button" on:click={runTextImport}>텍스트로 가져오기</button>
+              <button
+                type="button"
+                data-testid="backup-text-preview-btn"
+                on:click={runTextImport}
+              >
+                텍스트로 가져오기
+              </button>
             </div>
             <p class="muted">브레인 JSON을 붙여넣으면 미리보기 후 확인 저장됩니다.</p>
           </section>
 
           <section class="card">
             <h3>파일 Import</h3>
+            <div class="inline">
+              <button type="button" data-testid="backup-file-preview-btn" on:click={() => fileImportInput?.click()}>
+                파일 선택
+              </button>
+              <span>또는 파일 입력</span>
+            </div>
             <input
               bind:this={fileImportInput}
+              data-testid="backup-file-input"
+              style="display:none"
               type="file"
               accept="application/json,.json"
               on:change={importFromFile}
@@ -1313,7 +1414,7 @@
           </section>
 
           {#if preview}
-            <section class="card">
+            <section class="card" data-testid="backup-preview">
               <h3>Import 미리보기</h3>
               <p class="muted">출처: {preview.sourceText}</p>
               <p class="muted">bundleType: {preview.bundle.bundleType}, datasets: {preview.bundle.datasets.length}</p>
@@ -1337,7 +1438,7 @@
                 </label>
               {/each}
               <div class="inline">
-                <button on:click={importFromPreview}>가져오기 확정</button>
+                <button data-testid="backup-confirm" on:click={importFromPreview}>가져오기 확정</button>
                 <button on:click={() => (preview = null)}>취소</button>
               </div>
             </section>
@@ -1348,7 +1449,7 @@
   {/if}
 
   {#if route.kind === 'unknown'}
-    <div class="popup-overlay" role="dialog" aria-modal="true" on:click={closePopup}>
+    <div class="popup-overlay" data-testid="overlay-root" role="dialog" aria-modal="true" on:click={closePopup}>
       <section class="popup-panel" on:click|stopPropagation>
         <button type="button" class="popup-close" on:click={closePopup}>닫기</button>
         <section class="card">
@@ -1612,6 +1713,7 @@
       max-width: min(90vw, 430px);
     }
   }
+  .home-msg {
     text-align: center;
     color: var(--text-main);
     line-height: 1.45;

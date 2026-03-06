@@ -1,0 +1,171 @@
+{
+  "id": "homi.machine.work-items.v1",
+  "version": "v1",
+  "documentType": "work-items",
+  "schemaRef": "schemas/machine/work-items.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "workItems": [
+    {
+      "id": "work.doc.machine_manifest_created",
+      "status": "done",
+      "description": "machine docs 루트 manifest/truth-order/read-sets/change-policy를 확정했다.",
+      "affectedContracts": [
+        "docs/machine/manifest.v1.yaml",
+        "docs/machine/truth-order.v1.yaml",
+        "docs/machine/read-sets.v1.yaml",
+        "docs/machine/change-policy.v1.yaml"
+      ],
+      "requiredTests": [
+        "validate:machine-docs"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "manifest가 authoritative/generated artifact를 모두 인덱싱",
+        "truth-order가 1~13 순서를 정의"
+      ],
+      "evidenceLinks": [
+        "docs/machine/manifest.v1.yaml",
+        "docs/machine/truth-order.v1.yaml"
+      ]
+    },
+    {
+      "id": "work.doc.machine_contracts_structured",
+      "status": "done",
+      "description": "product/ui/flows/tests/fixtures/ai-review/work-items 계약을 machine-readable로 통합했다.",
+      "affectedContracts": [
+        "docs/machine/product.v1.yaml",
+        "docs/machine/ui.v1.yaml",
+        "docs/machine/flows.v1.yaml",
+        "docs/machine/tests.v1.yaml",
+        "docs/machine/fixtures.v1.yaml",
+        "docs/machine/ai-review.v1.yaml",
+        "docs/machine/work-items.v1.yaml"
+      ],
+      "requiredTests": [
+        "validate:machine-docs"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "각 문서가 단일 책임을 가진다.",
+        "tests.v1 시나리오가 contractRefs를 포함한다."
+      ],
+      "evidenceLinks": [
+        "docs/machine/tests.v1.yaml",
+        "docs/machine/ai-review.v1.yaml"
+      ]
+    },
+    {
+      "id": "work.schema.machine_schema_set_completed",
+      "status": "done",
+      "description": "machine docs 대응 JSON Schema 세트를 생성/정비했다.",
+      "affectedContracts": [
+        "schemas/machine/*.schema.json"
+      ],
+      "requiredTests": [
+        "validate:machine-docs"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "모든 machine doc가 대응 schemaRef를 가진다.",
+        "필수 필드와 enum이 스키마로 강제된다."
+      ],
+      "evidenceLinks": [
+        "schemas/machine/manifest.v1.schema.json",
+        "schemas/machine/tests.v1.schema.json"
+      ]
+    },
+    {
+      "id": "work.schema.domain_relocated",
+      "status": "done",
+      "description": "domain schema를 schemas/domain/* 구조로 정규화하고 참조 경로를 일관화했다.",
+      "affectedContracts": [
+        "schemas/domain/homi-bundle.v1.schema.json",
+        "schemas/domain/dataset-payload.v1.schema.json",
+        "schemas/domain/dataset.v1.schema.json",
+        "schemas/domain/store.v1.schema.json",
+        "schemas/domain/engines/dictation.item.v1.schema.json",
+        "schemas/domain/engines/schedule.item.v1.schema.json"
+      ],
+      "requiredTests": [
+        "validate:domain-schemas"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "fixtures/sample이 domain schema로 검증 가능"
+      ],
+      "evidenceLinks": [
+        "docs/machine/fixtures.v1.yaml"
+      ]
+    },
+    {
+      "id": "work.script.contract_pipeline_enabled",
+      "status": "done",
+      "description": "machine docs 검증/coverage/dependency 생성 스크립트와 package scripts를 연결했다.",
+      "affectedContracts": [
+        "scripts/validate-machine-docs.mjs",
+        "scripts/validate-domain-schemas.mjs",
+        "scripts/build-coverage-matrix.mjs",
+        "scripts/build-dependency-graph.mjs",
+        "scripts/ai-ui-review.mjs",
+        "scripts/next-step.mjs",
+        "package.json"
+      ],
+      "requiredTests": [
+        "qa:contract"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "qa:contract 실행으로 machine/domain 검증 및 generated 문서 갱신",
+        "qa:gate에서 deterministic + ai 보조 게이트가 분리"
+      ],
+      "evidenceLinks": [
+        "package.json"
+      ]
+    },
+    {
+      "id": "work.qa.contract_ref_coverage_expansion",
+      "status": "todo",
+      "description": "P0 수동/갭 시나리오를 Playwright 자동화로 확장해 contractRefs 커버리지를 높인다.",
+      "affectedContracts": [
+        "docs/machine/tests.v1.yaml",
+        "tests/e2e/qa-homi.spec.ts",
+        "docs/machine/coverage.v1.yaml"
+      ],
+      "requiredTests": [
+        "qa:smoke",
+        "build:coverage"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "P0 manual 시나리오 중 3개 이상 automated 전환",
+        "coverage.v1에서 p0 gap 감소"
+      ],
+      "evidenceLinks": [
+        "docs/machine/coverage.v1.yaml"
+      ]
+    },
+    {
+      "id": "work.qa.dictation_timer_stub",
+      "status": "todo",
+      "description": "dictation 10초 타이머 검증을 위한 clock/stub 기반 deterministic 테스트를 추가한다.",
+      "affectedContracts": [
+        "docs/machine/tests.v1.yaml",
+        "tests/helpers/capture-ui-artifacts.ts",
+        "tests/e2e/qa-homi.spec.ts"
+      ],
+      "requiredTests": [
+        "qa:smoke"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "test.p0.dictation.timer_next_exit 자동화 구현",
+        "flaky wait 제거"
+      ],
+      "evidenceLinks": [
+        "tests/e2e/qa-homi.spec.ts"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "screenId": "schedule.toast.during-dictation",
+  "route": "/engines/dictation",
+  "state": "dictation running with schedule reminder",
+  "verdict": "warn",
+  "confidence": 0,
+  "issues": [
+    {
+      "code": "ARTIFACT_SET_MISSING",
+      "severity": "low",
+      "message": "No artifact set found for screenId=schedule.toast.during-dictation",
+      "evidence": "",
+      "location": "",
+      "suggestedFix": ""
+    }
+  ],
+  "summary": "No artifact set found for screenId=schedule.toast.during-dictation",
+  "artifacts": {
+    "artifactDir": "test-results/ai-artifacts",
+    "screenshot": "",
+    "testIds": "",
+    "visibleText": "",
+    "ariaSnapshot": "",
+    "meta": ""
+  },
+  "createdAt": "2026-03-06T16:47:11.385Z",
+  "model": "fallback"
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/domain/engines/schedule.item.v1.schema.json",
+  "title": "Homi v1 ScheduleItemV1",
+  "type": "object",
+  "required": [
+    "date",
+    "title"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10000
+    },
+    "timeStart": {
+      "type": "string",
+      "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+    },
+    "timeEnd": {
+      "type": "string",
+      "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "tags": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    },
+    "repeatIntervalSec": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

@@ -1,0 +1,217 @@
+schemaVersion: 1.0
+contractVersion: v1
+artifacts:
+  - id: root_readme
+    path: README.md
+    audience: human
+    role: product_overview
+    machineParsable: false
+    summary: "프로젝트 진입점: 핵심 규칙, 실행법, 문서 인덱스, 사용 방법"
+    updated: "2026-03-06"
+
+  - id: spec_core
+    path: docs/SPEC.md
+    audience: machine
+    role: authoritative_spec
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "v1 제품/데이터/동작 규격 본문"
+
+  - id: spec_machine
+    path: contracts/ui-contract.v1.yaml
+    audience: machine
+    role: ui_contract_registry
+    machineParsable: true
+    parserHints: [yaml]
+    summary: "v1 UI 계약(테스트 스냅샷/라우팅/testid/흐름)의 기계 판독 레지스트리"
+
+  - id: schema_homi_bundle
+    path: schemas/homi-bundle.v1.schema.json
+    audience: machine
+    role: schema
+    machineParsable: true
+    parserHints: [jsonschema]
+    summary: "HomiBundleV1 검증 스키마"
+
+  - id: schema_dataset
+    path: schemas/dataset.v1.schema.json
+    audience: machine
+    role: schema
+    machineParsable: true
+    parserHints: [jsonschema]
+    summary: "Store 저장용 DataSetV1 스키마"
+
+  - id: schema_dataset_payload
+    path: schemas/dataset-payload.v1.schema.json
+    audience: machine
+    role: schema
+    machineParsable: true
+    parserHints: [jsonschema]
+    summary: "브레인 Import/Export 데이터셋 payload 스키마"
+
+  - id: schema_store
+    path: schemas/store.v1.schema.json
+    audience: machine
+    role: schema
+    machineParsable: true
+    parserHints: [jsonschema]
+    summary: "localStorage StoreV1 스키마"
+
+  - id: schema_ai_ui_review_result
+    path: schemas/ai-ui-review-result.schema.json
+    audience: machine
+    role: schema
+    machineParsable: true
+    parserHints: [jsonschema]
+    summary: "AI UI 리뷰 결과 스키마"
+
+  - id: schema_engines_dictation
+    path: schemas/engines/dictation.item.v1.schema.json
+    audience: machine
+    role: schema
+    machineParsable: true
+    parserHints: [jsonschema]
+    summary: "dictation item 스키마"
+
+  - id: schema_engines_schedule
+    path: schemas/engines/schedule.item.v1.schema.json
+    audience: machine
+    role: schema
+    machineParsable: true
+    parserHints: [jsonschema]
+    summary: "schedule item 스키마"
+
+  - id: qa_testspec
+    path: docs/qa-automation.md
+    audience: machine
+    role: automation_contract
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "Playwright 계약형 자동화 시나리오/셀렉터 규칙"
+
+  - id: ai_review_spec
+    path: docs/ai-ui-review-spec.md
+    audience: machine
+    role: ai_review_spec
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "2차 AI UI 리뷰 계약(아티팩트/코드/게이트)"
+
+  - id: qa_manual
+    path: docs/UI_TESTS.md
+    audience: machine
+    role: manual_checklist
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "수동 계약 체크리스트(P0/P1/P2)"
+
+  - id: qa_runbook
+    path: docs/qa-runbook.md
+    audience: machine
+    role: qa_runbook
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "테스트 실행 표준, 로그·실패 대응, 운영 절차"
+
+  - id: qa_fixtures
+    path: docs/qa-fixtures.md
+    audience: machine
+    role: qa_fixture_spec
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "테스트 입력 데이터 규격(픽스처)"
+
+  - id: qa_coverage_matrix
+    path: docs/qa-coverage-matrix.md
+    audience: machine
+    role: qa_coverage_matrix
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "계약/수동/자동/코드 커버리지 정합성"
+
+  - id: dom_contract
+    path: docs/ui-dom-contract.md
+    audience: machine
+    role: dom_contract
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "DOM/testid 기반 UI 계약(오버레이/레이아웃/동작)"
+
+  - id: ai_review_rubric_home_default
+    path: docs/ai-review-rubrics/home.default.md
+    audience: machine
+    role: ai_rubric
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "홈 화면 AI 리뷰 루브릭"
+
+  - id: ai_review_rubric_backup_overlay
+    path: docs/ai-review-rubrics/backup.overlay.md
+    audience: machine
+    role: ai_rubric
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "backup 오버레이 AI 리뷰 루브릭"
+
+  - id: ai_review_rubric_dictation_running
+    path: docs/ai-review-rubrics/dictation.running.md
+    audience: machine
+    role: ai_rubric
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "dictation 실행 AI 리뷰 루브릭"
+
+  - id: ai_review_rubric_schedule_toast
+    path: docs/ai-review-rubrics/schedule.toast.during-dictation.md
+    audience: machine
+    role: ai_rubric
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "dictation 중 schedule toast AI 리뷰 루브릭"
+
+  - id: ai_review_rubric_shared
+    path: docs/ai-review-rubrics/shared.md
+    audience: machine
+    role: ai_rubric
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "AI 리뷰 기본 fallback 루브릭"
+
+  - id: task_log
+    path: docs/TASK.md
+    audience: machine
+    role: task_registry
+    machineParsable: true
+    parserHints: [frontMatter, markdown]
+    summary: "진행 중 항목과 완료 상태 트래킹"
+
+  - id: qa_coverage_machine
+    path: docs/machine/coverage-matrix.v1.yaml
+    audience: machine
+    role: qa_coverage_matrix_model
+    machineParsable: true
+    parserHints: [yaml]
+    summary: "계약-수동-자동-코드 커버리지의 기계 판독 모델"
+
+machineReadModel:
+  - name: contractFirst
+    order: ["contracts/ui-contract.v1.yaml", "docs/ui-dom-contract.md", "docs/qa-automation.md", "docs/ai-ui-review-spec.md", "docs/UI_TESTS.md"]
+  - name: schemaFirst
+    order: ["schemas/homi-bundle.v1.schema.json", "schemas/dataset-payload.v1.schema.json", "schemas/dataset.v1.schema.json", "schemas/store.v1.schema.json", "schemas/engines/dictation.item.v1.schema.json", "schemas/engines/schedule.item.v1.schema.json"]
+  - name: qaFirst
+    order: ["docs/qa-runbook.md", "docs/qa-automation.md", "docs/machine/coverage-matrix.v1.yaml", "docs/qa-coverage-matrix.md", "docs/qa-fixtures.md"]
+
+meta:
+  governance:
+    generationPolicy:
+      machineOnly: true
+      includesHumanDoc:
+        - README.md
+    truthOrder:
+      - docs/SPEC.md
+      - contracts/ui-contract.v1.yaml
+      - schemas/homi-bundle.v1.schema.json
+      - src/lib/homi.ts
+      - src/App.svelte
+      - tests/qa-homi.spec.ts
+    conflictPolicy: "우선순위는 계약 > 스키마 > 테스트 케이스 > 구현 코드"

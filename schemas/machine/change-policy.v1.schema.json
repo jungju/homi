@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/machine/change-policy.v1.schema.json",
+  "title": "Homi Machine Change Policy V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "documentType",
+    "schemaRef",
+    "authoritative",
+    "generated",
+    "updated",
+    "policies"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "homi.machine.change-policy.v1"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "documentType": {
+      "type": "string",
+      "const": "change-policy"
+    },
+    "schemaRef": {
+      "type": "string",
+      "const": "schemas/machine/change-policy.v1.schema.json"
+    },
+    "authoritative": {
+      "type": "boolean",
+      "const": true
+    },
+    "generated": {
+      "type": "boolean",
+      "const": false
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "policies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "changeClass",
+          "requiresVersionBump",
+          "affectedArtifacts",
+          "safeAdditiveChanges",
+          "breakingChanges"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_.-]+$"
+          },
+          "changeClass": {
+            "type": "string",
+            "enum": [
+              "selector_rename_or_remove",
+              "schema_breaking",
+              "product_behavior_change",
+              "contract_ref_change",
+              "test_contract_change",
+              "ai_review_change",
+              "work_item_update"
+            ]
+          },
+          "requiresVersionBump": {
+            "type": "string",
+            "enum": [
+              "major",
+              "minor",
+              "patch",
+              "none"
+            ]
+          },
+          "affectedArtifacts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "safeAdditiveChanges": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "breakingChanges": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

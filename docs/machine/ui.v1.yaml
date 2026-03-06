@@ -1,0 +1,186 @@
+{
+  "id": "homi.machine.ui.v1",
+  "version": "v1",
+  "documentType": "ui",
+  "schemaRef": "schemas/machine/ui.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "rules": [
+    {
+      "id": "ui.home.face_visible",
+      "statement": "홈(/)에서 home-face는 항상 표시된다."
+    },
+    {
+      "id": "ui.home.bubble_visible",
+      "statement": "홈(/)에서 home-bubble이 표시되고 모드 텍스트를 포함한다."
+    },
+    {
+      "id": "ui.home.mode_text_visible",
+      "statement": "home-mode-text는 텍스트로 표시되며 icon-only 표현은 허용하지 않는다."
+    },
+    {
+      "id": "ui.home.no_global_header",
+      "statement": "global header/nav/testid(global-header, global-nav, top-navbar)는 금지한다."
+    },
+    {
+      "id": "ui.overlay.engine_contract",
+      "statement": "engine route는 overlay-root(data-overlay-kind=engine) 계약을 만족한다."
+    },
+    {
+      "id": "ui.overlay.backup_contract",
+      "statement": "backup route는 overlay-root(data-overlay-kind=backup) 계약을 만족한다."
+    },
+    {
+      "id": "ui.engine.no_backup_import_controls",
+      "statement": "engine overlay에서 backup import 입력 testid는 존재하면 안 된다."
+    },
+    {
+      "id": "ui.dataset_row.required",
+      "statement": "dataset-row는 data-engine-id/data-dataset-id/data-dataset-title를 가진다."
+    },
+    {
+      "id": "ui.dictation.runner_contract",
+      "statement": "dictation 실행 상태에서 progress/next/exit/mode 선택 UI 계약을 유지한다."
+    },
+    {
+      "id": "ui.toast.schedule_during_dictation",
+      "statement": "dictation 실행 중 schedule 안내는 toast-root/schedule-toast로 노출된다."
+    }
+  ],
+  "global": {
+    "requiredTestIds": [
+      "app-root",
+      "home-root",
+      "home-face",
+      "home-bubble",
+      "home-mode-text",
+      "home-open-engines",
+      "home-open-backup",
+      "toast-root"
+    ],
+    "forbiddenTestIds": [
+      "global-header",
+      "global-nav",
+      "top-navbar"
+    ]
+  },
+  "routes": [
+    {
+      "id": "ui.route.home",
+      "path": "/",
+      "requiredTestIds": [
+        "home-root",
+        "home-face",
+        "home-bubble",
+        "home-mode-text",
+        "home-open-engines",
+        "home-engine-btn-schedule",
+        "home-engine-btn-dictation",
+        "home-open-backup"
+      ],
+      "forbiddenTestIds": [
+        "backup-url-input",
+        "backup-json-textarea",
+        "backup-file-input"
+      ]
+    },
+    {
+      "id": "ui.route.engine",
+      "path": "/engines/{engineId}",
+      "requiredTestIds": [
+        "overlay-root",
+        "overlay-title",
+        "overlay-close",
+        "engine-root",
+        "engine-datasets-list",
+        "engine-dataset-add",
+        "engine-empty-state",
+        "dataset-row"
+      ],
+      "forbiddenTestIds": [
+        "backup-url-input",
+        "backup-json-textarea",
+        "backup-file-input"
+      ],
+      "requiredAttributes": {
+        "overlay-root": [
+          "data-overlay-kind",
+          "data-engine-id"
+        ],
+        "engine-root": [
+          "data-overlay-kind",
+          "data-engine-id"
+        ]
+      }
+    },
+    {
+      "id": "ui.route.backup",
+      "path": "/backup",
+      "requiredTestIds": [
+        "overlay-root",
+        "overlay-title",
+        "overlay-close",
+        "engine-root",
+        "backup-url-input",
+        "backup-url-preview-btn",
+        "backup-json-textarea",
+        "backup-text-preview-btn",
+        "backup-file-input",
+        "backup-file-preview-btn",
+        "backup-preview",
+        "backup-confirm",
+        "backup-error",
+        "backup-export-btn",
+        "backup-sample-load-btn"
+      ],
+      "forbiddenTestIds": [
+        "dataset-open"
+      ],
+      "requiredAttributes": {
+        "overlay-root": [
+          "data-overlay-kind"
+        ],
+        "engine-root": [
+          "data-overlay-kind"
+        ]
+      }
+    }
+  ],
+  "overlayContract": {
+    "overlayRootTestId": "overlay-root",
+    "overlayCloseTestId": "overlay-close",
+    "overlayTitleTestId": "overlay-title",
+    "engineOverlayKind": "engine",
+    "backupOverlayKind": "backup"
+  },
+  "datasetRowContract": {
+    "rowTestId": "dataset-row",
+    "openActionTestId": "dataset-open",
+    "requiredAttributes": [
+      "data-engine-id",
+      "data-dataset-id",
+      "data-dataset-title"
+    ]
+  },
+  "dictationRunnerContract": {
+    "requiredTestIds": [
+      "dictation-root",
+      "dictation-mode-a",
+      "dictation-mode-b",
+      "dictation-progress",
+      "dictation-progress-index",
+      "dictation-progress-total",
+      "dictation-current-text",
+      "dictation-next",
+      "dictation-exit"
+    ]
+  },
+  "scheduleContract": {
+    "enabledToggleTestId": "schedule-enabled-toggle"
+  },
+  "toastContract": {
+    "rootTestId": "toast-root",
+    "scheduleToastTestId": "schedule-toast"
+  }
+}

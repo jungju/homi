@@ -1,0 +1,15 @@
+{
+  "screenId": "backup.overlay",
+  "state": "확정 완료",
+  "route": "http://127.0.0.1:4173/backup",
+  "deterministicAssertions": [
+    "backup-confirm clicked",
+    "import replaced datasets",
+    "replace warning text visible"
+  ],
+  "capturedAt": "2026-03-06T16:46:21.807Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  }
+}

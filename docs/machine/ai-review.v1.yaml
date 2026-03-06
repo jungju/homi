@@ -1,0 +1,244 @@
+{
+  "id": "homi.machine.ai-review.v1",
+  "version": "v1",
+  "documentType": "ai-review",
+  "schemaRef": "schemas/machine/ai-review.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "gatePolicy": {
+    "id": "ai.gate.secondary_only",
+    "deterministicFirstGate": true,
+    "aiCanOverrideDeterministic": false,
+    "defaultGateBehavior": "soft_fail"
+  },
+  "expectedOutputSchema": "schemas/ai-ui-review-result.schema.json",
+  "artifactContract": {
+    "artifactDir": "test-results/ai-artifacts",
+    "requiredPerScreen": [
+      "png",
+      "dom-testids.json",
+      "visible-text.txt",
+      "aria-snapshot.json",
+      "meta.json"
+    ],
+    "outputDir": "test-results/ai-reviews"
+  },
+  "forbiddenHallucinationRules": [
+    {
+      "id": "ai.forbidden.no_unobserved_element_claim",
+      "statement": "입력 artifact에 없는 DOM/텍스트/동작을 관측 사실로 단정하지 않는다."
+    },
+    {
+      "id": "ai.forbidden.no_deterministic_override",
+      "statement": "deterministic failure를 pass로 상쇄하지 않는다."
+    },
+    {
+      "id": "ai.forbidden.no_route_inference_without_meta",
+      "statement": "meta.route가 없는 경우 route 판정을 추측으로 확정하지 않는다."
+    }
+  ],
+  "screens": [
+    {
+      "id": "home.default",
+      "route": "/",
+      "state": "기본 모드",
+      "requiredArtifacts": [
+        "home.default*.png",
+        "home.default*.dom-testids.json",
+        "home.default*.visible-text.txt",
+        "home.default*.aria-snapshot.json",
+        "home.default*.meta.json"
+      ],
+      "promptInputs": [
+        "screenshot",
+        "meta.route",
+        "visibleText",
+        "domTestIds",
+        "ariaSnapshot",
+        "deterministicAssertions"
+      ],
+      "rubricChecks": [
+        {
+          "id": "ai.home.face_dominant",
+          "severity": "high",
+          "level": "must",
+          "statement": "홈에서 얼굴(home-face)이 주 시각 요소여야 한다.",
+          "contractRefs": [
+            "ui.home.face_visible"
+          ]
+        },
+        {
+          "id": "ai.home.mode_text_visible",
+          "severity": "high",
+          "level": "must",
+          "statement": "home-mode-text가 텍스트로 노출되어야 한다.",
+          "contractRefs": [
+            "ui.home.mode_text_visible"
+          ]
+        },
+        {
+          "id": "ai.home.no_header",
+          "severity": "medium",
+          "level": "must",
+          "statement": "글로벌 헤더/네비가 보이면 실패다.",
+          "contractRefs": [
+            "ui.home.no_global_header"
+          ]
+        }
+      ],
+      "hardFailConditions": [
+        "HEADER_VISIBLE",
+        "MODE_TEXT_MISSING",
+        "FACE_NOT_DOMINANT"
+      ],
+      "softFailConditions": [
+        "LAYOUT_NOISE",
+        "READABILITY_DEGRADED"
+      ],
+      "contractRefs": [
+        "test.ai.home.intent"
+      ]
+    },
+    {
+      "id": "backup.overlay",
+      "route": "/backup",
+      "state": "import preview",
+      "requiredArtifacts": [
+        "backup.overlay*.png",
+        "backup.overlay*.dom-testids.json",
+        "backup.overlay*.visible-text.txt",
+        "backup.overlay*.aria-snapshot.json",
+        "backup.overlay*.meta.json"
+      ],
+      "promptInputs": [
+        "screenshot",
+        "meta.route",
+        "visibleText",
+        "domTestIds",
+        "deterministicAssertions"
+      ],
+      "rubricChecks": [
+        {
+          "id": "ai.backup.preview_before_confirm_visible",
+          "severity": "high",
+          "level": "must",
+          "statement": "backup 화면에 preview + confirm 단계가 동시에 식별되어야 한다.",
+          "contractRefs": [
+            "product.import.preview_required",
+            "ui.overlay.backup_contract"
+          ]
+        },
+        {
+          "id": "ai.backup.overlay_stack",
+          "severity": "medium",
+          "level": "must",
+          "statement": "backup overlay는 홈 컨텍스트 위에 쌓여 있어야 한다.",
+          "contractRefs": [
+            "ui.overlay.backup_contract"
+          ]
+        }
+      ],
+      "hardFailConditions": [
+        "ENTRY_MISSING",
+        "PREVIEW_CONFIRM_MISSING",
+        "OVERLAY_NOT_STACKED"
+      ],
+      "softFailConditions": [
+        "VISUAL_INCONSISTENT"
+      ],
+      "contractRefs": [
+        "test.ai.backup.preview_visible"
+      ]
+    },
+    {
+      "id": "dictation.running",
+      "route": "/engines/dictation",
+      "state": "받아쓰기 실행모드",
+      "requiredArtifacts": [
+        "dictation.running*.png",
+        "dictation.running*.dom-testids.json",
+        "dictation.running*.visible-text.txt",
+        "dictation.running*.aria-snapshot.json",
+        "dictation.running*.meta.json"
+      ],
+      "promptInputs": [
+        "screenshot",
+        "meta.route",
+        "visibleText",
+        "domTestIds",
+        "deterministicAssertions"
+      ],
+      "rubricChecks": [
+        {
+          "id": "ai.dictation.mode_text_running",
+          "severity": "high",
+          "level": "must",
+          "statement": "받아쓰기 실행모드 텍스트가 보여야 한다.",
+          "contractRefs": [
+            "product.dictation.mode_text.required"
+          ]
+        },
+        {
+          "id": "ai.dictation.runner_controls",
+          "severity": "high",
+          "level": "must",
+          "statement": "dictation-next와 dictation-exit가 가시적이어야 한다.",
+          "contractRefs": [
+            "ui.dictation.runner_contract"
+          ]
+        }
+      ],
+      "hardFailConditions": [
+        "MODE_TEXT_MISSING",
+        "ENTRY_MISSING"
+      ],
+      "softFailConditions": [
+        "RUNNER_CLUTTERED"
+      ],
+      "contractRefs": [
+        "test.p0.dictation.start_sets_mode"
+      ]
+    },
+    {
+      "id": "schedule.toast.during-dictation",
+      "route": "/engines/dictation",
+      "state": "dictation running with schedule reminder",
+      "requiredArtifacts": [
+        "schedule.toast.during-dictation*.png",
+        "schedule.toast.during-dictation*.dom-testids.json",
+        "schedule.toast.during-dictation*.visible-text.txt",
+        "schedule.toast.during-dictation*.aria-snapshot.json",
+        "schedule.toast.during-dictation*.meta.json"
+      ],
+      "promptInputs": [
+        "screenshot",
+        "visibleText",
+        "domTestIds",
+        "deterministicAssertions"
+      ],
+      "rubricChecks": [
+        {
+          "id": "ai.schedule.toast_visible_during_dictation",
+          "severity": "high",
+          "level": "must",
+          "statement": "dictation 실행 중 schedule-toast 또는 동등 in-app toast가 확인되어야 한다.",
+          "contractRefs": [
+            "ui.toast.schedule_during_dictation",
+            "product.schedule.no_os_notification_during_dictation"
+          ]
+        }
+      ],
+      "hardFailConditions": [
+        "TOAST_MISSING_DURING_DICTATION",
+        "OS_NOTIFICATION_BLOCKING"
+      ],
+      "softFailConditions": [
+        "TOAST_READABILITY_LOW"
+      ],
+      "contractRefs": [
+        "test.p0.schedule.no_interrupt_during_dictation"
+      ]
+    }
+  ]
+}

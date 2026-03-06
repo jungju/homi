@@ -1,0 +1,173 @@
+{
+  "id": "homi.machine.product.v1",
+  "version": "v1",
+  "documentType": "product",
+  "schemaRef": "schemas/machine/product.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "rules": [
+    {
+      "id": "product.storage.localstorage.single_key",
+      "statement": "store persistence는 localStorage 단일 키 homi.store.v1만 사용한다."
+    },
+    {
+      "id": "product.storage.recover_to_empty_on_corruption",
+      "statement": "localStorage parse 실패/스키마 불일치/손상 시 빈 스토어로 복구한다."
+    },
+    {
+      "id": "product.import.bundle_level_only",
+      "statement": "Import/Export는 항상 HomiBundleV1 번들 단위로 처리한다."
+    },
+    {
+      "id": "product.import.entry_route.backup_only",
+      "statement": "Import 입력(URL/텍스트/파일/샘플)은 /backup에서만 허용한다."
+    },
+    {
+      "id": "product.import.preview_required",
+      "statement": "Import는 검증 후 미리보기를 거치고 사용자 확정 시에만 저장한다."
+    },
+    {
+      "id": "product.import.apply_mode.replace",
+      "statement": "Import 적용 모드는 v1에서 replace(전체 교체)만 허용한다."
+    },
+    {
+      "id": "product.import.collision_dataset_id_regenerate",
+      "statement": "Import 중 dataset id 충돌 시 v1 정책으로 새 id를 생성해 추가 처리한다."
+    },
+    {
+      "id": "product.sample.preview_before_confirm",
+      "statement": "샘플 번들도 일반 import와 동일하게 preview 후 confirm으로 적용한다."
+    },
+    {
+      "id": "product.dictation.mode_text.required",
+      "statement": "앱 모드는 홈 말풍선에 텍스트로 항상 표시한다."
+    },
+    {
+      "id": "product.dictation.auto_advance_10s",
+      "statement": "받아쓰기는 10초 간격 자동 진행을 기본 규칙으로 유지한다."
+    },
+    {
+      "id": "product.dictation.auto_exit_after_last_item",
+      "statement": "받아쓰기는 마지막 항목 완료 시 자동 종료되고 기본 모드로 복귀한다."
+    },
+    {
+      "id": "product.schedule.no_os_notification_during_dictation",
+      "statement": "받아쓰기 실행 중 schedule 알림은 OS notification으로 인터럽트하지 않는다."
+    },
+    {
+      "id": "product.security.block_javascript_scheme",
+      "statement": "URL Import에서 javascript: 스킴을 차단한다."
+    },
+    {
+      "id": "product.security.render_text_only",
+      "statement": "외부 입력 데이터는 HTML 파싱 없이 텍스트로만 렌더링한다."
+    }
+  ],
+  "routes": [
+    {
+      "id": "route.home",
+      "path": "/",
+      "routeType": "page",
+      "overlay": false,
+      "purpose": "face-centric home"
+    },
+    {
+      "id": "route.engine",
+      "path": "/engines/{engineId}",
+      "routeType": "overlay",
+      "overlay": true,
+      "purpose": "engine dataset management and run"
+    },
+    {
+      "id": "route.backup",
+      "path": "/backup",
+      "routeType": "overlay",
+      "overlay": true,
+      "purpose": "bundle import/export and sample load"
+    }
+  ],
+  "storage": {
+    "backend": "localStorage",
+    "key": "homi.store.v1",
+    "storeType": "HomiStoreV1",
+    "schemaRef": "schemas/domain/store.v1.schema.json",
+    "loadFunction": "loadStore",
+    "saveFunction": "saveStore"
+  },
+  "modes": [
+    {
+      "id": "mode.idle",
+      "label": "기본 모드"
+    },
+    {
+      "id": "mode.dictation_running",
+      "label": "받아쓰기 실행모드"
+    }
+  ],
+  "engines": [
+    {
+      "id": "schedule",
+      "schemaVersion": 1,
+      "schemaRef": "schemas/domain/engines/schedule.item.v1.schema.json"
+    },
+    {
+      "id": "dictation",
+      "schemaVersion": 1,
+      "schemaRef": "schemas/domain/engines/dictation.item.v1.schema.json"
+    }
+  ],
+  "importExportPolicy": {
+    "entryRoute": "/backup",
+    "allowedImportMethods": [
+      "url",
+      "text",
+      "file",
+      "sample"
+    ],
+    "bundleSchemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+    "previewBeforeConfirm": true,
+    "applyMode": "replace",
+    "datasetIdConflictPolicy": "regenerate",
+    "limits": {
+      "maxBundleBytes": 2097152,
+      "maxDatasetsPerBundle": 50,
+      "maxItemsPerDataset": 10000,
+      "maxStringLength": 10000
+    }
+  },
+  "notificationPolicy": {
+    "dictationRunning": {
+      "osNotificationAllowed": false,
+      "fallbackChannel": "in_app_toast"
+    },
+    "default": {
+      "osNotificationAllowed": true,
+      "fallbackChannel": "in_app_toast"
+    }
+  },
+  "securityPolicy": {
+    "dangerousSchemes": [
+      "javascript"
+    ],
+    "allowedUrlSchemes": [
+      "https"
+    ],
+    "allowLocalhostHttp": true,
+    "renderTextOnly": true,
+    "externalFetchWarning": true,
+    "corsFailureMessageRequired": true
+  },
+  "sampleBundlePolicy": {
+    "path": "public/samples/homi.sample.homi.json",
+    "schemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+    "flow": "preview_then_confirm"
+  },
+  "sourceTypeEnum": [
+    "manual",
+    "sample",
+    "url",
+    "file",
+    "text"
+  ]
+}

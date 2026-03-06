@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/machine/coverage.v1.schema.json",
+  "title": "Homi Generated Coverage V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "documentType",
+    "schemaRef",
+    "authoritative",
+    "generated",
+    "generatedAt",
+    "generatedFrom",
+    "summary",
+    "rows"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "homi.machine.coverage.v1"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "documentType": {
+      "type": "string",
+      "const": "coverage"
+    },
+    "schemaRef": {
+      "type": "string",
+      "const": "schemas/machine/coverage.v1.schema.json"
+    },
+    "authoritative": {
+      "type": "boolean",
+      "const": false
+    },
+    "generated": {
+      "type": "boolean",
+      "const": true
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "generatedFrom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "testsContract",
+        "testCode",
+        "testResults"
+      ],
+      "properties": {
+        "testsContract": {
+          "type": "string"
+        },
+        "testCode": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "testResults": {
+          "type": "string"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "totalScenarios",
+        "coveredScenarios",
+        "partialScenarios",
+        "gapScenarios"
+      ],
+      "properties": {
+        "totalScenarios": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coveredScenarios": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "partialScenarios": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "gapScenarios": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scenarioId",
+          "priority",
+          "type",
+          "coverageStatus",
+          "evidence"
+        ],
+        "properties": {
+          "scenarioId": {
+            "type": "string",
+            "pattern": "^test\\.(p0|p1|p2|ai)\\.[a-z0-9_.-]+$"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "P0",
+              "P1",
+              "P2"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "automated",
+              "manual",
+              "ai"
+            ]
+          },
+          "coverageStatus": {
+            "type": "string",
+            "enum": [
+              "covered",
+              "partial",
+              "gap",
+              "not_applicable"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

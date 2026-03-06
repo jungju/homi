@@ -1,0 +1,225 @@
+{
+  "id": "homi.machine.flows.v1",
+  "version": "v1",
+  "documentType": "flows",
+  "schemaRef": "schemas/machine/flows.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "states": [
+    {
+      "id": "flow.state.home.idle",
+      "route": "/",
+      "mode": "기본 모드"
+    },
+    {
+      "id": "flow.state.engine.schedule",
+      "route": "/engines/schedule",
+      "mode": "기본 모드"
+    },
+    {
+      "id": "flow.state.engine.dictation.ready",
+      "route": "/engines/dictation",
+      "mode": "기본 모드"
+    },
+    {
+      "id": "flow.state.engine.dictation.running",
+      "route": "/engines/dictation",
+      "mode": "받아쓰기 실행모드"
+    },
+    {
+      "id": "flow.state.backup.overlay",
+      "route": "/backup",
+      "mode": "기본 모드"
+    }
+  ],
+  "events": [
+    {
+      "id": "flow.event.navigate.home"
+    },
+    {
+      "id": "flow.event.navigate.engine.schedule"
+    },
+    {
+      "id": "flow.event.navigate.engine.dictation"
+    },
+    {
+      "id": "flow.event.navigate.backup"
+    },
+    {
+      "id": "flow.event.overlay.close"
+    },
+    {
+      "id": "flow.event.dictation.start"
+    },
+    {
+      "id": "flow.event.dictation.next"
+    },
+    {
+      "id": "flow.event.dictation.exit"
+    },
+    {
+      "id": "flow.event.dictation.finish_last_item"
+    },
+    {
+      "id": "flow.event.import.preview_created"
+    },
+    {
+      "id": "flow.event.import.confirm_replace"
+    },
+    {
+      "id": "flow.event.import.cancel"
+    },
+    {
+      "id": "flow.event.schedule.reminder_tick"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "flow.overlay.open_engine_schedule",
+      "from": "flow.state.home.idle",
+      "event": "flow.event.navigate.engine.schedule",
+      "to": "flow.state.engine.schedule",
+      "contractRefs": [
+        "ui.overlay.engine_contract"
+      ]
+    },
+    {
+      "id": "flow.overlay.open_engine_dictation",
+      "from": "flow.state.home.idle",
+      "event": "flow.event.navigate.engine.dictation",
+      "to": "flow.state.engine.dictation.ready",
+      "contractRefs": [
+        "ui.overlay.engine_contract"
+      ]
+    },
+    {
+      "id": "flow.overlay.open_backup",
+      "from": "flow.state.home.idle",
+      "event": "flow.event.navigate.backup",
+      "to": "flow.state.backup.overlay",
+      "contractRefs": [
+        "product.import.entry_route.backup_only",
+        "ui.overlay.backup_contract"
+      ]
+    },
+    {
+      "id": "flow.overlay.close_to_home",
+      "from": "*",
+      "event": "flow.event.overlay.close",
+      "to": "flow.state.home.idle",
+      "contractRefs": [
+        "ui.overlay.engine_contract",
+        "ui.overlay.backup_contract"
+      ]
+    },
+    {
+      "id": "flow.dictation.start_sets_mode",
+      "from": "flow.state.engine.dictation.ready",
+      "event": "flow.event.dictation.start",
+      "to": "flow.state.engine.dictation.running",
+      "contractRefs": [
+        "product.dictation.mode_text.required"
+      ]
+    },
+    {
+      "id": "flow.dictation.next_keeps_running",
+      "from": "flow.state.engine.dictation.running",
+      "event": "flow.event.dictation.next",
+      "to": "flow.state.engine.dictation.running",
+      "contractRefs": [
+        "product.dictation.auto_advance_10s"
+      ]
+    },
+    {
+      "id": "flow.dictation.exit_to_idle",
+      "from": "flow.state.engine.dictation.running",
+      "event": "flow.event.dictation.exit",
+      "to": "flow.state.engine.dictation.ready",
+      "contractRefs": [
+        "product.dictation.auto_exit_after_last_item"
+      ]
+    },
+    {
+      "id": "flow.dictation.finish_to_idle",
+      "from": "flow.state.engine.dictation.running",
+      "event": "flow.event.dictation.finish_last_item",
+      "to": "flow.state.engine.dictation.ready",
+      "contractRefs": [
+        "product.dictation.auto_exit_after_last_item"
+      ]
+    },
+    {
+      "id": "flow.import.preview_before_confirm",
+      "from": "flow.state.backup.overlay",
+      "event": "flow.event.import.preview_created",
+      "to": "flow.state.backup.overlay",
+      "contractRefs": [
+        "product.import.preview_required"
+      ]
+    },
+    {
+      "id": "flow.import.confirm_replace",
+      "from": "flow.state.backup.overlay",
+      "event": "flow.event.import.confirm_replace",
+      "to": "flow.state.backup.overlay",
+      "contractRefs": [
+        "product.import.apply_mode.replace",
+        "product.import.collision_dataset_id_regenerate"
+      ]
+    },
+    {
+      "id": "flow.schedule.reminder_non_interrupt",
+      "from": "flow.state.engine.dictation.running",
+      "event": "flow.event.schedule.reminder_tick",
+      "to": "flow.state.engine.dictation.running",
+      "contractRefs": [
+        "product.schedule.no_os_notification_during_dictation",
+        "ui.toast.schedule_during_dictation"
+      ]
+    }
+  ],
+  "invariants": [
+    {
+      "id": "flow.invariant.import_requires_backup_overlay",
+      "statement": "import preview/create/confirm 이벤트는 route=/backup에서만 유효하다.",
+      "contractRefs": [
+        "product.import.entry_route.backup_only"
+      ]
+    },
+    {
+      "id": "flow.invariant.preview_before_confirm",
+      "statement": "import confirm 전에 preview 상태가 존재해야 한다.",
+      "contractRefs": [
+        "product.import.preview_required"
+      ]
+    },
+    {
+      "id": "flow.invariant.schedule_non_interrupt_during_dictation",
+      "statement": "dictation running 중 schedule 알림은 상태 전이를 강제하지 않는다.",
+      "contractRefs": [
+        "product.schedule.no_os_notification_during_dictation"
+      ]
+    }
+  ],
+  "modeTransitionRules": [
+    {
+      "id": "flow.mode.idle_to_dictation_running",
+      "fromMode": "기본 모드",
+      "toMode": "받아쓰기 실행모드",
+      "triggerEvent": "flow.event.dictation.start",
+      "contractRefs": [
+        "product.dictation.mode_text.required"
+      ]
+    },
+    {
+      "id": "flow.mode.dictation_running_to_idle",
+      "fromMode": "받아쓰기 실행모드",
+      "toMode": "기본 모드",
+      "triggerEvent": "flow.event.dictation.exit",
+      "contractRefs": [
+        "product.dictation.auto_exit_after_last_item"
+      ]
+    }
+  ]
+}

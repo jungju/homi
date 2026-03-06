@@ -1,0 +1,28 @@
+{
+  "screenId": "home.default",
+  "route": "/",
+  "state": "기본 모드",
+  "verdict": "warn",
+  "confidence": 0,
+  "issues": [
+    {
+      "code": "AI_REVIEW_SKIPPED",
+      "severity": "low",
+      "message": "OPENAI_API_KEY is not set; AI review skipped.",
+      "evidence": "",
+      "location": "",
+      "suggestedFix": ""
+    }
+  ],
+  "summary": "OPENAI_API_KEY is not set; AI review skipped.",
+  "artifacts": {
+    "artifactDir": "test-results/ai-artifacts",
+    "screenshot": "test-results\\ai-artifacts\\home.default.2026-03-06T16-46-20-903Z.png",
+    "testIds": "test-results\\ai-artifacts\\home.default.2026-03-06T16-46-20-903Z.dom-testids.json",
+    "visibleText": "test-results\\ai-artifacts\\home.default.2026-03-06T16-46-20-903Z.visible-text.txt",
+    "ariaSnapshot": "test-results\\ai-artifacts\\home.default.2026-03-06T16-46-20-903Z.aria-snapshot.json",
+    "meta": "test-results\\ai-artifacts\\home.default.2026-03-06T16-46-20-903Z.meta.json"
+  },
+  "createdAt": "2026-03-06T16:47:11.373Z",
+  "model": "fallback"
+}

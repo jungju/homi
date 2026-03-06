@@ -1,0 +1,29 @@
+{
+  "format": "homi",
+  "version": 1,
+  "bundleType": "import",
+  "bundleId": "bundle_test_min_v1",
+  "title": "테스트 브레인(최소)",
+  "datasets": [
+    {
+      "engineId": "dictation",
+      "engineSchemaVersion": 1,
+      "title": "단어 2개(meaning 하나 없음)",
+      "items": [
+        { "word": "apple", "meaning": "사과" },
+        { "word": "book" }
+      ]
+    },
+    {
+      "engineId": "schedule",
+      "engineSchemaVersion": 1,
+      "title": "알림 2초 테스트",
+      "meta": {
+        "enabled": true
+      },
+      "items": [
+        { "date": "2026-03-06", "title": "Ping", "repeatIntervalSec": 2 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/domain/homi-bundle.v1.schema.json",
+  "title": "Homi v1 HomiBundleV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "version",
+    "bundleType",
+    "datasets"
+  ],
+  "properties": {
+    "format": {
+      "const": "homi"
+    },
+    "version": {
+      "const": 1
+    },
+    "bundleType": {
+      "type": "string",
+      "enum": [
+        "sample",
+        "import",
+        "backup"
+      ]
+    },
+    "bundleId": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "datasets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "$ref": "./dataset-payload.v1.schema.json"
+      }
+    }
+  }
+}

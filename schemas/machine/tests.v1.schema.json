@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/machine/tests.v1.schema.json",
+  "title": "Homi Machine Tests Registry V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "documentType",
+    "schemaRef",
+    "authoritative",
+    "generated",
+    "updated",
+    "scenarios"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "homi.machine.tests.v1"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "documentType": {
+      "type": "string",
+      "const": "tests"
+    },
+    "schemaRef": {
+      "type": "string",
+      "const": "schemas/machine/tests.v1.schema.json"
+    },
+    "authoritative": {
+      "type": "boolean",
+      "const": true
+    },
+    "generated": {
+      "type": "boolean",
+      "const": false
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "priority",
+          "type",
+          "contractRefs",
+          "preconditions",
+          "actions",
+          "assertions",
+          "artifacts",
+          "gate"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^test\\.(p0|p1|p2|ai)\\.[a-z0-9_.-]+$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "P0",
+              "P1",
+              "P2"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "automated",
+              "manual",
+              "ai"
+            ]
+          },
+          "contractRefs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^(product|ui|flow|ai|test)\\.[a-z0-9_.-]+$"
+            }
+          },
+          "preconditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "actions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "assertions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "gate": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "behavior",
+              "layer"
+            ],
+            "properties": {
+              "behavior": {
+                "type": "string",
+                "enum": [
+                  "hard_fail",
+                  "soft_fail"
+                ]
+              },
+              "layer": {
+                "type": "string",
+                "enum": [
+                  "deterministic",
+                  "ai_semantic"
+                ]
+              }
+            }
+          },
+          "implementation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "framework",
+              "file",
+              "scenarioTag"
+            ],
+            "properties": {
+              "framework": {
+                "type": "string",
+                "enum": [
+                  "playwright"
+                ]
+              },
+              "file": {
+                "type": "string"
+              },
+              "scenarioTag": {
+                "type": "string",
+                "pattern": "^test\\.(p0|p1|p2|ai)\\.[a-z0-9_.-]+$"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

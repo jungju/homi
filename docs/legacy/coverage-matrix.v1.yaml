@@ -1,0 +1,231 @@
+---
+schemaVersion: 1.0
+contractVersion: v1
+artifact: docs/qa-coverage-matrix.md
+updated: "2026-03-06"
+goal:
+  scope: v1
+  gating: P0
+entries:
+  - id: UI-ROUTE-001
+    contract: "기본 진입은 `/` (얼굴 전체화면)"
+    source: ["README v1 라우트", "SPEC 3.1"]
+    dom: ["home-root", "home-face"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: UI-HOME-001
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-001
+      testFile: qa-homi.spec.ts::home
+    status: partial
+    notes: "스냅샷/존재 확인 중심. `role` 기반 헤더 없음 강제는 코드/테스트 보강 필요"
+
+  - id: UI-HOME-001
+    contract: "말풍선에 모드 텍스트 항상 표시"
+    source: ["README 3.2", "SPEC 3.2/9.1"]
+    dom: ["home-mode-text"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: UI-HOME-002
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-001
+    status: partial
+    notes: "모드 텍스트 전환까지 자동검증은 미흡"
+
+  - id: UI-OVERLAY-001
+    contract: "`/engines/*`는 홈 위 오버레이"
+    source: ["SPEC 3.1/3.3"]
+    dom: ["overlay-root", "home-root"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: UI-OVERLAY-001
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-002
+      testFile: qa-homi.spec.ts::overlay-engine
+    status: partial
+    notes: "현재 테스트로 홈 DOM 유지 강제 여부 보강 필요"
+
+  - id: UI-OVERLAY-002
+    contract: "`/backup`은 홈 위 오버레이"
+    source: ["SPEC 3.1/3.3"]
+    dom: ["overlay-root"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: UI-OVERLAY-002
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-003
+      testFile: qa-homi.spec.ts::overlay-backup
+    status: partial
+    notes: "overlay-kind 속성 검증 필요"
+
+  - id: IMPORT-ENTRY-001
+    contract: "Import 입력은 `/backup`에서만"
+    source: ["SPEC 7.1", "README v1 임포트 정책"]
+    dom:
+      - backup-url-input
+      - backup-json-textarea
+      - backup-file-input
+      - engine-root
+    manual:
+      doc: docs/UI_TESTS.md
+      case: UI-BACKUP-001
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-004
+      testFile: (TODO)
+    status: gap
+    notes: "엔진 오버레이에서 backup-* 입력 차단 자동화 미작성"
+
+  - id: IMPORT-FLOW-001
+    contract: "미리보기 후 확정 저장"
+    source: ["SPEC 7.2", "README v1 Import 플로우"]
+    dom:
+      - backup-preview
+      - backup-confirm
+    manual:
+      doc: docs/UI_TESTS.md
+      case: UI-BACKUP-003
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-005
+      testFile: (TODO)
+    status: gap
+    notes: "localStorage 변경 전/후 비교 자동화 미작성"
+
+  - id: IMPORT-APPLY-001
+    contract: "Import는 Replace(전체 교체)만 지원"
+    source: ["SPEC 7.2/7.6"]
+    dom: ["backup-confirm"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: UI-BACKUP-005
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-006
+      testFile: (TODO)
+    status: gap
+    notes: "기존 데이터 사전 삭제/교체 검증 자동화 미작성"
+
+  - id: IMPORT-URL-001
+    contract: "URL Import는 https만, javascript 차단"
+    source: ["SPEC 7.4", "contracts/ui-contract.v1.yaml"]
+    dom:
+      - backup-url-input
+      - backup-error
+    manual:
+      doc: docs/UI_TESTS.md
+      case: UI-BACKUP-006
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-007
+    status: partial
+    notes: "수동/자동 시나리오는 있음"
+
+  - id: SECURITY-RENDER-001
+    contract: "외부 입력은 텍스트 렌더"
+    source: ["SPEC 11", "README 보안/안전"]
+    dom: ["backup-preview"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: SEC-UI-001
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-013
+      testFile: (TODO)
+    status: gap
+    notes: "XSS 렌더 방지 자동화 미작성"
+
+  - id: DICT-MODE-001
+    contract: "dictation 실행 시 모드 텍스트 변경"
+    source: ["SPEC 9.2"]
+    dom: ["home-mode-text"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: UI-MODE-002
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-008
+      testFile: (TODO)
+    status: gap
+    notes: "데이터셋 선택 후 실행 진입 자동화 미작성"
+
+  - id: DICT-TIMER-001
+    contract: "자동 진행 10초 고정 + Next 즉시"
+    source: ["SPEC 9.2", "contracts/ui-contract.v1.yaml"]
+    dom: ["dictation-progress", "dictation-next"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: GAME-DICT-002/003
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-009
+      testFile: (TODO)
+    status: gap
+    notes: "타이머/Clock 기반 검증 자동화 미작성"
+
+  - id: DICT-SPEAK-001
+    contract: "발화 우선순위 meaning→hint→word"
+    source: ["SPEC 9.2", "contracts/ui-contract.v1.yaml"]
+    dom: ["dictation-mode-a", "dictation-mode-b"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: GAME-DICT-007
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-010
+      testFile: (TODO)
+    status: gap
+    notes: "speechSynthesis stub 테스트 미작성"
+
+  - id: DICT-END-001
+    contract: "나가기/자동 종료 시 기본 모드 복귀"
+    source: ["SPEC 9.2"]
+    dom: ["dictation-exit", "home-mode-text"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: GAME-DICT-005/004
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-011
+      testFile: (TODO)
+    status: gap
+    notes: "자동 종료/복귀 동선 자동화 미작성"
+
+  - id: SCH-NOTIF-001
+    contract: "dictation 중 OS 알림 금지, 토스트 안내"
+    source: ["SPEC 9.3", "SPEC 8"]
+    dom: ["schedule-toast", "toast-root"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: ALARM-SCH-003
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P0-012
+      testFile: (TODO)
+    status: gap
+    notes: "Notification/stub 검증 자동화 미작성"
+
+  - id: TEXT-SOURCE-001
+    contract: "텍스트 입력 Import의 source.type=text 추적 경로 정합성"
+    source: ["README source.type", "SPEC 5"]
+    dom: ["backup-text-preview-btn", "backup-confirm", "backup-export-btn", "backup-preview"]
+    manual:
+      doc: docs/UI_TESTS.md
+      case: UI-BACKUP-014
+    automation:
+      doc: docs/qa-automation.md
+      case: TC-P1-014
+      testFile: (TODO)
+    status: gap
+    notes: "source.type text 재Import 경로 회귀가 P1 안정성 항목으로 추가됨"
+
+summary:
+  p0_total: 14
+  p0_partial: 6
+  p0_gap: 8
+  p0_covered: 0
+  notes: "P0 기준의 자동화/코드 커버리지는 TODO 항목 보강 단계"

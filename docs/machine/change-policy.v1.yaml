@@ -1,0 +1,143 @@
+{
+  "id": "homi.machine.change-policy.v1",
+  "version": "v1",
+  "documentType": "change-policy",
+  "schemaRef": "schemas/machine/change-policy.v1.schema.json",
+  "authoritative": true,
+  "generated": false,
+  "updated": "2026-03-07",
+  "policies": [
+    {
+      "id": "policy.selector_rename_or_remove",
+      "changeClass": "selector_rename_or_remove",
+      "requiresVersionBump": "major",
+      "affectedArtifacts": [
+        "docs/machine/ui.v1.yaml",
+        "docs/machine/tests.v1.yaml",
+        "tests/e2e/qa-homi.spec.ts",
+        "src/App.svelte"
+      ],
+      "safeAdditiveChanges": [
+        "새 optional testid 추가",
+        "기존 testid 유지 하에 보조 selector 추가"
+      ],
+      "breakingChanges": [
+        "required testid 제거",
+        "required testid rename",
+        "overlay/data attribute 계약 삭제"
+      ]
+    },
+    {
+      "id": "policy.schema_breaking",
+      "changeClass": "schema_breaking",
+      "requiresVersionBump": "major",
+      "affectedArtifacts": [
+        "schemas/domain/*.schema.json",
+        "schemas/domain/engines/*.schema.json",
+        "schemas/machine/*.schema.json"
+      ],
+      "safeAdditiveChanges": [
+        "optional field 추가",
+        "enum 값 추가(하위호환)",
+        "설명 필드(description/title) 보강"
+      ],
+      "breakingChanges": [
+        "required 필드 변경",
+        "기존 enum 값 제거",
+        "기존 유효 payload를 reject 하도록 제한 강화"
+      ]
+    },
+    {
+      "id": "policy.product_behavior_change",
+      "changeClass": "product_behavior_change",
+      "requiresVersionBump": "major",
+      "affectedArtifacts": [
+        "docs/machine/product.v1.yaml",
+        "docs/machine/flows.v1.yaml",
+        "src/lib/homi.ts",
+        "src/App.svelte"
+      ],
+      "safeAdditiveChanges": [
+        "오류/안내 문구 개선",
+        "비동작성 메타 필드 추가"
+      ],
+      "breakingChanges": [
+        "import apply mode 변경",
+        "route 의미 변경",
+        "dictation/schedule 핵심 규칙 변경"
+      ]
+    },
+    {
+      "id": "policy.contract_ref_change",
+      "changeClass": "contract_ref_change",
+      "requiresVersionBump": "minor",
+      "affectedArtifacts": [
+        "docs/machine/product.v1.yaml",
+        "docs/machine/ui.v1.yaml",
+        "docs/machine/flows.v1.yaml",
+        "docs/machine/tests.v1.yaml",
+        "docs/machine/ai-review.v1.yaml"
+      ],
+      "safeAdditiveChanges": [
+        "새 rule id 추가",
+        "새 scenario id 추가"
+      ],
+      "breakingChanges": [
+        "기존 rule id 삭제",
+        "contractRefs가 dangling 상태가 되는 rename"
+      ]
+    },
+    {
+      "id": "policy.test_contract_change",
+      "changeClass": "test_contract_change",
+      "requiresVersionBump": "minor",
+      "affectedArtifacts": [
+        "docs/machine/tests.v1.yaml",
+        "tests/e2e/qa-homi.spec.ts"
+      ],
+      "safeAdditiveChanges": [
+        "새 P1/P2 시나리오 추가",
+        "증거 수집 artifact 추가"
+      ],
+      "breakingChanges": [
+        "P0 scenario 삭제",
+        "hard_fail scenario를 soft_fail로 강등"
+      ]
+    },
+    {
+      "id": "policy.ai_review_contract_change",
+      "changeClass": "ai_review_change",
+      "requiresVersionBump": "minor",
+      "affectedArtifacts": [
+        "docs/machine/ai-review.v1.yaml",
+        "schemas/ai-ui-review-result.schema.json",
+        "scripts/ai-ui-review.mjs"
+      ],
+      "safeAdditiveChanges": [
+        "새 screen 리뷰 규칙 추가",
+        "soft fail 조건 추가"
+      ],
+      "breakingChanges": [
+        "hard fail 코드 제거 또는 의미 변경",
+        "deterministic first gate 원칙 위반"
+      ]
+    },
+    {
+      "id": "policy.work_item_registry_change",
+      "changeClass": "work_item_update",
+      "requiresVersionBump": "patch",
+      "affectedArtifacts": [
+        "docs/machine/work-items.v1.yaml"
+      ],
+      "safeAdditiveChanges": [
+        "work item 추가",
+        "evidence 링크 추가",
+        "status 갱신"
+      ],
+      "breakingChanges": [
+        "status enum 변경",
+        "id 충돌"
+      ]
+    }
+  ]
+}

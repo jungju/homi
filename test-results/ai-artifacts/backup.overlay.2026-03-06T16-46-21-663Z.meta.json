@@ -1,0 +1,17 @@
+{
+  "screenId": "backup.overlay",
+  "state": "미리보기",
+  "route": "http://127.0.0.1:4173/backup",
+  "deterministicAssertions": [
+    "backup-url-input exists",
+    "backup-json-textarea exists",
+    "backup-file-input exists",
+    "backup-preview is visible",
+    "backup-confirm is visible"
+  ],
+  "capturedAt": "2026-03-06T16:46:21.718Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  }
+}

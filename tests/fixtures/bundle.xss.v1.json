@@ -1,0 +1,17 @@
+{
+  "format": "homi",
+  "version": 1,
+  "bundleType": "import",
+  "bundleId": "bundle_test_xss_v1",
+  "title": "XSS 안전성 검사 브레인",
+  "datasets": [
+    {
+      "engineId": "dictation",
+      "engineSchemaVersion": 1,
+      "title": "<img src=x onerror=alert(1)>",
+      "items": [
+        { "word": "apple", "meaning": "사과", "example": "<img src=x onerror=alert(2)>" }
+      ]
+    }
+  ]
+}

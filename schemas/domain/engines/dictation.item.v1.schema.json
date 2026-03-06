@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://homi.local/schemas/domain/engines/dictation.item.v1.schema.json",
+  "title": "Homi v1 DictationItemV1",
+  "type": "object",
+  "required": [
+    "word"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "word": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10000
+    },
+    "meaning": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "hint": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "example": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "audioUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "maxLength": 10000
+    }
+  }
+}
