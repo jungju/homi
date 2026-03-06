@@ -1,49 +1,126 @@
 # Homi
 
-가족용 키오스크 홈 헬퍼 대시보드 (Vite + Svelte + TypeScript)
+Homi는 **브레인 데이터셋 관리 + 실행형 엔진 앱**입니다.  
+`localStorage` 기반 정적 웹앱으로 동작합니다.
 
-## 기능
+## 핵심 개요
 
-- 상단 상태바: 현재시간(Asia/Seoul), Online 상태, build version
-- 스케줄 엔진: daily / hourly / once (setTimeout 재예약 방식, setInterval 미사용)
-- 알림 로그 + 사운드 대기 배지
-- 사운드는 자동 재생하지 않고, 사용자 클릭 시에만 재생
-- 설정 패널에서 스케줄 추가/삭제/enable 토글
-- 설정은 localStorage에 저장
-- `version.json` 주기 확인(60초) 후 커밋 변경 시 자동 새로고침
+- 기본 엔진: `schedule`, `dictation`
+- 저장 키: `homi.store.v1`
+- 샘플 뇌(통합 번들): `public/samples/homi.sample.homi.json`
+- 실행은 홈의 얼굴 화면에서 시작되고, 엔진·설정은 팝업으로 열립니다.
+- 헤더/네비게이션 바는 사용하지 않습니다.
+- `SPEC.md`에서 v1 규격이 최종 고정되어 있습니다: [`SPEC.md`](SPEC.md)
 
-## 로컬 실행
+## 게임/앱을 한마디로
+
+Homi는 **하루 리듬(스케줄)**과 **문장 암기 연습(받아쓰기)**를 같은 “브레인” 데이터 구조로 관리하고,  
+홈 화면의 캐릭터를 중심으로 실행하는 정적 웹앱입니다.
+
+핵심은 다음입니다.
+
+- 데이터는 엔진별 데이터셋으로 저장/분리
+- 외부에서 가져온 브레인은 임포트 전 미리보기 후 확정 저장
+- 실행은 홈 화면(기본 모드)에서 시작해 엔진별로 팝업에서 동작
+
+## 모드와 화면 동작 (고정 규칙)
+
+- 기본 모드
+  - 홈 화면에서 얼굴 + 대화상자 상태 표시
+  - 엔진 버튼으로 원하는 기능 화면 진입
+- 받아쓰기 실행모드
+  - 받아쓰기 엔진에서 게임 시작 시 진입
+  - 대화상자에 `현재 모드: 받아쓰기 실행모드`로 노출
+- 모드 전환은 홈에서 관리되며, 기본 UI는 헤더 없이 단일 얼굴 중심으로 유지
+
+## 받아쓰기 게임 동작 (v1)
+
+- 진입
+  - 엔진 팝업에서 데이터셋을 선택/확인
+  - 실행 가능한 상태로 전환
+- 모드
+  - `한글쓰기(영어 발화)`: 항목의 `word`를 읽어줌
+  - `영어쓰기(한국어 발화)`: 항목의 `meaning` 또는 fallback 값 읽기
+- 진행
+  - 시작 시 자동으로 10초 간격으로 다음 항목으로 이동
+  - `Next` 버튼으로 즉시 다음 항목으로 이동 가능
+  - 진행 인덱스와 항목 수를 화면에 표시
+- 종료
+  - 게임 나가기 버튼으로 종료
+  - 마지막 항목 완료 시 자동 종료
+
+## 스케줄 엔진 동작 (v1)
+
+- `schedule` 데이터셋의 항목은 `repeatIntervalSec` 기반 반복 알림 대상
+- 스케줄 데이터셋별로 `meta.enabled` 토글(사용/사용안함) 지원
+- 받아쓰기 실행 중에는 알림이 강제 인터럽트되지 않고 말풍선 안내로 표시
+- 브라우저 알림 허용 상태에 따라 OS 알림/텍스트 안내가 동작
+
+## 실행 방법
 
 ```bash
-nvm use
-pnpm install
-pnpm dev
+npm install
+npm run dev
 ```
 
-## 사운드 파일
+```bash
+npm run build
+```
 
-`public/sounds/chime.mp3` 파일을 넣으면 알림 재생에 사용됩니다.
+```bash
+npm run check
+```
 
-## 배포 (GitHub Pages)
+```bash
+npm run next:task
+```
 
-main 브랜치 푸시 시 `.github/workflows/deploy-pages.yml`로 자동 배포됩니다.
+## 라우트
 
-워크플로우:
+- `/` : 기본 화면(얼굴 전체화면)
+- `/engines/{engineId}` : 엔진 팝업(데이터셋 관리/실행)
+- `/backup` : 브레인 설정(임포트/익스포트/샘플 로드) 팝업
 
-1. pnpm install
-2. pnpm build
-3. Pages artifact 업로드 및 deploy
+## v1 데이터 정책
 
-커스텀 도메인:
+- Import 대상은 `HomiBundleV1` (`format: "homi"`, `version: 1`)
+- 브레인 입력은 `/backup`에서만 수행
+  - URL Import
+  - JSON 텍스트 Import
+  - 파일 Import
+- Import는 **기존 데이터 전체 교체**(replace) 후 반영
+- 미리보기 후 `가져오기 확정` 동작이 있어야 저장됨
+- 신뢰되지 않은 입력은 텍스트만 렌더링, `javascript:` 차단
 
-- `public/CNAME`에 `homi.jjgo.io` 포함
+## 엔진 동작 정리
 
-DNS 설정 (Cloudflare/도메인 등록기관 공통 가이드):
+### 스케줄
 
-- `homi.jjgo.io`에 대해 GitHub Pages 대상으로 CNAME 추가
-  - 값: `<your-github-username>.github.io`
-- GitHub 저장소 Settings → Pages 에서 custom domain `homi.jjgo.io` 설정
-- HTTPS 강제 옵션 활성화
+- 엔진 자체 데이터셋 목록에서만 일정 항목 실행
+- 항목의 `repeatIntervalSec`으로 반복 알림 처리
+- 데이터셋별 사용/사용안함 토글(`meta.enabled`)
+- 받아쓰기 게임 진행 중에는 말풍선 메시지로만 알림 안내
+
+### 받아쓰기
+
+- 데이터셋 클릭 후 실행
+- 모드:
+  - 한글쓰기 (`word` 발음)
+  - 영어쓰기 (`meaning` 또는 fallback)
+- 시작 후 기본 10초 간격으로 다음 항목
+- `Next` 버튼으로 즉시 다음 항목 이동
+
+## 현재 저장소 구조
+
+- `src/App.svelte` : 화면/인터랙션/상태 관리
+- `src/lib/homi.ts` : 스키마, 파서, import/export 핵심 타입
+- `public/samples/homi.sample.homi.json` : 기본 샘플 뇌 번들
+- `TASK.md` : 진행 체크리스트
+
+## 배포
+
+- GitHub Pages 정적 배포 기준
+- 정적 파일 업로드만 수행
 
 ## 라이선스
 

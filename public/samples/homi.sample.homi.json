@@ -1,0 +1,81 @@
+{
+  "format": "homi",
+  "version": 1,
+  "bundleType": "sample",
+  "bundleId": "bundle_sample_all_v1",
+  "title": "Homi 샘플 뇌 (브레인)",
+  "description": "하나의 번들 안에 여러 엔진의 샘플 데이터셋을 담은 기본 샘플",
+  "createdAt": "2026-03-06T00:00:00Z",
+  "datasets": [
+    {
+      "id": "sample_schedule_001",
+      "engineId": "schedule",
+      "engineSchemaVersion": 1,
+      "title": "우리집 기본 일정",
+      "meta": {
+        "tags": ["sample", "family"],
+        "description": "매일 반복되는 기본 일정 샘플"
+      },
+      "items": [
+        {
+          "date": "2026-03-07",
+          "title": "장보기",
+          "timeStart": "16:00",
+          "notes": "우유/계란"
+        },
+        {
+          "date": "2026-03-08",
+          "title": "산책",
+          "timeStart": "10:00"
+        }
+      ]
+    },
+    {
+      "id": "sample_dictation_001",
+      "engineId": "dictation",
+      "engineSchemaVersion": 1,
+      "title": "영어 단어 초급 샘플",
+      "meta": {
+        "tags": ["sample", "english", "dictation"],
+        "description": "초보 받아쓰기 예시"
+      },
+      "items": [
+        {
+          "word": "apple",
+          "meaning": "사과",
+          "example": "I ate an apple."
+        },
+        {
+          "word": "book",
+          "meaning": "책",
+          "example": "This is my book."
+        },
+        {
+          "word": "school",
+          "meaning": "학교",
+          "example": "Children go to school."
+        }
+      ]
+    },
+    {
+      "id": "sample_schedule_love_001",
+      "engineId": "schedule",
+      "engineSchemaVersion": 1,
+      "title": "1분마다 알림",
+      "meta": {
+        "tags": ["sample", "schedule", "voice"],
+        "description": "1분 간격으로 \"사랑해\"를 알림"
+      },
+      "items": [
+        {
+          "date": "2026-03-07",
+          "title": "사랑해",
+          "timeStart": "09:00",
+          "notes": "1분마다 \"사랑해\" 알림",
+          "audioUrl": "https://example.com/audio/saranghae.mp3",
+          "repeatIntervalSec": 60
+        }
+      ]
+    }
+  ]
+}
