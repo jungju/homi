@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-03-06T16:47:11.386Z",
+  "generatedAt": "2026-03-07T01:52:43.490Z",
   "total": 4,
   "pass": 0,
   "warn": 4,
   "fail": 0,
-  "strictMode": true,
+  "strictMode": false,
   "config": "docs/machine/ai-review.v1.yaml",
   "artifactsDir": "test-results/ai-artifacts"
 }

@@ -17,12 +17,12 @@
   "summary": "OPENAI_API_KEY is not set; AI review skipped.",
   "artifacts": {
     "artifactDir": "test-results/ai-artifacts",
-    "screenshot": "test-results\\ai-artifacts\\dictation.running.2026-03-06T16-46-22-906Z.png",
-    "testIds": "test-results\\ai-artifacts\\dictation.running.2026-03-06T16-46-22-906Z.dom-testids.json",
-    "visibleText": "test-results\\ai-artifacts\\dictation.running.2026-03-06T16-46-22-906Z.visible-text.txt",
-    "ariaSnapshot": "test-results\\ai-artifacts\\dictation.running.2026-03-06T16-46-22-906Z.aria-snapshot.json",
-    "meta": "test-results\\ai-artifacts\\dictation.running.2026-03-06T16-46-22-906Z.meta.json"
+    "screenshot": "test-results\\ai-artifacts\\dictation.running.2026-03-07T01-51-34-455Z.png",
+    "testIds": "test-results\\ai-artifacts\\dictation.running.2026-03-07T01-51-34-455Z.dom-testids.json",
+    "visibleText": "test-results\\ai-artifacts\\dictation.running.2026-03-07T01-51-34-455Z.visible-text.txt",
+    "ariaSnapshot": "test-results\\ai-artifacts\\dictation.running.2026-03-07T01-51-34-455Z.aria-snapshot.json",
+    "meta": "test-results\\ai-artifacts\\dictation.running.2026-03-07T01-51-34-455Z.meta.json"
   },
-  "createdAt": "2026-03-06T16:47:11.385Z",
+  "createdAt": "2026-03-07T01:52:43.489Z",
   "model": "fallback"
 }

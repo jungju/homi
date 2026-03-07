@@ -23,8 +23,8 @@
       "mode": "기본 모드"
     },
     {
-      "id": "flow.state.engine.dictation.running",
-      "route": "/engines/dictation",
+      "id": "flow.state.home.dictation.running",
+      "route": "/",
       "mode": "받아쓰기 실행모드"
     },
     {
@@ -117,34 +117,36 @@
       "id": "flow.dictation.start_sets_mode",
       "from": "flow.state.engine.dictation.ready",
       "event": "flow.event.dictation.start",
-      "to": "flow.state.engine.dictation.running",
+      "to": "flow.state.home.dictation.running",
       "contractRefs": [
-        "product.dictation.mode_text.required"
+        "product.dictation.mode_text.required",
+        "product.dictation.start_closes_engine_overlay",
+        "ui.dictation.runner_home_surface"
       ]
     },
     {
       "id": "flow.dictation.next_keeps_running",
-      "from": "flow.state.engine.dictation.running",
+      "from": "flow.state.home.dictation.running",
       "event": "flow.event.dictation.next",
-      "to": "flow.state.engine.dictation.running",
+      "to": "flow.state.home.dictation.running",
       "contractRefs": [
         "product.dictation.auto_advance_10s"
       ]
     },
     {
       "id": "flow.dictation.exit_to_idle",
-      "from": "flow.state.engine.dictation.running",
+      "from": "flow.state.home.dictation.running",
       "event": "flow.event.dictation.exit",
-      "to": "flow.state.engine.dictation.ready",
+      "to": "flow.state.home.idle",
       "contractRefs": [
         "product.dictation.auto_exit_after_last_item"
       ]
     },
     {
       "id": "flow.dictation.finish_to_idle",
-      "from": "flow.state.engine.dictation.running",
+      "from": "flow.state.home.dictation.running",
       "event": "flow.event.dictation.finish_last_item",
-      "to": "flow.state.engine.dictation.ready",
+      "to": "flow.state.home.idle",
       "contractRefs": [
         "product.dictation.auto_exit_after_last_item"
       ]
@@ -170,9 +172,9 @@
     },
     {
       "id": "flow.schedule.reminder_non_interrupt",
-      "from": "flow.state.engine.dictation.running",
+      "from": "flow.state.home.dictation.running",
       "event": "flow.event.schedule.reminder_tick",
-      "to": "flow.state.engine.dictation.running",
+      "to": "flow.state.home.dictation.running",
       "contractRefs": [
         "product.schedule.no_os_notification_during_dictation",
         "ui.toast.schedule_during_dictation"
@@ -192,6 +194,24 @@
       "statement": "import confirm 전에 preview 상태가 존재해야 한다.",
       "contractRefs": [
         "product.import.preview_required"
+      ]
+    },
+    {
+      "id": "flow.invariant.dictation_start_requires_selection",
+      "statement": "dictation start 이벤트는 dataset selection 상태에서만 유효하다.",
+      "contractRefs": [
+        "product.dictation.start_requires_selected_dataset"
+      ]
+    },
+    {
+      "id": "flow.invariant.home_face_surface_shared_modes",
+      "statement": "기본 모드와 받아쓰기 실행모드는 동일한 홈 얼굴 화면(route=/)을 공유하고 control box 배치만 바뀐다.",
+      "contractRefs": [
+        "ui.home.control_grid_3x3",
+        "ui.home.control_box_2.bubble",
+        "ui.home.control_box_8.idle_controls",
+        "ui.home.control_box_8.dictation_runner",
+        "ui.home.face_position_stable_across_modes"
       ]
     },
     {

@@ -52,6 +52,14 @@
       "statement": "받아쓰기는 마지막 항목 완료 시 자동 종료되고 기본 모드로 복귀한다."
     },
     {
+      "id": "product.dictation.start_closes_engine_overlay",
+      "statement": "받아쓰기 시작 시 engine 설정 overlay를 닫고 홈 실행 모드로 전환한다."
+    },
+    {
+      "id": "product.dictation.start_requires_selected_dataset",
+      "statement": "받아쓰기 설정에서 dataset 미선택 상태는 시작 버튼 비활성으로 유지한다."
+    },
+    {
       "id": "product.schedule.no_os_notification_during_dictation",
       "statement": "받아쓰기 실행 중 schedule 알림은 OS notification으로 인터럽트하지 않는다."
     },
@@ -77,7 +85,7 @@
       "path": "/engines/{engineId}",
       "routeType": "overlay",
       "overlay": true,
-      "purpose": "engine dataset management and run"
+      "purpose": "engine dataset management and run setup"
     },
     {
       "id": "route.backup",

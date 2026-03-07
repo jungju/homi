@@ -1,0 +1,89 @@
+{
+  "screenId": "dictation.running",
+  "items": [
+    {
+      "id": "app-root",
+      "text": "\"영어 단어 초급 샘플\" 받아쓰기 시작\n\n좋아요. 자료가 꽤 모였어요.\n\n현재 모드: 받아쓰기 실행모드\n\n받아쓰기 게임\n\n모드: 한글쓰기(영어 발화) · 데이터셋: 영어 단어 초급 샘플\n\n진행: 1 / 3\n\n현재 항목: apple\n\n10초마다 자동으로 다음 항목으로 넘어갑니다.\n\nNext\n게임 나가기"
+    },
+    {
+      "id": "toast-root",
+      "text": "\"영어 단어 초급 샘플\" 받아쓰기 시작"
+    },
+    {
+      "id": "home-root",
+      "text": "좋아요. 자료가 꽤 모였어요.\n\n현재 모드: 받아쓰기 실행모드\n\n받아쓰기 게임\n\n모드: 한글쓰기(영어 발화) · 데이터셋: 영어 단어 초급 샘플\n\n진행: 1 / 3\n\n현재 항목: apple\n\n10초마다 자동으로 다음 항목으로 넘어갑니다.\n\nNext\n게임 나가기"
+    },
+    {
+      "id": "home-face"
+    },
+    {
+      "id": "home-control-grid",
+      "text": "좋아요. 자료가 꽤 모였어요.\n\n현재 모드: 받아쓰기 실행모드\n\n받아쓰기 게임\n\n모드: 한글쓰기(영어 발화) · 데이터셋: 영어 단어 초급 샘플\n\n진행: 1 / 3\n\n현재 항목: apple\n\n10초마다 자동으로 다음 항목으로 넘어갑니다.\n\nNext\n게임 나가기"
+    },
+    {
+      "id": "home-control-box-1"
+    },
+    {
+      "id": "home-control-box-2",
+      "text": "좋아요. 자료가 꽤 모였어요.\n\n현재 모드: 받아쓰기 실행모드"
+    },
+    {
+      "id": "home-bubble",
+      "text": "좋아요. 자료가 꽤 모였어요.\n\n현재 모드: 받아쓰기 실행모드"
+    },
+    {
+      "id": "home-mode-text",
+      "text": "현재 모드: 받아쓰기 실행모드"
+    },
+    {
+      "id": "home-control-box-3"
+    },
+    {
+      "id": "home-control-box-4"
+    },
+    {
+      "id": "home-control-box-5"
+    },
+    {
+      "id": "home-control-box-6"
+    },
+    {
+      "id": "home-control-box-7"
+    },
+    {
+      "id": "home-control-box-8",
+      "text": "받아쓰기 게임\n\n모드: 한글쓰기(영어 발화) · 데이터셋: 영어 단어 초급 샘플\n\n진행: 1 / 3\n\n현재 항목: apple\n\n10초마다 자동으로 다음 항목으로 넘어갑니다.\n\nNext\n게임 나가기"
+    },
+    {
+      "id": "dictation-root",
+      "text": "받아쓰기 게임\n\n모드: 한글쓰기(영어 발화) · 데이터셋: 영어 단어 초급 샘플\n\n진행: 1 / 3\n\n현재 항목: apple\n\n10초마다 자동으로 다음 항목으로 넘어갑니다.\n\nNext\n게임 나가기"
+    },
+    {
+      "id": "dictation-progress",
+      "text": "진행: 1 / 3"
+    },
+    {
+      "id": "dictation-progress-index",
+      "text": "1"
+    },
+    {
+      "id": "dictation-progress-total",
+      "text": "3"
+    },
+    {
+      "id": "dictation-current-text",
+      "text": "현재 항목: apple"
+    },
+    {
+      "id": "dictation-next",
+      "text": "Next"
+    },
+    {
+      "id": "dictation-exit",
+      "text": "게임 나가기"
+    },
+    {
+      "id": "home-control-box-9"
+    }
+  ]
+}

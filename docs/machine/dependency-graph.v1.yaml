@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/dependency-graph.v1.schema.json",
   "authoritative": false,
   "generated": true,
-  "generatedAt": "2026-03-06T16:48:00.794Z",
+  "generatedAt": "2026-03-07T01:50:39.499Z",
   "generatedFrom": {
     "manifest": "docs/machine/manifest.v1.yaml"
   },

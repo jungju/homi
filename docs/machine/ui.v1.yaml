@@ -20,6 +20,30 @@
       "statement": "home-mode-text는 텍스트로 표시되며 icon-only 표현은 허용하지 않는다."
     },
     {
+      "id": "ui.home.control_grid_3x3",
+      "statement": "얼굴 화면은 home-control-grid 기반 3x3(총 9개) control box(home-control-box-1..9)로 구성된다."
+    },
+    {
+      "id": "ui.home.control_box_2.bubble",
+      "statement": "기본 모드/실행 모드 공통으로 home-bubble은 control box 2(상단 중앙)에 배치된다."
+    },
+    {
+      "id": "ui.home.control_box_8.idle_controls",
+      "statement": "기본 모드의 엔진/브레인 설정 컨트롤은 control box 8(하단 중앙)에 배치된다."
+    },
+    {
+      "id": "ui.home.control_box_8.dictation_runner",
+      "statement": "받아쓰기 실행 모드 컨트롤(dictation-root)은 control box 8(하단 중앙)에 배치된다."
+    },
+    {
+      "id": "ui.home.no_page_scroll",
+      "statement": "얼굴 페이지(home surface)는 모드와 무관하게 문서 스크롤 없이 viewport 안에서 레이아웃이 완결된다."
+    },
+    {
+      "id": "ui.home.face_position_stable_across_modes",
+      "statement": "기본 모드와 받아쓰기 실행모드 전환 시 home-face의 위치는 변하지 않는다."
+    },
+    {
       "id": "ui.home.no_global_header",
       "statement": "global header/nav/testid(global-header, global-nav, top-navbar)는 금지한다."
     },
@@ -36,12 +60,20 @@
       "statement": "engine overlay에서 backup import 입력 testid는 존재하면 안 된다."
     },
     {
+      "id": "ui.engine.no_top_dataset_add_action",
+      "statement": "모든 engine 설정 overlay 상단에 전역 '새 자료 세트' 버튼을 두지 않는다."
+    },
+    {
       "id": "ui.dataset_row.required",
       "statement": "dataset-row는 data-engine-id/data-dataset-id/data-dataset-title를 가진다."
     },
     {
       "id": "ui.dictation.runner_contract",
-      "statement": "dictation 실행 상태에서 progress/next/exit/mode 선택 UI 계약을 유지한다."
+      "statement": "dictation 실행 상태 UI는 홈(/)에서 표시되고 progress/next/exit 계약을 유지한다."
+    },
+    {
+      "id": "ui.dictation.runner_home_surface",
+      "statement": "dictation 시작 후 engine overlay는 닫히고 홈 화면에서 실행 UI(dictation-root)가 노출된다."
     },
     {
       "id": "ui.toast.schedule_during_dictation",
@@ -55,6 +87,16 @@
       "home-face",
       "home-bubble",
       "home-mode-text",
+      "home-control-grid",
+      "home-control-box-1",
+      "home-control-box-2",
+      "home-control-box-3",
+      "home-control-box-4",
+      "home-control-box-5",
+      "home-control-box-6",
+      "home-control-box-7",
+      "home-control-box-8",
+      "home-control-box-9",
       "home-open-engines",
       "home-open-backup",
       "toast-root"
@@ -74,6 +116,16 @@
         "home-face",
         "home-bubble",
         "home-mode-text",
+        "home-control-grid",
+        "home-control-box-1",
+        "home-control-box-2",
+        "home-control-box-3",
+        "home-control-box-4",
+        "home-control-box-5",
+        "home-control-box-6",
+        "home-control-box-7",
+        "home-control-box-8",
+        "home-control-box-9",
         "home-open-engines",
         "home-engine-btn-schedule",
         "home-engine-btn-dictation",
@@ -94,11 +146,11 @@
         "overlay-close",
         "engine-root",
         "engine-datasets-list",
-        "engine-dataset-add",
         "engine-empty-state",
         "dataset-row"
       ],
       "forbiddenTestIds": [
+        "engine-dataset-add",
         "backup-url-input",
         "backup-json-textarea",
         "backup-file-input"
@@ -166,8 +218,6 @@
   "dictationRunnerContract": {
     "requiredTestIds": [
       "dictation-root",
-      "dictation-mode-a",
-      "dictation-mode-b",
       "dictation-progress",
       "dictation-progress-index",
       "dictation-progress-total",

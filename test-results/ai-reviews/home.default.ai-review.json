@@ -17,12 +17,12 @@
   "summary": "OPENAI_API_KEY is not set; AI review skipped.",
   "artifacts": {
     "artifactDir": "test-results/ai-artifacts",
-    "screenshot": "test-results\\ai-artifacts\\home.default.2026-03-06T16-46-20-903Z.png",
-    "testIds": "test-results\\ai-artifacts\\home.default.2026-03-06T16-46-20-903Z.dom-testids.json",
-    "visibleText": "test-results\\ai-artifacts\\home.default.2026-03-06T16-46-20-903Z.visible-text.txt",
-    "ariaSnapshot": "test-results\\ai-artifacts\\home.default.2026-03-06T16-46-20-903Z.aria-snapshot.json",
-    "meta": "test-results\\ai-artifacts\\home.default.2026-03-06T16-46-20-903Z.meta.json"
+    "screenshot": "test-results\\ai-artifacts\\home.default.2026-03-07T01-51-32-309Z.png",
+    "testIds": "test-results\\ai-artifacts\\home.default.2026-03-07T01-51-32-309Z.dom-testids.json",
+    "visibleText": "test-results\\ai-artifacts\\home.default.2026-03-07T01-51-32-309Z.visible-text.txt",
+    "ariaSnapshot": "test-results\\ai-artifacts\\home.default.2026-03-07T01-51-32-309Z.aria-snapshot.json",
+    "meta": "test-results\\ai-artifacts\\home.default.2026-03-07T01-51-32-309Z.meta.json"
   },
-  "createdAt": "2026-03-06T16:47:11.373Z",
+  "createdAt": "2026-03-07T01:52:43.477Z",
   "model": "fallback"
 }

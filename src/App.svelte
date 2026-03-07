@@ -90,8 +90,6 @@
   let dictationIntervalTimer: number | null = null;
   let dictationGameMode = false;
   let selectedDictationDataset: DataSetV1 | null = null;
-  let dictationFaceBlink = false;
-  let dictationFaceBlinkTimeout: number | null = null;
   const LIMIT_BYTES = MAX_BUNDLE_JSON_BYTES;
   const LIMIT_DATASETS = MAX_DATASET_COUNT_PER_BUNDLE;
   const LIMIT_ITEMS = MAX_ITEMS_PER_DATASET;
@@ -166,7 +164,7 @@
     ].filter(Boolean);
     const messageText = `${datasetTitle} · ${title}${bodyParts.length > 0 ? ` - ${bodyParts.join(' ')}` : ''}`;
 
-    const isDictationGameActive = route.kind === 'engine' && route.engineId === 'dictation' && dictationGameMode;
+    const isDictationGameActive = dictationRunning && dictationGameMode;
     if (isDictationGameActive) {
       setMessage(`일정 알림: ${messageText}`, 'ok');
       return;
@@ -272,16 +270,13 @@
     if (count < 3) {
       return '아직 막 정리 중이지만 얼굴이 미소 짓고 있어요. 데이터가 보태질수록 더 재밌어져요.';
     }
-    return '좋아요. 자료가 꽤 모였어요. 지금 바로 엔진으로 이동해서 이어가보세요.';
+    return '좋아요. 자료가 꽤 모였어요.';
   }
 
   $: homeMood = getHomeMood();
   $: displayMood = blink ? 'wink' : homeMood;
   $:
-    homeModeText =
-      route.kind === 'engine' && route.engineId === 'dictation' && dictationGameMode
-        ? '현재 모드: 받아쓰기 실행모드'
-        : '현재 모드: 기본 모드';
+    homeModeText = dictationGameMode ? '현재 모드: 받아쓰기 실행모드' : '현재 모드: 기본 모드';
   $:
     selectedDictationDataset = dictationDatasetId
       ? getDatasetsByEngine(store, 'dictation').find((dataset) => dataset.id === dictationDatasetId) ?? null
@@ -403,17 +398,6 @@
     );
   }
 
-  function triggerDictationFaceWink() {
-    dictationFaceBlink = true;
-    if (dictationFaceBlinkTimeout !== null) {
-      clearTimeout(dictationFaceBlinkTimeout);
-    }
-    dictationFaceBlinkTimeout = window.setTimeout(() => {
-      dictationFaceBlink = false;
-      dictationFaceBlinkTimeout = null;
-    }, 420);
-  }
-
   function stopDictationSession() {
     if (!dictationRunning) {
       dictationRunning = false;
@@ -479,7 +463,7 @@
     if (window.speechSynthesis?.speaking || window.speechSynthesis?.pending) {
       window.speechSynthesis.cancel();
     }
-    triggerDictationFaceWink();
+    triggerHomeWink();
     window.speechSynthesis?.speak(utter);
   }
 
@@ -522,6 +506,9 @@
     dictationRunning = true;
     dictationGameMode = true;
     dictationCurrentIndex = 0;
+    if (route.kind !== 'home') {
+      navigate('/');
+    }
     playDictationCurrentItem();
     startDictationAutoTimer();
     setMessage(`"${dataset.title}" 받아쓰기 시작`, 'ok');
@@ -587,6 +574,12 @@
     } else if (route.kind === 'backup') {
       // 백업은 전체 Export만 사용
       stopDictationSession();
+    } else if (route.kind === 'home') {
+      exportSelection = new Set();
+      // 실행 모드 진입 후 팝업을 닫아도 받아쓰기 세션은 유지한다.
+      if (!dictationGameMode) {
+        stopDictationSession();
+      }
     } else {
       exportSelection = new Set();
       stopDictationSession();
@@ -643,17 +636,6 @@
   function closePopup() {
     if (route.kind === 'home') return;
     navigate('/');
-  }
-
-  function startAddDataset(engineId: EngineId) {
-    editor = {
-      mode: 'add',
-      engineId,
-      datasetId: '',
-      title: '',
-      itemsText: '[]',
-      error: '',
-    };
   }
 
   function startEditDataset(dataset: DataSetV1) {
@@ -1004,10 +986,6 @@
       clearTimeout(blinkResetTimeout);
       blinkResetTimeout = null;
     }
-    if (dictationFaceBlinkTimeout !== null) {
-      clearTimeout(dictationFaceBlinkTimeout);
-      dictationFaceBlinkTimeout = null;
-    }
     stopDictationSession();
     stopScheduleReminder();
   });
@@ -1039,35 +1017,80 @@
             </div>
           </div>
         </div>
-        <section class="home-dialog" data-testid="home-bubble" role="status" aria-live="polite">
-          <p class="home-msg">{homeGreeting()}</p>
-          <p data-testid="home-mode-text" class="home-mode">{homeModeText}</p>
-        </section>
-        <div class="home-engine-row" data-testid="home-open-engines">
-          {#each ENGINE_REGISTRY as engine}
-            <button
-              class="home-engine-btn"
-              data-testid={`home-engine-btn-${engine.id}`}
-              on:click={() => onHomeEngineClick(engine.id)}
-            >
-              <span
-                class="engine-badge"
-                style={`--engine-color: ${ENGINE_VISUALS[engine.id]?.accent}; --engine-bg: ${ENGINE_VISUALS[engine.id]?.bg};`}
-              >
-                {ENGINE_VISUALS[engine.id]?.icon}
-              </span>
-              <span>{engine.title} 열기</span>
-            </button>
-          {/each}
+        <div class="home-control-grid" data-testid="home-control-grid">
+          <div class="home-control-box" data-box="1" data-testid="home-control-box-1"></div>
+          <div class="home-control-box" data-box="2" data-testid="home-control-box-2">
+            <section class="home-dialog" data-testid="home-bubble" role="status" aria-live="polite">
+              <p class="home-msg">{homeGreeting()}</p>
+              <p data-testid="home-mode-text" class="home-mode">{homeModeText}</p>
+            </section>
+          </div>
+          <div class="home-control-box" data-box="3" data-testid="home-control-box-3"></div>
+          <div class="home-control-box" data-box="4" data-testid="home-control-box-4"></div>
+          <div class="home-control-box" data-box="5" data-testid="home-control-box-5"></div>
+          <div class="home-control-box" data-box="6" data-testid="home-control-box-6"></div>
+          <div class="home-control-box" data-box="7" data-testid="home-control-box-7"></div>
+          <div class="home-control-box" data-box="8" data-testid="home-control-box-8">
+            {#if dictationGameMode && selectedDictationDataset}
+              <section class="card dictation-game-screen home-bottom-panel" data-testid="dictation-root">
+                <h3>받아쓰기 게임</h3>
+                <p class="muted">
+                  모드: {dictationMode === 'korean' ? '한글쓰기(영어 발화)' : '영어쓰기(한국어 발화)'}
+                  · 데이터셋: {selectedDictationDataset.title}
+                </p>
+
+                {#if selectedDictationDataset.items.length > 0}
+                  {@const currentDictationItem = getCurrentDictationItem(selectedDictationDataset)}
+                  {#if currentDictationItem}
+                    <p class="count" data-testid="dictation-progress">
+                      진행:
+                      <span data-testid="dictation-progress-index">{dictationCurrentIndex + 1}</span>
+                      /
+                      <span data-testid="dictation-progress-total">{selectedDictationDataset.items.length}</span>
+                    </p>
+                    <p class="muted" data-testid="dictation-current-text">현재 항목: {getDictationDisplayText(currentDictationItem)}</p>
+                  {/if}
+                {/if}
+
+                <p class="muted">10초마다 자동으로 다음 항목으로 넘어갑니다.</p>
+                <div class="inline">
+                  <button data-testid="dictation-next" on:click={onNextDictationItem}>Next</button>
+                  <button data-testid="dictation-exit" on:click={stopDictationSession}>게임 나가기</button>
+                </div>
+              </section>
+            {/if}
+            {#if !dictationGameMode}
+              <section class="home-bottom-panel home-idle-controls">
+                <div class="home-engine-row" data-testid="home-open-engines">
+                  {#each ENGINE_REGISTRY as engine}
+                    <button
+                      class="home-engine-btn"
+                      data-testid={`home-engine-btn-${engine.id}`}
+                      on:click={() => onHomeEngineClick(engine.id)}
+                    >
+                      <span
+                        class="engine-badge"
+                        style={`--engine-color: ${ENGINE_VISUALS[engine.id]?.accent}; --engine-bg: ${ENGINE_VISUALS[engine.id]?.bg};`}
+                      >
+                        {ENGINE_VISUALS[engine.id]?.icon}
+                      </span>
+                      <span>{engine.title} 열기</span>
+                    </button>
+                  {/each}
+                </div>
+                <button
+                  type="button"
+                  class="home-engine-btn"
+                  data-testid="home-open-backup"
+                  on:click={openSettingsPopup}
+                >
+                  브레인 설정
+                </button>
+              </section>
+            {/if}
+          </div>
+          <div class="home-control-box" data-box="9" data-testid="home-control-box-9"></div>
         </div>
-        <button
-          type="button"
-          class="home-engine-btn"
-          data-testid="home-open-backup"
-          on:click={openSettingsPopup}
-        >
-          브레인 설정
-        </button>
       </section>
     </main>
 
@@ -1094,60 +1117,8 @@
         <button type="button" class="popup-close" data-testid="overlay-close" on:click={closePopup}>닫기</button>
         <p class="muted" data-testid="overlay-title">페이지: /engines/{currentEngineId}</p>
         <div class="popup-content">
-          <section class="toolbar">
-            <button
-              type="button"
-              data-testid="engine-dataset-add"
-              on:click={() => startAddDataset(currentEngineId)}
-            >
-              새 자료 세트
-            </button>
-          </section>
-
-              {#if currentEngineId === 'dictation' && dictationGameMode && selectedDictationDataset}
-                <section class="card dictation-game-screen" data-testid="dictation-root">
-                  <h3>받아쓰기 게임</h3>
-              <p class="muted">
-                모드: {dictationMode === 'korean' ? '한글쓰기(영어 발화)' : '영어쓰기(한국어 발화)'}
-                · 데이터셋: {selectedDictationDataset.title}
-              </p>
-              <div class="home-face dictation-game-face" role="img" aria-label="받아쓰기 진행 중 얼굴">
-                <div class="home-face__frame dictation-game-face__frame">
-                  <div class="home-face__head" data-mood={dictationFaceBlink ? 'wink' : 'smile'}>
-                    <div class="home-face__eyes">
-                      <div class="home-face__eye"></div>
-                      <div class="home-face__eye"></div>
-                    </div>
-                    <div class="home-face__mouth"></div>
-                    <div class="home-face__cheek left"></div>
-                    <div class="home-face__cheek right"></div>
-                  </div>
-                </div>
-              </div>
-
-              {#if selectedDictationDataset.items.length > 0}
-                {@const currentDictationItem = getCurrentDictationItem(selectedDictationDataset)}
-                {#if currentDictationItem}
-                  <p class="count" data-testid="dictation-progress">
-                    진행:
-                    <span data-testid="dictation-progress-index">{dictationCurrentIndex + 1}</span>
-                    /
-                    <span data-testid="dictation-progress-total">{selectedDictationDataset.items.length}</span>
-                  </p>
-                  <p class="muted" data-testid="dictation-current-text">현재 항목: {getDictationDisplayText(currentDictationItem)}</p>
-                {/if}
-              {/if}
-
-              <p class="muted">10초마다 자동으로 다음 항목으로 넘어갑니다.</p>
-                  <div class="inline">
-                    <button data-testid="dictation-next" on:click={onNextDictationItem}>Next</button>
-                    <button data-testid="dictation-exit" on:click={stopDictationSession}>게임 나가기</button>
-                  </div>
-                </section>
-              {/if}
-
-          {#if currentEngineId === 'dictation' && !dictationGameMode}
-            <section class="card" data-testid="dictation-root">
+          {#if currentEngineId === 'dictation'}
+            <section class="card" data-testid="dictation-settings-root">
               <h3>받아쓰기 실행</h3>
               <p class="muted">한글쓰기면 영어 발화, 영어쓰기면 한국어 발화</p>
               <p class="muted">학습 모드</p>
@@ -1178,18 +1149,18 @@
                 <p class="muted">
                   선택: {selectedDictationDataset.title} · {selectedDictationDataset.items.length}개
                 </p>
-                <p class="count" data-testid="dictation-progress">
+                <p class="count">
                   진행:
-                  <span data-testid="dictation-progress-index">
+                  <span>
                     {selectedDictationDataset.items.length > 0 ? dictationCurrentIndex + 1 : 0}
                   </span>
                   /
-                  <span data-testid="dictation-progress-total">{selectedDictationDataset.items.length}</span>
+                  <span>{selectedDictationDataset.items.length}</span>
                 </p>
                 {#if selectedDictationDataset.items.length > 0}
                   {@const currentDictationItem = getCurrentDictationItem(selectedDictationDataset)}
                   {#if currentDictationItem}
-                    <p class="muted" data-testid="dictation-current-text">현재 항목: {getDictationDisplayText(currentDictationItem)}</p>
+                    <p class="muted">현재 항목: {getDictationDisplayText(currentDictationItem)}</p>
                   {/if}
                 {/if}
               {:else}
@@ -1197,12 +1168,20 @@
               {/if}
 
                 <div class="inline">
-                  <button on:click={startDictationSession} disabled={!selectedDictationDataset}>시작</button>
+                  <button
+                    data-testid="dictation-start"
+                    on:click={startDictationSession}
+                    disabled={!selectedDictationDataset || dictationRunning}
+                  >
+                    {dictationRunning ? '실행 중' : '시작'}
+                  </button>
                 </div>
+                {#if dictationRunning}
+                  <p class="muted">받아쓰기는 홈 실행 모드에서 진행 중입니다.</p>
+                {/if}
               </section>
             {/if}
 
-          {#if currentEngineId !== 'dictation' || !dictationGameMode}
             <section class="card" data-testid="engine-datasets-list">
               <div class="inline header-row">
                 <h3>자료 세트</h3>
@@ -1275,7 +1254,6 @@
                 </article>
               {/each}
             </section>
-          {/if}
 
           {#if editor.mode}
             <section class="card">
@@ -1605,12 +1583,11 @@
   }
 
   .home {
-    height: 100vh;
-    min-height: 100vh;
-    max-height: 100vh;
-    display: grid;
-    place-items: center;
-    align-content: center;
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
     padding: clamp(0.4rem, 1vw, 0.8rem);
     box-sizing: border-box;
     overflow: hidden;
@@ -1618,13 +1595,11 @@
 
   .home-fullscreen {
     width: min(100vw, 980px);
-    height: 100vh;
-    max-height: 100vh;
+    height: 100%;
+    max-height: 100%;
+    margin: 0 auto;
     border-radius: 2rem;
-    display: grid;
-    justify-items: center;
-    align-content: center;
-    gap: 0.5rem;
+    display: block;
     position: relative;
     padding: clamp(0.35rem, 0.9vw, 0.75rem);
     overflow: hidden;
@@ -1640,13 +1615,48 @@
   }
 
   .home-face {
-    position: relative;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     z-index: 1;
-    width: clamp(190px, min(82vmin, calc(100vh - 16rem)), 560px);
-    height: clamp(190px, min(82vmin, calc(100vh - 16rem)), 560px);
+    width: clamp(170px, min(56vmin, calc(100dvh - 24rem)), 460px);
+    height: clamp(170px, min(56vmin, calc(100dvh - 24rem)), 460px);
     display: grid;
     justify-items: center;
     gap: 0.6rem;
+    pointer-events: none;
+  }
+
+  .home-control-grid {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    pointer-events: auto;
+  }
+
+  .home-control-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 0.3rem;
+    pointer-events: auto;
+  }
+
+  .home-control-box[data-box='2'] {
+    align-items: flex-start;
+    padding-top: clamp(8px, 1.8vh, 18px);
+  }
+
+  .home-control-box[data-box='8'] {
+    align-items: flex-end;
+    padding-bottom: clamp(8px, 1.8vh, 18px);
   }
 
   .dictation-game-screen {
@@ -1654,16 +1664,24 @@
     gap: 0.7rem;
     justify-items: center;
     text-align: center;
+    pointer-events: auto;
   }
 
-  .dictation-game-face {
-    width: clamp(170px, min(70vmin, 420px), 420px);
-    height: clamp(170px, min(70vmin, 420px), 420px);
+  .home-bottom-panel {
+    position: relative;
+    width: min(92vw, 620px);
+    margin: 0;
+    pointer-events: auto;
   }
 
-  .dictation-game-face__frame {
-    width: 100%;
-    height: 100%;
+  .home-idle-controls {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: stretch;
+    align-items: center;
+    max-height: none;
+    overflow: visible;
+    pointer-events: auto;
   }
 
   .home-msg {
@@ -1680,11 +1698,7 @@
   }
 
   .home-dialog {
-    position: absolute;
-    top: min(12vh, 120px);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
+    position: relative;
     padding: 0.65rem 0.85rem;
     border-radius: 14px;
     border: 1px solid var(--panel-border);
@@ -1693,23 +1707,17 @@
     display: grid;
     gap: 0.26rem;
     text-align: center;
-    max-width: min(58ch, 86vw);
+    width: min(90vw, 620px);
+    max-width: 620px;
+    pointer-events: auto;
   }
 
   .home-dialog:after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: -8px;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 10px solid color-mix(in srgb, var(--panel-bg) 80%, var(--text-color) 5%);
+    display: none;
   }
 
   @media (max-width: 700px) {
     .home-dialog {
-      top: 8vh;
       max-width: min(90vw, 430px);
     }
   }
@@ -1724,11 +1732,12 @@
   .home-engine-row {
     position: relative;
     z-index: 1;
-    width: min(600px, 84vw);
+    width: min(600px, 90vw);
     display: grid;
     justify-content: center;
     gap: 0.45rem;
     grid-template-columns: repeat(2, minmax(160px, 1fr));
+    pointer-events: auto;
   }
 
   .home-engine-btn {
@@ -1744,6 +1753,7 @@
     width: 100%;
     font-weight: 700;
     padding: 0 0.8rem;
+    pointer-events: auto;
   }
 
   .home-engine-btn:hover {
@@ -2072,20 +2082,32 @@
     }
 
     .home {
-      min-height: 100vh;
+      min-height: 100dvh;
       padding: 0.4rem;
     }
 
     .home-fullscreen {
-      min-height: 100vh;
+      min-height: 100%;
       width: 100vw;
       border-radius: 0;
       padding: 0.8rem 0.45rem;
     }
 
     .home-face {
-      width: 94vw;
-      height: 94vw;
+      width: clamp(150px, min(52vmin, calc(100dvh - 24rem)), 320px);
+      height: clamp(150px, min(52vmin, calc(100dvh - 24rem)), 320px);
+    }
+
+    .home-bottom-panel {
+      width: min(94vw, 560px);
+    }
+
+    .home-control-box[data-box='2'] {
+      padding-top: max(6px, env(safe-area-inset-top));
+    }
+
+    .home-control-box[data-box='8'] {
+      padding-bottom: max(6px, env(safe-area-inset-bottom));
     }
 
     .home-engine-row {

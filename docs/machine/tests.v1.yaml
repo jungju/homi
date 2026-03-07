@@ -16,6 +16,10 @@
         "ui.home.face_visible",
         "ui.home.bubble_visible",
         "ui.home.mode_text_visible",
+        "ui.home.control_grid_3x3",
+        "ui.home.control_box_2.bubble",
+        "ui.home.control_box_8.idle_controls",
+        "ui.home.no_page_scroll",
         "ui.home.no_global_header"
       ],
       "preconditions": [
@@ -26,8 +30,12 @@
       ],
       "assertions": [
         "home-face visible",
+        "home-control-grid has 9 control boxes",
+        "home-bubble is in control box 2",
+        "home-open-engines/home-open-backup are in control box 8",
         "home-bubble visible",
         "home-mode-text contains 기본 모드",
+        "face page no document scroll",
         "home-engine-btn-schedule/dictation visible"
       ],
       "artifacts": [
@@ -51,6 +59,7 @@
       "type": "automated",
       "contractRefs": [
         "ui.overlay.engine_contract",
+        "ui.engine.no_top_dataset_add_action",
         "ui.home.face_visible"
       ],
       "preconditions": [
@@ -62,6 +71,7 @@
       "assertions": [
         "overlay-root visible",
         "overlay-root data-overlay-kind=engine",
+        "engine-dataset-add absent",
         "home-root remains mounted"
       ],
       "artifacts": [
@@ -209,7 +219,15 @@
       "contractRefs": [
         "product.dictation.mode_text.required",
         "flow.dictation.start_sets_mode",
-        "ui.dictation.runner_contract"
+        "product.dictation.start_closes_engine_overlay",
+        "product.dictation.start_requires_selected_dataset",
+        "ui.home.face_visible",
+        "ui.home.control_box_2.bubble",
+        "ui.home.control_box_8.dictation_runner",
+        "ui.home.no_page_scroll",
+        "ui.home.face_position_stable_across_modes",
+        "ui.dictation.runner_contract",
+        "ui.dictation.runner_home_surface"
       ],
       "preconditions": [
         "dictation dataset 존재"
@@ -218,7 +236,14 @@
         "dataset 선택 후 시작"
       ],
       "assertions": [
+        "dataset 미선택 시 시작 버튼 disabled",
+        "home-face visible",
+        "home-face position unchanged vs idle mode",
+        "home-bubble remains in control box 2",
+        "dictation-root is in control box 8",
         "dictation-root visible",
+        "overlay-root closed",
+        "face page no document scroll",
         "home-mode-text contains 받아쓰기 실행모드",
         "dictation-next/exit visible"
       ],
@@ -292,6 +317,11 @@
       "gate": {
         "behavior": "hard_fail",
         "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.schedule.no_interrupt_during_dictation"
       }
     },
     {

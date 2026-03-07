@@ -1,15 +1,19 @@
 {
   "screenId": "dictation.running",
   "state": "실행 중",
-  "route": "http://127.0.0.1:4173/engines/dictation",
+  "route": "http://127.0.0.1:4173/",
   "deterministicAssertions": [
+    "home-face is visible",
     "dictation-root is visible",
+    "overlay-root is closed",
+    "face page has no vertical scroll",
+    "home-face position is stable across mode change",
     "dictation-progress is visible",
     "dictation-next is visible",
     "dictation-exit is visible",
     "home-mode-text shows 받아쓰기 실행모드"
   ],
-  "capturedAt": "2026-03-06T16:46:23.046Z",
+  "capturedAt": "2026-03-07T01:51:34.517Z",
   "viewport": {
     "width": 1280,
     "height": 720

@@ -1,0 +1,93 @@
+{
+  "screenId": "schedule.toast.during-dictation",
+  "items": [
+    {
+      "id": "app-root",
+      "text": "일정 알림: 알림 2초 테스트 · Ping - 2026-03-06\n일정 알림: 알림 2초 테스트 · Ping - 2026-03-06\n\n아직 막 정리 중이지만 얼굴이 미소 짓고 있어요. 데이터가 보태질수록 더 재밌어져요.\n\n현재 모드: 받아쓰기 실행모드\n\n받아쓰기 게임\n\n모드: 한글쓰기(영어 발화) · 데이터셋: 단어 2개(meaning 하나 없음)\n\n진행: 1 / 2\n\n현재 항목: apple\n\n10초마다 자동으로 다음 항목으로 넘어갑니다.\n\nNext\n게임 나가기"
+    },
+    {
+      "id": "toast-root",
+      "text": "일정 알림: 알림 2초 테스트 · Ping - 2026-03-06"
+    },
+    {
+      "id": "schedule-toast",
+      "text": "일정 알림: 알림 2초 테스트 · Ping - 2026-03-06"
+    },
+    {
+      "id": "home-root",
+      "text": "아직 막 정리 중이지만 얼굴이 미소 짓고 있어요. 데이터가 보태질수록 더 재밌어져요.\n\n현재 모드: 받아쓰기 실행모드\n\n받아쓰기 게임\n\n모드: 한글쓰기(영어 발화) · 데이터셋: 단어 2개(meaning 하나 없음)\n\n진행: 1 / 2\n\n현재 항목: apple\n\n10초마다 자동으로 다음 항목으로 넘어갑니다.\n\nNext\n게임 나가기"
+    },
+    {
+      "id": "home-face"
+    },
+    {
+      "id": "home-control-grid",
+      "text": "아직 막 정리 중이지만 얼굴이 미소 짓고 있어요. 데이터가 보태질수록 더 재밌어져요.\n\n현재 모드: 받아쓰기 실행모드\n\n받아쓰기 게임\n\n모드: 한글쓰기(영어 발화) · 데이터셋: 단어 2개(meaning 하나 없음)\n\n진행: 1 / 2\n\n현재 항목: apple\n\n10초마다 자동으로 다음 항목으로 넘어갑니다.\n\nNext\n게임 나가기"
+    },
+    {
+      "id": "home-control-box-1"
+    },
+    {
+      "id": "home-control-box-2",
+      "text": "아직 막 정리 중이지만 얼굴이 미소 짓고 있어요. 데이터가 보태질수록 더 재밌어져요.\n\n현재 모드: 받아쓰기 실행모드"
+    },
+    {
+      "id": "home-bubble",
+      "text": "아직 막 정리 중이지만 얼굴이 미소 짓고 있어요. 데이터가 보태질수록 더 재밌어져요.\n\n현재 모드: 받아쓰기 실행모드"
+    },
+    {
+      "id": "home-mode-text",
+      "text": "현재 모드: 받아쓰기 실행모드"
+    },
+    {
+      "id": "home-control-box-3"
+    },
+    {
+      "id": "home-control-box-4"
+    },
+    {
+      "id": "home-control-box-5"
+    },
+    {
+      "id": "home-control-box-6"
+    },
+    {
+      "id": "home-control-box-7"
+    },
+    {
+      "id": "home-control-box-8",
+      "text": "받아쓰기 게임\n\n모드: 한글쓰기(영어 발화) · 데이터셋: 단어 2개(meaning 하나 없음)\n\n진행: 1 / 2\n\n현재 항목: apple\n\n10초마다 자동으로 다음 항목으로 넘어갑니다.\n\nNext\n게임 나가기"
+    },
+    {
+      "id": "dictation-root",
+      "text": "받아쓰기 게임\n\n모드: 한글쓰기(영어 발화) · 데이터셋: 단어 2개(meaning 하나 없음)\n\n진행: 1 / 2\n\n현재 항목: apple\n\n10초마다 자동으로 다음 항목으로 넘어갑니다.\n\nNext\n게임 나가기"
+    },
+    {
+      "id": "dictation-progress",
+      "text": "진행: 1 / 2"
+    },
+    {
+      "id": "dictation-progress-index",
+      "text": "1"
+    },
+    {
+      "id": "dictation-progress-total",
+      "text": "2"
+    },
+    {
+      "id": "dictation-current-text",
+      "text": "현재 항목: apple"
+    },
+    {
+      "id": "dictation-next",
+      "text": "Next"
+    },
+    {
+      "id": "dictation-exit",
+      "text": "게임 나가기"
+    },
+    {
+      "id": "home-control-box-9"
+    }
+  ]
+}

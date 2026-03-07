@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { expect, type Page, test } from '@playwright/test';
 
 import { captureUIArtifacts } from '../helpers/capture-ui-artifacts';
@@ -16,6 +19,17 @@ async function openBackupAndImportSample(page: Page) {
   await expect(page.getByText(/기존 자료를 교체하고 총/)).toBeVisible();
 }
 
+async function openBackupAndImportFixture(page: Page, fixturePath: string) {
+  const bundleText = readFileSync(resolve(fixturePath), 'utf8');
+
+  await page.goto('/backup');
+  await page.getByTestId('backup-json-textarea').fill(bundleText);
+  await page.getByTestId('backup-text-preview-btn').click();
+  await expect(page.getByTestId('backup-preview')).toBeVisible({ timeout: 8_000 });
+  await page.getByTestId('backup-confirm').click();
+  await expect(page.getByText(/기존 자료를 교체하고 총/)).toBeVisible();
+}
+
 async function captureState(
   page: Page,
   screenId: string,
@@ -29,6 +43,24 @@ async function captureState(
     outputDir: 'test-results/ai-artifacts',
     deterministicAssertions,
   });
+}
+
+async function expectFacePageNoScroll(page: Page) {
+  const metrics = await page.evaluate(() => {
+    const root = document.scrollingElement ?? document.documentElement;
+    return {
+      scrollHeight: root.scrollHeight,
+      clientHeight: root.clientHeight,
+    };
+  });
+
+  expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.clientHeight + 1);
+}
+
+async function getFaceRect(page: Page) {
+  const box = await page.getByTestId('home-face').boundingBox();
+  expect(box).not.toBeNull();
+  return box!;
 }
 
 test.describe('Homi v1 실행 시각화 기본 체크', () => {
@@ -45,12 +77,20 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByRole('button', { name: '브레인 설정' })).toBeVisible();
     await expect(page.getByRole('button', { name: /스케줄 열기/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /받아쓰기 열기/ })).toBeVisible();
+    await expect(page.getByTestId('home-control-grid')).toBeVisible();
+    await expect(page.locator('[data-testid^=\"home-control-box-\"]')).toHaveCount(9);
+    await expect(page.getByTestId('home-control-box-2').getByTestId('home-bubble')).toBeVisible();
+    await expect(page.getByTestId('home-control-box-8').getByTestId('home-open-engines')).toBeVisible();
     await expect(page.locator('[data-testid="global-header"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="global-nav"]')).toHaveCount(0);
+    await expectFacePageNoScroll(page);
 
     await captureState(page, 'home.default', '기본 모드', [
       'home-root is visible',
       'home-face is visible',
+      'home-control-grid has 9 control boxes',
+      'home-bubble is in control box 2',
+      'idle controls are in control box 8',
       'home-bubble is visible',
       'home-mode-text shows 기본 모드',
       'engine entry buttons are visible',
@@ -66,6 +106,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(overlay).toBeVisible();
     await expect(overlay).toHaveAttribute('data-overlay-kind', 'engine');
     await expect(overlay).toHaveAttribute('data-engine-id', 'dictation');
+    await expect(page.getByTestId('engine-dataset-add')).toHaveCount(0);
     await expect(page.getByTestId('home-root')).toBeVisible();
   });
 
@@ -102,12 +143,76 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
   test('[test.p0.dictation.start_sets_mode] 데이터 세트가 있으면 받아쓰기 실행 모드로 진입해야 한다', async ({ page }) => {
     await resetLocalData(page);
     await openBackupAndImportSample(page);
+    await page.goto('/');
+    const idleFaceRect = await getFaceRect(page);
 
     await page.goto('/engines/dictation');
     await page.waitForLoadState('networkidle');
 
     const selectButton = page.getByTestId('dataset-open').first();
     await expect(selectButton).toBeVisible();
+    const startButton = page.getByRole('button', { name: '시작' });
+    await expect(startButton).toBeDisabled();
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await selectButton.click();
+      if (await startButton.isEnabled()) {
+        break;
+      }
+      await page.waitForTimeout(120);
+    }
+    await expect(startButton).toBeEnabled();
+    await startButton.click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByTestId('overlay-root')).toHaveCount(0);
+    await expect(page.getByTestId('home-face')).toBeVisible();
+    const runningFaceRect = await getFaceRect(page);
+    expect(Math.abs(runningFaceRect.x - idleFaceRect.x)).toBeLessThanOrEqual(2);
+    expect(Math.abs(runningFaceRect.y - idleFaceRect.y)).toBeLessThanOrEqual(2);
+    await expect(page.getByTestId('home-control-box-2').getByTestId('home-bubble')).toBeVisible();
+    await expect(page.getByTestId('home-control-box-8').getByTestId('dictation-root')).toBeVisible();
+    await expect(page.getByText('받아쓰기 게임')).toBeVisible();
+    await expect(page.getByTestId('home-mode-text')).toContainText('받아쓰기 실행모드');
+    await expectFacePageNoScroll(page);
+    await captureState(page, 'dictation.running', '실행 중', [
+      'home-face is visible',
+      'dictation-root is visible',
+      'overlay-root is closed',
+      'face page has no vertical scroll',
+      'home-face position is stable across mode change',
+      'dictation-progress is visible',
+      'dictation-next is visible',
+      'dictation-exit is visible',
+      'home-mode-text shows 받아쓰기 실행모드',
+    ]);
+  });
+
+  test('[test.p0.schedule.no_interrupt_during_dictation] 받아쓰기 실행 중 스케줄 알림은 토스트로만 노출되어야 한다', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      const NotificationMock = class NotificationMock {
+        static permission = 'granted';
+
+        constructor() {
+          (window as Window & { __homiNotificationCalls?: number }).__homiNotificationCalls =
+            ((window as Window & { __homiNotificationCalls?: number }).__homiNotificationCalls ?? 0) + 1;
+        }
+      };
+      (window as Window & { __homiNotificationCalls?: number }).__homiNotificationCalls = 0;
+      Object.defineProperty(window, 'Notification', {
+        configurable: true,
+        writable: true,
+        value: NotificationMock,
+      });
+    });
+
+    await resetLocalData(page);
+    await openBackupAndImportFixture(page, 'tests/fixtures/bundle.min.v1.json');
+
+    await page.goto('/engines/dictation');
+    await page.waitForLoadState('networkidle');
+
+    const selectButton = page.getByTestId('dataset-open').first();
     const startButton = page.getByRole('button', { name: '시작' });
     for (let attempt = 0; attempt < 3; attempt += 1) {
       await selectButton.click();
@@ -118,18 +223,26 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     }
     await expect(startButton).toBeEnabled();
     await startButton.click();
+    await expect(page.getByTestId('overlay-root')).toHaveCount(0);
     await expect(page.getByText('받아쓰기 게임')).toBeVisible();
-    await expect(page.getByTestId('home-mode-text')).toContainText('받아쓰기 실행모드');
-    await captureState(page, 'dictation.running', '실행 중', [
-      'dictation-root is visible',
-      'dictation-progress is visible',
-      'dictation-next is visible',
-      'dictation-exit is visible',
-      'home-mode-text shows 받아쓰기 실행모드',
-    ]);
 
-    await page.getByRole('button', { name: 'Next' }).click();
-    await page.getByRole('button', { name: '게임 나가기' }).click();
+    const notificationCountBefore = await page.evaluate(
+      () => (window as Window & { __homiNotificationCalls?: number }).__homiNotificationCalls ?? 0,
+    );
+    const scheduleToast = page.getByTestId('schedule-toast');
+    await expect(scheduleToast).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('dictation-root')).toBeVisible();
+    await expect(page.getByText('받아쓰기 게임')).toBeVisible();
+    const notificationCountAfter = await page.evaluate(
+      () => (window as Window & { __homiNotificationCalls?: number }).__homiNotificationCalls ?? 0,
+    );
+    expect(notificationCountAfter).toBe(notificationCountBefore);
+
+    await captureState(page, 'schedule.toast.during-dictation', '실행 중 알림', [
+      'schedule-toast is visible during dictation',
+      'dictation-root remains visible',
+      'Notification constructor is not called while dictation is active',
+    ]);
   });
 
   test('[test.p1.schedule.toggle_enabled] 스케줄 비활성 세트는 알림 대상에서 제외되어야 한다', async ({ page }) => {
