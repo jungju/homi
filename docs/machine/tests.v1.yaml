@@ -9,16 +9,22 @@
   "scenarios": [
     {
       "id": "test.p0.home.base_layout",
-      "title": "홈 기본 화면은 얼굴/말풍선/모드 텍스트를 보여야 한다.",
+      "title": "홈 기본 화면은 얼굴과 최소 말풍선 구성을 보여야 한다.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
         "ui.home.face_visible",
         "ui.home.bubble_visible",
-        "ui.home.mode_text_visible",
         "ui.home.control_grid_3x3",
         "ui.home.control_box_2.bubble",
+        "ui.home.zone_bounds_soft",
+        "ui.home.face_large_tablet",
+        "ui.home.eyes_prominent",
+        "ui.home.robot_name_prominent",
+        "ui.home.default_text_minimal",
+        "ui.typography.tablet_large_text",
         "ui.home.control_box_8.idle_controls",
+        "ui.home.control_box_9.settings",
         "ui.home.no_page_scroll",
         "ui.home.no_global_header"
       ],
@@ -30,11 +36,18 @@
       ],
       "assertions": [
         "home-face visible",
+        "home-face uses large tablet size",
+        "home-face eyes use enlarged readable size",
         "home-control-grid has 9 control boxes",
         "home-bubble is in control box 2",
-        "home-open-engines/home-open-backup are in control box 8",
+        "home-bubble may extend beyond control box 2 into box 1/3 width",
+        "home-robot-name contains 호미",
+        "home-status-text absent without alert",
+        "home-open-engines are in control box 8",
+        "home-open-backup icon button is in control box 9 right bottom",
         "home-bubble visible",
-        "home-mode-text contains 기본 모드",
+        "home-mode-text absent in basic mode",
+        "home key text and buttons use tablet-large font sizes",
         "face page no document scroll",
         "home-engine-btn-schedule/dictation visible"
       ],
@@ -50,6 +63,43 @@
         "framework": "playwright",
         "file": "tests/e2e/qa-homi.spec.ts",
         "scenarioTag": "test.p0.home.base_layout"
+      }
+    },
+    {
+      "id": "test.p0.home.alert_message_surface",
+      "title": "기본 모드 알림은 호미 이름 아래 큰 문구로 보여야 한다.",
+      "priority": "P0",
+      "type": "automated",
+      "contractRefs": [
+        "ui.home.control_box_2.bubble",
+        "ui.home.robot_name_prominent",
+        "ui.home.alert_text_under_robot_name",
+        "ui.home.default_text_minimal",
+        "ui.typography.tablet_large_text"
+      ],
+      "preconditions": [
+        "schedule dataset repeatIntervalSec > 0",
+        "route=/"
+      ],
+      "actions": [
+        "reminder tick 대기"
+      ],
+      "assertions": [
+        "home-status-text equals schedule item title only",
+        "home-status-text is rendered below home-robot-name",
+        "home-status-text keeps large font size"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/home.default*.png"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.home.alert_message_surface"
       }
     },
     {
@@ -89,7 +139,7 @@
     },
     {
       "id": "test.p0.backup.overlay_contract",
-      "title": "backup 오버레이는 import/export 제어를 모두 제공한다.",
+      "title": "브레인 설정 오버레이는 import/export 제어를 모두 제공한다.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
@@ -97,7 +147,7 @@
         "product.import.entry_route.backup_only"
       ],
       "preconditions": [
-        "route=/backup"
+        "route=/brain"
       ],
       "actions": [
         "샘플 버튼 클릭으로 preview 생성"
@@ -130,7 +180,7 @@
         "flow.import.preview_before_confirm"
       ],
       "preconditions": [
-        "backup overlay open"
+        "브레인 설정 overlay open"
       ],
       "actions": [
         "sample/text/url/file preview 생성",
@@ -166,7 +216,7 @@
         "기존 store에 dataset 존재"
       ],
       "actions": [
-        "backup에서 import confirm 수행"
+        "brain 설정에서 import confirm 수행"
       ],
       "assertions": [
         "기존 dataset이 교체됨",
@@ -187,9 +237,9 @@
     },
     {
       "id": "test.p0.import.entry_backup_only",
-      "title": "import 입력 UI는 backup route에만 존재한다.",
+      "title": "import 입력 UI는 브레인 설정 route(/brain)에만 존재한다.",
       "priority": "P0",
-      "type": "manual",
+      "type": "automated",
       "contractRefs": [
         "product.import.entry_route.backup_only",
         "ui.engine.no_backup_import_controls"
@@ -204,11 +254,16 @@
         "backup-url-input/json/file testid not present"
       ],
       "artifacts": [
-        "manual-check:engine-overlay-dom"
+        "test-results/ai-artifacts/engine.overlay*.dom-testids.json"
       ],
       "gate": {
         "behavior": "hard_fail",
         "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.import.entry_backup_only"
       }
     },
     {
@@ -264,7 +319,7 @@
       "id": "test.p0.dictation.timer_next_exit",
       "title": "dictation은 10초 자동 진행/Next 즉시 진행/종료 복귀를 만족한다.",
       "priority": "P0",
-      "type": "manual",
+      "type": "automated",
       "contractRefs": [
         "product.dictation.auto_advance_10s",
         "product.dictation.auto_exit_after_last_item"
@@ -280,14 +335,19 @@
       "assertions": [
         "progress 증가",
         "Next 즉시 이동",
-        "종료 후 기본 모드"
+        "종료 후 basic mode text stays hidden"
       ],
       "artifacts": [
-        "manual-check:dictation-timer"
+        "test-results/ai-artifacts/dictation.running*.png"
       ],
       "gate": {
         "behavior": "hard_fail",
         "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.dictation.timer_next_exit"
       }
     },
     {
@@ -328,12 +388,12 @@
       "id": "test.p0.security.javascript_scheme_block",
       "title": "javascript: URL import는 차단된다.",
       "priority": "P0",
-      "type": "manual",
+      "type": "automated",
       "contractRefs": [
         "product.security.block_javascript_scheme"
       ],
       "preconditions": [
-        "backup overlay open"
+        "브레인 설정 overlay open"
       ],
       "actions": [
         "backup-url-input에 javascript:alert(1) 입력",
@@ -344,18 +404,23 @@
         "preview 생성 금지"
       ],
       "artifacts": [
-        "manual-check:url-scheme-block"
+        "test-results/ai-artifacts/backup.overlay*.visible-text.txt"
       ],
       "gate": {
         "behavior": "hard_fail",
         "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.security.javascript_scheme_block"
       }
     },
     {
       "id": "test.p0.security.text_render_only",
       "title": "XSS 문자열은 텍스트로 렌더링되고 실행되지 않는다.",
       "priority": "P0",
-      "type": "manual",
+      "type": "automated",
       "contractRefs": [
         "product.security.render_text_only"
       ],
@@ -363,18 +428,23 @@
         "fixture bundle.xss.v1 준비"
       ],
       "actions": [
-        "backup에서 xss fixture preview"
+        "brain 설정에서 xss fixture preview"
       ],
       "assertions": [
         "HTML 실행 이벤트 없음",
         "문자열 텍스트 표시"
       ],
       "artifacts": [
-        "manual-check:xss-render"
+        "test-results/ai-artifacts/backup.overlay*.png"
       ],
       "gate": {
         "behavior": "hard_fail",
         "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.security.text_render_only"
       }
     },
     {
@@ -441,7 +511,7 @@
       "type": "ai",
       "contractRefs": [
         "ai.home.face_dominant",
-        "ai.home.mode_text_visible"
+        "ai.home.robot_name_prominent"
       ],
       "preconditions": [
         "home.default artifact 캡처"
@@ -463,7 +533,7 @@
     },
     {
       "id": "test.ai.backup.preview_visible",
-      "title": "AI 리뷰: backup 화면에서 preview-before-confirm 의도를 만족한다.",
+      "title": "AI 리뷰: 브레인 설정 화면에서 preview-before-confirm 의도를 만족한다.",
       "priority": "P1",
       "type": "ai",
       "contractRefs": [

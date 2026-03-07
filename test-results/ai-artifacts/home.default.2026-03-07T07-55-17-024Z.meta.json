@@ -1,0 +1,27 @@
+{
+  "screenId": "home.default",
+  "state": "기본 모드",
+  "route": "http://127.0.0.1:4173/",
+  "deterministicAssertions": [
+    "home-root is visible",
+    "home-face is visible",
+    "home-face uses large tablet size",
+    "home-face eyes use enlarged readable size",
+    "home-control-grid has 9 control boxes",
+    "home-bubble is in control box 2",
+    "home-bubble may overflow box 2 into adjacent zones",
+    "home-robot-name shows 호미",
+    "home-status-text is absent without alert",
+    "home-open-engines is in control box 8",
+    "home-open-backup icon button is in control box 9 right bottom",
+    "home-bubble is visible",
+    "home-mode-text is absent in basic mode",
+    "home typography is tablet-large",
+    "engine entry buttons are visible"
+  ],
+  "capturedAt": "2026-03-07T07:55:17.088Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  }
+}

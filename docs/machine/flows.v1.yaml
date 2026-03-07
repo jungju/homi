@@ -29,7 +29,7 @@
     },
     {
       "id": "flow.state.backup.overlay",
-      "route": "/backup",
+      "route": "/brain",
       "mode": "기본 모드"
     }
   ],
@@ -184,7 +184,7 @@
   "invariants": [
     {
       "id": "flow.invariant.import_requires_backup_overlay",
-      "statement": "import preview/create/confirm 이벤트는 route=/backup에서만 유효하다.",
+      "statement": "import preview/create/confirm 이벤트는 브레인 설정 route(/brain)에서만 유효하다.",
       "contractRefs": [
         "product.import.entry_route.backup_only"
       ]
@@ -210,6 +210,7 @@
         "ui.home.control_grid_3x3",
         "ui.home.control_box_2.bubble",
         "ui.home.control_box_8.idle_controls",
+        "ui.home.control_box_9.settings",
         "ui.home.control_box_8.dictation_runner",
         "ui.home.face_position_stable_across_modes"
       ]

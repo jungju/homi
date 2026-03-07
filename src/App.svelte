@@ -61,6 +61,8 @@
 
   type HomeMood = 'smile' | 'curious' | 'proud' | 'calm' | 'concern' | 'wink';
   type DictationWriteMode = 'korean' | 'english';
+  const BRAIN_ROUTE_PATH = '/brain';
+  const LEGACY_BACKUP_ROUTE_PATH = '/backup';
 
   let store: HomiStoreV1 = loadStore();
   let route: Route = parseRoute(window.location.pathname);
@@ -79,6 +81,8 @@
   let fileImportInput: HTMLInputElement | null = null;
   let blink = false;
   let blinkResetTimeout: number | null = null;
+  let homeAlertText = '';
+  let homeAlertTimeout: number | null = null;
   let importJsonText = '';
   let scheduleReminderTimer: number | null = null;
   let scheduleReminderLastFired = new Map<string, number>();
@@ -90,11 +94,18 @@
   let dictationIntervalTimer: number | null = null;
   let dictationGameMode = false;
   let selectedDictationDataset: DataSetV1 | null = null;
+  let datasetCount = 0;
+  let homeMood: HomeMood = 'smile';
+  let displayMood: HomeMood = 'smile';
+  let homeModeText = '';
+  let homeStatusText = '';
+  let homeStatusTone: 'default' | 'alert' | 'error' | 'running' = 'default';
   const LIMIT_BYTES = MAX_BUNDLE_JSON_BYTES;
   const LIMIT_DATASETS = MAX_DATASET_COUNT_PER_BUNDLE;
   const LIMIT_ITEMS = MAX_ITEMS_PER_DATASET;
   const SCHEDULE_REMINDER_TICK_MS = 1000;
   const DICTATION_INTERVAL_MS = 10_000;
+  const HOME_ALERT_VISIBILITY_MS = 8_000;
 
   const ENGINE_VISUALS: Record<EngineId, { icon: string; accent: string; bg: string }> = {
     schedule: {
@@ -163,12 +174,15 @@
       asString(item.date) ?? '',
     ].filter(Boolean);
     const messageText = `${datasetTitle} · ${title}${bodyParts.length > 0 ? ` - ${bodyParts.join(' ')}` : ''}`;
+    const reminderText = `일정 알림: ${messageText}`;
 
     const isDictationGameActive = dictationRunning && dictationGameMode;
     if (isDictationGameActive) {
-      setMessage(`일정 알림: ${messageText}`, 'ok');
+      setMessage(reminderText, 'ok');
       return;
     }
+
+    showHomeAlert(title);
 
     if (typeof Notification !== 'undefined') {
       if (Notification.permission === 'granted') {
@@ -262,38 +276,50 @@
     scheduleReminderTimer = null;
   }
 
-  function homeGreeting() {
-    const count = totalDatasetCount();
-    if (count === 0) {
-      return '안녕하세요! Homi에 오신 걸 환영해요. 오늘도 우리 가족처럼 따뜻하게 시작해볼까요?';
+  function showHomeAlert(text: string) {
+    homeAlertText = text;
+    if (homeAlertTimeout !== null) {
+      clearTimeout(homeAlertTimeout);
     }
-    if (count < 3) {
-      return '아직 막 정리 중이지만 얼굴이 미소 짓고 있어요. 데이터가 보태질수록 더 재밌어져요.';
-    }
-    return '좋아요. 자료가 꽤 모였어요.';
+    homeAlertTimeout = window.setTimeout(() => {
+      homeAlertText = '';
+      homeAlertTimeout = null;
+    }, HOME_ALERT_VISIBILITY_MS);
   }
 
-  $: homeMood = getHomeMood();
+  $: datasetCount = Object.values(store.datasetsByEngine).reduce((sum, list) => sum + list.length, 0);
+  $: homeMood =
+    preview
+      ? 'calm'
+      : homeAlertText
+        ? 'wink'
+        : message?.type === 'error'
+          ? 'concern'
+          : datasetCount === 0
+            ? 'curious'
+            : 'proud';
   $: displayMood = blink ? 'wink' : homeMood;
+  $: homeModeText = dictationGameMode ? '현재 모드: 받아쓰기 실행모드' : '';
   $:
-    homeModeText = dictationGameMode ? '현재 모드: 받아쓰기 실행모드' : '현재 모드: 기본 모드';
+    homeStatusText = dictationGameMode
+      ? '받아쓰기를 진행하고 있어요'
+      : homeAlertText
+        ? homeAlertText
+        : message && route.kind === 'home'
+          ? message.text
+          : '';
+  $:
+    homeStatusTone = dictationGameMode
+      ? 'running'
+      : homeAlertText
+        ? 'alert'
+        : message?.type === 'error' && route.kind === 'home'
+          ? 'error'
+          : 'default';
   $:
     selectedDictationDataset = dictationDatasetId
       ? getDatasetsByEngine(store, 'dictation').find((dataset) => dataset.id === dictationDatasetId) ?? null
       : null;
-
-  function getHomeMood(): HomeMood {
-    if (preview) {
-      return 'calm';
-    }
-    if (message?.type === 'error') {
-      return 'concern';
-    }
-    if (totalDatasetCount() === 0) {
-      return 'curious';
-    }
-    return totalDatasetCount() > 0 ? 'proud' : 'smile';
-  }
 
   function triggerHomeWink() {
     blink = true;
@@ -534,12 +560,20 @@
     }
   }
 
-  function parseRoute(pathname: string): Route {
+  function canonicalizeRoutePath(pathname: string) {
     const clean = (pathname || '/').replace(/\/$/, '') || '/';
+    if (clean === LEGACY_BACKUP_ROUTE_PATH) {
+      return BRAIN_ROUTE_PATH;
+    }
+    return clean;
+  }
+
+  function parseRoute(pathname: string): Route {
+    const clean = canonicalizeRoutePath(pathname);
     if (clean === '/' || clean === '/index.html') {
       return { kind: 'home' };
     }
-    if (clean === '/backup') {
+    if (clean === BRAIN_ROUTE_PATH) {
       return { kind: 'backup' };
     }
 
@@ -556,7 +590,11 @@
   }
 
   function parsePath() {
-    route = parseRoute(window.location.pathname);
+    const canonicalPath = canonicalizeRoutePath(window.location.pathname);
+    if (canonicalPath !== window.location.pathname) {
+      history.replaceState({}, '', canonicalPath);
+    }
+    route = parseRoute(canonicalPath);
     applyRouteSideEffects();
   }
 
@@ -572,7 +610,7 @@
         store.ui = { lastOpenedEngineId: route.engineId };
       }
     } else if (route.kind === 'backup') {
-      // 백업은 전체 Export만 사용
+      // 브레인 설정에서는 전체 export만 사용한다.
       stopDictationSession();
     } else if (route.kind === 'home') {
       exportSelection = new Set();
@@ -630,12 +668,20 @@
 
   function openSettingsPopup() {
     triggerHomeWink();
-    navigate('/backup');
+    navigate(BRAIN_ROUTE_PATH);
   }
 
   function closePopup() {
     if (route.kind === 'home') return;
     navigate('/');
+  }
+
+  function onOverlayKeydown(event: KeyboardEvent) {
+    if (event.key !== 'Escape') {
+      return;
+    }
+    event.preventDefault();
+    closePopup();
   }
 
   function startEditDataset(dataset: DataSetV1) {
@@ -755,11 +801,11 @@
     }
     const bundle = buildBundleFromDatasetIds(store, allIds, {
       bundleType: 'backup',
-      title: 'Homi 전체 백업',
+      title: 'Homi 브레인 전체 내보내기',
       description: 'export from all datasets',
     });
-    downloadBundle(bundle, `homi-backup-${nowTag()}.json`);
-    setMessage('전체 백업 파일을 생성했습니다.', 'ok');
+    downloadBundle(bundle, `homi-brain-${nowTag()}.json`);
+    setMessage('브레인 내보내기 파일을 생성했습니다.', 'ok');
   }
 
   function downloadBundle(bundle: HomiBundleV1, filename: string) {
@@ -775,6 +821,7 @@
   }
 
   async function runUrlImport() {
+    preview = null;
     const normalized = normalizeImportUrl(importUrl);
     if (!normalized.ok) {
       setMessage(normalized.error, 'error');
@@ -820,6 +867,7 @@
   }
 
   function runTextImport() {
+    preview = null;
     const text = importJsonText.trim();
     if (!text) {
       setMessage('JSON 텍스트를 입력해주세요.', 'error');
@@ -831,15 +879,17 @@
       return;
     }
 
-    applyPreview(text, 'text', '직접 입력된 JSON');
-    importJsonText = '';
+    if (applyPreview(text, 'text', '직접 입력된 JSON')) {
+      importJsonText = '';
+    }
   }
 
   async function loadSampleBundle() {
     if (route.kind !== 'backup') {
-      setMessage('샘플 가져오기는 브레인 설정( /backup )에서만 할 수 있습니다.', 'error');
+      setMessage(`샘플 가져오기는 브레인 설정( ${BRAIN_ROUTE_PATH} )에서만 할 수 있습니다.`, 'error');
       return;
     }
+    preview = null;
     try {
       const response = await fetch('/samples/homi.sample.homi.json');
       if (!response.ok) {
@@ -857,11 +907,12 @@
     text: string,
     sourceKind: 'url' | 'file' | 'sample' | 'text',
     sourceText: string,
-  ) {
+  ): boolean {
     const parsed = parseBundleText(text);
     if (!parsed.ok) {
+      preview = null;
       setMessage(parsed.errors.join('\n'), 'error');
-      return;
+      return false;
     }
 
     const candidates: ImportCandidate[] = parsed.datasets.map((dataset, index) => ({
@@ -876,12 +927,14 @@
       bundle: parsed.bundle,
       candidates,
     };
+    return true;
   }
 
   async function importFromFile(event: Event) {
     const target = event.currentTarget as HTMLInputElement;
     const file = target.files?.[0];
     if (!file) return;
+    preview = null;
 
     if (file.size > LIMIT_BYTES) {
       setMessage(`선택한 파일이 ${prettyBytes(file.size)}로 제한(${prettyBytes(LIMIT_BYTES)})을 초과합니다.`, 'error');
@@ -986,17 +1039,26 @@
       clearTimeout(blinkResetTimeout);
       blinkResetTimeout = null;
     }
+    if (homeAlertTimeout !== null) {
+      clearTimeout(homeAlertTimeout);
+      homeAlertTimeout = null;
+    }
     stopDictationSession();
     stopScheduleReminder();
   });
 </script>
 
 <div class="layout home-layout" data-testid="app-root">
-  {#if message}
-    <div data-testid="toast-root" class={`toast ${message.type}`}>{message.text}</div>
-    {#if message.type === 'ok' && message.text.startsWith('일정 알림:')}
-      <div data-testid="schedule-toast" class="toast ok">{message.text}</div>
-    {/if}
+  <div
+    data-testid="toast-root"
+    class={`toast ${message?.type ?? 'ok'}`}
+    aria-live="polite"
+    hidden={!message}
+  >
+    {message?.text ?? ''}
+  </div>
+  {#if message?.type === 'ok' && message.text.startsWith('일정 알림:')}
+    <div data-testid="schedule-toast" class="toast ok">{message.text}</div>
   {/if}
 
   <main class="home" data-testid="home-root">
@@ -1021,8 +1083,13 @@
           <div class="home-control-box" data-box="1" data-testid="home-control-box-1"></div>
           <div class="home-control-box" data-box="2" data-testid="home-control-box-2">
             <section class="home-dialog" data-testid="home-bubble" role="status" aria-live="polite">
-              <p class="home-msg">{homeGreeting()}</p>
-              <p data-testid="home-mode-text" class="home-mode">{homeModeText}</p>
+              <h1 data-testid="home-robot-name" class="home-robot-name">호미</h1>
+              {#if homeStatusText}
+                <p data-testid="home-status-text" class={`home-status ${homeStatusTone}`}>{homeStatusText}</p>
+              {/if}
+              {#if homeModeText}
+                <p data-testid="home-mode-text" class="home-mode">{homeModeText}</p>
+              {/if}
             </section>
           </div>
           <div class="home-control-box" data-box="3" data-testid="home-control-box-3"></div>
@@ -1078,18 +1145,21 @@
                     </button>
                   {/each}
                 </div>
-                <button
-                  type="button"
-                  class="home-engine-btn"
-                  data-testid="home-open-backup"
-                  on:click={openSettingsPopup}
-                >
-                  브레인 설정
-                </button>
               </section>
             {/if}
           </div>
-          <div class="home-control-box" data-box="9" data-testid="home-control-box-9"></div>
+          <div class="home-control-box" data-box="9" data-testid="home-control-box-9">
+            <button
+              type="button"
+              class="home-settings-btn"
+              data-testid="home-open-backup"
+              aria-label="브레인 설정"
+              title="브레인 설정"
+              on:click={openSettingsPopup}
+            >
+              <span aria-hidden="true">⚙</span>
+            </button>
+          </div>
         </div>
       </section>
     </main>
@@ -1105,17 +1175,19 @@
       data-engine-id={currentEngineId}
       role="dialog"
       aria-modal="true"
-      on:click={closePopup}
+      aria-labelledby="overlay-title"
+      tabindex="-1"
+      on:click|self={closePopup}
+      on:keydown={onOverlayKeydown}
     >
       <section
         class="popup-panel"
         data-testid="engine-root"
         data-overlay-kind="engine"
         data-engine-id={currentEngineId}
-        on:click|stopPropagation
       >
         <button type="button" class="popup-close" data-testid="overlay-close" on:click={closePopup}>닫기</button>
-        <p class="muted" data-testid="overlay-title">페이지: /engines/{currentEngineId}</p>
+        <p id="overlay-title" class="muted" data-testid="overlay-title">페이지: /engines/{currentEngineId}</p>
         <div class="popup-content">
           {#if currentEngineId === 'dictation'}
             <section class="card" data-testid="dictation-settings-root">
@@ -1296,25 +1368,29 @@
       data-overlay-kind="backup"
       role="dialog"
       aria-modal="true"
-      on:click={closePopup}
+      aria-labelledby="overlay-title"
+      tabindex="-1"
+      on:click|self={closePopup}
+      on:keydown={onOverlayKeydown}
     >
       <section
         class="popup-panel"
         data-testid="engine-root"
         data-overlay-kind="backup"
-        on:click|stopPropagation
       >
         <button type="button" class="popup-close" data-testid="overlay-close" on:click={closePopup}>닫기</button>
-        <p class="muted" data-testid="overlay-title">페이지: /backup</p>
+        <p id="overlay-title" class="muted" data-testid="overlay-title">페이지: /brain</p>
         {#if message && message.type === 'error'}
           <p data-testid="backup-error" class="error">{message.text}</p>
         {/if}
         <div class="popup-content">
           <section class="card">
-            <h2>백업</h2>
+            <h2>브레인 설정</h2>
             <p class="muted">현재 저장 데이터: {totalDatasetCount()}개</p>
             <div class="inline">
-              <button data-testid="backup-export-btn" on:click={exportAllForBackup} disabled={!hasDatasets()}>전체 Export</button>
+              <button data-testid="backup-export-btn" on:click={exportAllForBackup} disabled={!hasDatasets()}>
+                브레인 전체 내보내기
+              </button>
             </div>
           </section>
 
@@ -1427,11 +1503,20 @@
   {/if}
 
   {#if route.kind === 'unknown'}
-    <div class="popup-overlay" data-testid="overlay-root" role="dialog" aria-modal="true" on:click={closePopup}>
-      <section class="popup-panel" on:click|stopPropagation>
+    <div
+      class="popup-overlay"
+      data-testid="overlay-root"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="overlay-title"
+      tabindex="-1"
+      on:click|self={closePopup}
+      on:keydown={onOverlayKeydown}
+    >
+      <section class="popup-panel">
         <button type="button" class="popup-close" on:click={closePopup}>닫기</button>
         <section class="card">
-          <h2>알 수 없는 경로입니다.</h2>
+          <h2 id="overlay-title" data-testid="overlay-title">알 수 없는 경로입니다.</h2>
           <p class="muted">`{route.path}`</p>
           <div class="inline">
             <button on:click={() => navigate('/')}>홈으로 이동</button>
@@ -1468,11 +1553,23 @@
     --toast-err-border: #e58f8f;
     --toast-err-text: #8b1e1e;
     --card-hover-shadow: 0 8px 22px var(--panel-shadow);
+    --font-base: clamp(18px, 1.35vw, 24px);
+    --font-muted: clamp(1.05rem, 1.2vw, 1.25rem);
+    --font-button: clamp(1.15rem, 1.6vw, 1.5rem);
+    --home-name-size: clamp(3rem, 6vw, 4.9rem);
+    --home-status-size: clamp(1.45rem, 2.7vw, 2.4rem);
+    --home-mode-size: clamp(1.05rem, 1.7vw, 1.45rem);
+    --home-status-default: #24486b;
+    --home-status-alert: #9a4f17;
+    --home-status-error: #9c2a2a;
+    --home-status-running: #215e82;
   }
 
   :global(body) {
     margin: 0;
     font-family: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    font-size: var(--font-base);
+    line-height: 1.4;
     background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
     color: var(--text-main);
   }
@@ -1513,19 +1610,20 @@
   }
 
   .popup-panel {
-    width: min(980px, 96vw);
+    width: min(1080px, 96vw);
     max-height: 92vh;
     overflow-y: auto;
     border: 1px solid var(--panel-border);
     border-radius: 14px;
     background: var(--panel-bg);
     box-shadow: 0 18px 40px rgba(12, 36, 72, 0.22);
-    padding: 1rem;
+    padding: 1.3rem;
     display: grid;
-    gap: 0.8rem;
+    gap: 1rem;
   }
 
   .popup-close {
+    font-size: 1.05rem;
     font-weight: 700;
     color: #122f4d;
     justify-self: end;
@@ -1536,7 +1634,6 @@
     gap: 0.8rem;
   }
 
-  h1,
   h2,
   h3,
   h4,
@@ -1546,16 +1643,18 @@
 
   .muted {
     color: var(--text-muted);
-    font-size: 0.92rem;
+    font-size: var(--font-muted);
   }
 
   button {
     border: 1px solid var(--button-border);
     border-radius: 8px;
-    padding: 0.5rem 0.8rem;
+    padding: 0.85rem 1.2rem;
     color: var(--button-text);
     background: var(--button-bg);
     cursor: pointer;
+    font-size: var(--font-button);
+    font-weight: 700;
   }
 
   .dictation-selected {
@@ -1577,9 +1676,9 @@
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: 12px;
-    padding: 1rem;
+    padding: 1.25rem;
     display: grid;
-    gap: 0.65rem;
+    gap: 0.9rem;
   }
 
   .home {
@@ -1620,8 +1719,8 @@
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
-    width: clamp(170px, min(56vmin, calc(100dvh - 24rem)), 460px);
-    height: clamp(170px, min(56vmin, calc(100dvh - 24rem)), 460px);
+    width: clamp(320px, min(88vmin, calc(100dvh - 4rem)), 860px);
+    height: clamp(320px, min(88vmin, calc(100dvh - 4rem)), 860px);
     display: grid;
     justify-items: center;
     gap: 0.6rem;
@@ -1635,10 +1734,12 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-rows: repeat(3, minmax(0, 1fr));
+    overflow: visible;
     pointer-events: auto;
   }
 
   .home-control-box {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1646,16 +1747,26 @@
     min-height: 0;
     box-sizing: border-box;
     padding: 0.3rem;
+    overflow: visible;
     pointer-events: auto;
   }
 
   .home-control-box[data-box='2'] {
     align-items: flex-start;
+    z-index: 4;
     padding-top: clamp(8px, 1.8vh, 18px);
+    padding-inline: 0;
   }
 
   .home-control-box[data-box='8'] {
     align-items: flex-end;
+    padding-bottom: clamp(8px, 1.8vh, 18px);
+  }
+
+  .home-control-box[data-box='9'] {
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding-right: clamp(8px, 1.8vh, 18px);
     padding-bottom: clamp(8px, 1.8vh, 18px);
   }
 
@@ -1669,14 +1780,15 @@
 
   .home-bottom-panel {
     position: relative;
-    width: min(92vw, 620px);
+    flex: 0 0 auto;
+    width: min(94vw, 760px);
     margin: 0;
     pointer-events: auto;
   }
 
   .home-idle-controls {
     display: grid;
-    gap: 0.5rem;
+    gap: 0.8rem;
     justify-items: stretch;
     align-items: center;
     max-height: none;
@@ -1684,31 +1796,58 @@
     pointer-events: auto;
   }
 
-  .home-msg {
+  .home-robot-name {
     margin: 0;
-    font-size: 0.98rem;
-    line-height: 1.42;
+    font-size: var(--home-name-size);
+    line-height: 0.92;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: var(--text-strong);
+  }
+
+  .home-status {
+    margin: 0;
+    font-size: var(--home-status-size);
+    line-height: 1.18;
+    font-weight: 800;
+    color: var(--home-status-default);
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+
+  .home-status.alert {
+    color: var(--home-status-alert);
+  }
+
+  .home-status.error {
+    color: var(--home-status-error);
+  }
+
+  .home-status.running {
+    color: var(--home-status-running);
   }
 
   .home-mode {
     margin: 0;
-    font-size: 0.88rem;
+    font-size: var(--home-mode-size);
     font-weight: 700;
     color: var(--muted-text);
   }
 
   .home-dialog {
     position: relative;
-    padding: 0.65rem 0.85rem;
-    border-radius: 14px;
+    flex: 0 0 auto;
+    padding: 1rem 1.35rem;
+    border-radius: 22px;
     border: 1px solid var(--panel-border);
     background: color-mix(in srgb, var(--panel-bg) 80%, var(--text-color) 5%);
     box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
     display: grid;
-    gap: 0.26rem;
+    gap: 0.45rem;
     text-align: center;
-    width: min(90vw, 620px);
-    max-width: 620px;
+    width: min(calc(100vw - 1.2rem), 960px);
+    max-width: 960px;
+    overflow: visible;
     pointer-events: auto;
   }
 
@@ -1718,30 +1857,23 @@
 
   @media (max-width: 700px) {
     .home-dialog {
-      max-width: min(90vw, 430px);
+      width: min(calc(100vw - 0.9rem), 700px);
+      max-width: none;
     }
   }
-  .home-msg {
-    text-align: center;
-    color: var(--text-main);
-    line-height: 1.45;
-    margin: 0;
-    font-size: clamp(0.75rem, 1.5vw, 0.95rem);
-  }
-
   .home-engine-row {
     position: relative;
     z-index: 1;
-    width: min(600px, 90vw);
+    width: min(720px, 94vw);
     display: grid;
     justify-content: center;
-    gap: 0.45rem;
-    grid-template-columns: repeat(2, minmax(160px, 1fr));
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
     pointer-events: auto;
   }
 
   .home-engine-btn {
-    height: 2.7rem;
+    height: 4.35rem;
     border: 1px solid var(--panel-border);
     border-radius: 999px;
     background: color-mix(in srgb, var(--panel-bg) 82%, #fff 18%);
@@ -1749,15 +1881,40 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
+    gap: 0.7rem;
     width: 100%;
     font-weight: 700;
-    padding: 0 0.8rem;
+    font-size: clamp(1.15rem, 1.8vw, 1.55rem);
+    padding: 0 1.2rem;
     pointer-events: auto;
   }
 
   .home-engine-btn:hover {
     background: color-mix(in srgb, var(--button-hover-bg) 78%, #fff 22%);
+  }
+
+  .home-settings-btn {
+    width: clamp(4.25rem, 8vw, 5.5rem);
+    height: clamp(4.25rem, 8vw, 5.5rem);
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--panel-bg) 82%, #fff 18%);
+    color: var(--text-main);
+    display: inline-grid;
+    place-items: center;
+    font-size: clamp(1.8rem, 3vw, 2.45rem);
+    font-weight: 700;
+    padding: 0;
+    box-shadow: 0 10px 24px rgba(31, 90, 179, 0.12);
+    pointer-events: auto;
+  }
+
+  .home-settings-btn:hover {
+    background: color-mix(in srgb, var(--button-hover-bg) 78%, #fff 22%);
+  }
+
+  .home-settings-btn span {
+    line-height: 1;
   }
 
   .home-face__frame {
@@ -1786,27 +1943,27 @@
 
   .home-face__eyes {
     display: flex;
-    gap: clamp(14px, 4.4vmin, 44px);
+    gap: clamp(52px, 13.8vmin, 166px);
     margin-top: clamp(30px, 8.5vmin, 84px);
   }
 
   .home-face__eye {
-    width: clamp(10px, 2.6vmin, 28px);
-    height: clamp(10px, 2.6vmin, 28px);
+    width: clamp(60px, 14vmin, 144px);
+    height: clamp(60px, 14vmin, 144px);
     border-radius: 50%;
     background: #2d3f57;
     position: relative;
-    box-shadow: inset -2px 0 0 rgba(255, 255, 255, 0.7);
+    box-shadow: inset -8px 0 0 rgba(255, 255, 255, 0.72);
   }
 
   .home-face__eye::after {
     content: '';
     position: absolute;
     border-radius: 50%;
-    width: clamp(4px, 1.4vmin, 14px);
-    height: clamp(4px, 1.4vmin, 14px);
-    top: clamp(2px, 0.7vmin, 10px);
-    left: clamp(2px, 0.7vmin, 10px);
+    width: clamp(20px, 4.8vmin, 48px);
+    height: clamp(20px, 4.8vmin, 48px);
+    top: clamp(8px, 2vmin, 24px);
+    left: clamp(8px, 2vmin, 24px);
     background: #fff;
   }
 
@@ -1862,10 +2019,10 @@
   }
 
   .home-face__head[data-mood='wink'] .home-face__eye:first-child {
-    height: 2px;
-    transform: translateY(5px);
+    height: 8px;
+    transform: translateY(18px);
     transition: all 90ms ease;
-    border-radius: 2px;
+    border-radius: 8px;
   }
 
   .home-face__head[data-mood='proud'] .home-face__mouth {
@@ -1963,15 +2120,15 @@
   }
 
   .engine-badge {
-    width: 2.1rem;
-    height: 2.1rem;
+    width: 2.8rem;
+    height: 2.8rem;
     border-radius: 50%;
     background: var(--engine-bg, #dce9ff);
     color: #0f2b4a;
     display: grid;
     place-items: center;
     border: 2px solid var(--engine-color, #7ab3f7);
-    font-size: 1.05rem;
+    font-size: 1.35rem;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
   }
 
@@ -2003,11 +2160,13 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 30;
-    width: min(96vw, 680px);
+    width: min(96vw, 920px);
     box-sizing: border-box;
     border-radius: 8px;
-    padding: 0.6rem 0.8rem;
+    padding: 0.85rem 1.05rem;
     border: 1px solid transparent;
+    font-size: 1.2rem;
+    font-weight: 700;
   }
 
   .toast.ok {
@@ -2026,15 +2185,15 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 0.8rem;
+    gap: 1rem;
     border: 1px dashed var(--panel-border);
     border-radius: 10px;
-    padding: 0.6rem;
+    padding: 0.9rem;
   }
 
   .dataset-actions {
     display: flex;
-    gap: 0.45rem;
+    gap: 0.6rem;
   }
 
   .item-check {
@@ -2050,11 +2209,11 @@
     border: 1px solid var(--panel-border);
     border-radius: 8px;
     background: var(--panel-bg);
-    padding: 0.55rem 0.65rem;
+    padding: 0.85rem 0.95rem;
   }
 
   textarea {
-    min-height: 160px;
+    min-height: 220px;
     resize: vertical;
   }
 
@@ -2071,7 +2230,7 @@
     margin-top: 0.28rem;
     max-width: 100%;
     overflow-wrap: anywhere;
-    font-size: 0.82rem;
+    font-size: 1rem;
   }
 
   @media (max-width: 720px) {
@@ -2094,12 +2253,12 @@
     }
 
     .home-face {
-      width: clamp(150px, min(52vmin, calc(100dvh - 24rem)), 320px);
-      height: clamp(150px, min(52vmin, calc(100dvh - 24rem)), 320px);
+      width: clamp(220px, min(82vmin, calc(100dvh - 8rem)), 560px);
+      height: clamp(220px, min(82vmin, calc(100dvh - 8rem)), 560px);
     }
 
     .home-bottom-panel {
-      width: min(94vw, 560px);
+      width: min(95vw, 640px);
     }
 
     .home-control-box[data-box='2'] {
@@ -2110,10 +2269,15 @@
       padding-bottom: max(6px, env(safe-area-inset-bottom));
     }
 
+    .home-control-box[data-box='9'] {
+      padding-right: max(6px, env(safe-area-inset-right));
+      padding-bottom: max(6px, env(safe-area-inset-bottom));
+    }
+
     .home-engine-row {
       width: 100%;
       grid-template-columns: 1fr;
-      gap: 0.55rem;
+      gap: 0.7rem;
     }
 
     .popup-overlay {

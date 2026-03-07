@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/coverage.v1.schema.json",
   "authoritative": false,
   "generated": true,
-  "generatedAt": "2026-03-07T01:53:01.351Z",
+  "generatedAt": "2026-03-07T07:54:58.506Z",
   "generatedFrom": {
     "testsContract": "docs/machine/tests.v1.yaml",
     "testCode": [
@@ -14,14 +14,23 @@
     "testResults": "test-results/.last-run.json#status=passed"
   },
   "summary": {
-    "totalScenarios": 15,
-    "coveredScenarios": 8,
-    "partialScenarios": 7,
-    "gapScenarios": 0
+    "totalScenarios": 16,
+    "coveredScenarios": 13,
+    "partialScenarios": 1,
+    "gapScenarios": 2
   },
   "rows": [
     {
       "scenarioId": "test.p0.home.base_layout",
+      "priority": "P0",
+      "type": "automated",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.home.alert_message_surface",
       "priority": "P0",
       "type": "automated",
       "coverageStatus": "covered",
@@ -68,10 +77,10 @@
     {
       "scenarioId": "test.p0.import.entry_backup_only",
       "priority": "P0",
-      "type": "manual",
-      "coverageStatus": "partial",
+      "type": "automated",
+      "coverageStatus": "covered",
       "evidence": [
-        "manual scenario registered in tests.v1.yaml"
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
       ]
     },
     {
@@ -86,10 +95,10 @@
     {
       "scenarioId": "test.p0.dictation.timer_next_exit",
       "priority": "P0",
-      "type": "manual",
-      "coverageStatus": "partial",
+      "type": "automated",
+      "coverageStatus": "covered",
       "evidence": [
-        "manual scenario registered in tests.v1.yaml"
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
       ]
     },
     {
@@ -104,19 +113,19 @@
     {
       "scenarioId": "test.p0.security.javascript_scheme_block",
       "priority": "P0",
-      "type": "manual",
-      "coverageStatus": "partial",
+      "type": "automated",
+      "coverageStatus": "covered",
       "evidence": [
-        "manual scenario registered in tests.v1.yaml"
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
       ]
     },
     {
       "scenarioId": "test.p0.security.text_render_only",
       "priority": "P0",
-      "type": "manual",
-      "coverageStatus": "partial",
+      "type": "automated",
+      "coverageStatus": "covered",
       "evidence": [
-        "manual scenario registered in tests.v1.yaml"
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
       ]
     },
     {
@@ -141,18 +150,18 @@
       "scenarioId": "test.ai.home.intent",
       "priority": "P1",
       "type": "ai",
-      "coverageStatus": "partial",
+      "coverageStatus": "gap",
       "evidence": [
-        "ai review summary exists"
+        "ai review result missing: test-results/ai-reviews/home.default.ai-review.json"
       ]
     },
     {
       "scenarioId": "test.ai.backup.preview_visible",
       "priority": "P1",
       "type": "ai",
-      "coverageStatus": "partial",
+      "coverageStatus": "gap",
       "evidence": [
-        "ai review summary exists"
+        "ai review result missing: test-results/ai-reviews/backup.overlay.ai-review.json"
       ]
     }
   ]

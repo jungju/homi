@@ -7,7 +7,66 @@ function readText(relativePath) {
   return readFileSync(relativePath, 'utf8');
 }
 
-function getScenarioCoverage(scenario) {
+function findAiScreenId(aiReviewDoc, scenarioId) {
+  for (const screen of aiReviewDoc.screens ?? []) {
+    if ((screen.contractRefs ?? []).includes(scenarioId)) {
+      return screen.id;
+    }
+  }
+  return null;
+}
+
+function getAiScenarioCoverage(scenario, aiReviewDoc) {
+  const screenId = findAiScreenId(aiReviewDoc, scenario.id);
+  if (!screenId) {
+    return {
+      coverageStatus: 'gap',
+      evidence: [`ai-review screen mapping missing for ${scenario.id}`],
+    };
+  }
+
+  const reviewPath = `test-results/ai-reviews/${screenId}.ai-review.json`;
+  if (!existsRelative(reviewPath)) {
+    return {
+      coverageStatus: 'gap',
+      evidence: [`ai review result missing: ${reviewPath}`],
+    };
+  }
+
+  const review = readJson(reviewPath);
+  const blockingCodes = new Set([
+    'AI_REVIEW_SKIPPED',
+    'ARTIFACT_SET_MISSING',
+    'SCREENSHOT_MISSING',
+    'AI_REVIEW_ERROR',
+    'AI_REVIEW_SCHEMA_INVALID',
+  ]);
+  const issueCodes = Array.isArray(review?.issues)
+    ? review.issues
+        .map((issue) => issue?.code)
+        .filter((value) => typeof value === 'string')
+    : [];
+
+  if (issueCodes.some((code) => blockingCodes.has(code))) {
+    return {
+      coverageStatus: 'gap',
+      evidence: [
+        `ai review could not execute for ${screenId}`,
+        `issues=${issueCodes.join(',') || 'none'}`,
+      ],
+    };
+  }
+
+  return {
+    coverageStatus: 'partial',
+    evidence: [
+      `ai review result found: ${reviewPath}`,
+      `verdict=${typeof review?.verdict === 'string' ? review.verdict : 'unknown'}`,
+    ],
+  };
+}
+
+function getScenarioCoverage(scenario, aiReviewDoc) {
   if (scenario.type === 'manual') {
     return {
       coverageStatus: 'partial',
@@ -16,16 +75,7 @@ function getScenarioCoverage(scenario) {
   }
 
   if (scenario.type === 'ai') {
-    if (existsRelative('test-results/ai-reviews/summary.json')) {
-      return {
-        coverageStatus: 'partial',
-        evidence: ['ai review summary exists'],
-      };
-    }
-    return {
-      coverageStatus: 'gap',
-      evidence: ['ai review summary missing'],
-    };
+    return getAiScenarioCoverage(scenario, aiReviewDoc);
   }
 
   const implementation = scenario.implementation;
@@ -78,10 +128,11 @@ function loadLastRunStatus() {
 
 async function run() {
   const testsContract = readStructured('docs/machine/tests.v1.yaml');
+  const aiReviewDoc = readStructured('docs/machine/ai-review.v1.yaml');
   const scenarios = testsContract.scenarios ?? [];
 
   const rows = scenarios.map((scenario) => {
-    const result = getScenarioCoverage(scenario);
+    const result = getScenarioCoverage(scenario, aiReviewDoc);
     return {
       scenarioId: scenario.id,
       priority: scenario.priority,

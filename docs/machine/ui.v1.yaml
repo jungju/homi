@@ -13,11 +13,15 @@
     },
     {
       "id": "ui.home.bubble_visible",
-      "statement": "홈(/)에서 home-bubble이 표시되고 모드 텍스트를 포함한다."
+      "statement": "홈(/)에서 home-bubble이 표시된다."
     },
     {
       "id": "ui.home.mode_text_visible",
-      "statement": "home-mode-text는 텍스트로 표시되며 icon-only 표현은 허용하지 않는다."
+      "statement": "home-mode-text는 받아쓰기 실행모드에서만 텍스트로 표시되며 icon-only 표현은 허용하지 않는다."
+    },
+    {
+      "id": "ui.home.default_text_minimal",
+      "statement": "기본 모드에서 active alert/error가 없으면 home-status-text와 home-mode-text를 렌더하지 않는다."
     },
     {
       "id": "ui.home.control_grid_3x3",
@@ -28,8 +32,36 @@
       "statement": "기본 모드/실행 모드 공통으로 home-bubble은 control box 2(상단 중앙)에 배치된다."
     },
     {
+      "id": "ui.home.zone_bounds_soft",
+      "statement": "home-control-grid의 9개 구역은 배치 기준점이며, 콘텐츠는 필요 시 인접 구역을 침범할 수 있다. 특히 home-bubble은 control box 2를 기준으로 box 1/3 영역까지 수평 확장이 가능하다."
+    },
+    {
+      "id": "ui.home.robot_name_prominent",
+      "statement": "기본 모드의 home-bubble 상단에는 로봇 이름 '호미'(home-robot-name)가 크게 표시된다."
+    },
+    {
+      "id": "ui.home.face_large_tablet",
+      "statement": "home-face는 태블릿 원거리 가시성을 위해 크게 렌더링되어야 하며, 기본 홈 viewport 기준 기존 대비 약 2배 체감 크기를 목표로 한다."
+    },
+    {
+      "id": "ui.home.eyes_prominent",
+      "statement": "home-face의 눈(home-face__eye)은 멀리서도 표정이 읽히도록 크게 렌더링되어야 하며, 기본 홈 viewport 기준 현재 기준선 대비 약 2배 크기를 목표로 한다."
+    },
+    {
+      "id": "ui.home.alert_text_under_robot_name",
+      "statement": "기본 모드에서 알림 또는 주요 상태 문구(home-status-text)는 로봇 이름 아래에 큰 텍스트로 표시된다. schedule 정기 알림은 요약문이 아니라 항목 title만 표시한다."
+    },
+    {
+      "id": "ui.typography.tablet_large_text",
+      "statement": "태블릿 원거리 사용을 위해 홈 핵심 텍스트와 주요 버튼은 큰 글자 크기를 유지한다."
+    },
+    {
       "id": "ui.home.control_box_8.idle_controls",
-      "statement": "기본 모드의 엔진/브레인 설정 컨트롤은 control box 8(하단 중앙)에 배치된다."
+      "statement": "기본 모드의 엔진 진입 컨트롤(home-open-engines)은 control box 8(하단 중앙)에 배치된다."
+    },
+    {
+      "id": "ui.home.control_box_9.settings",
+      "statement": "home-open-backup은 home surface의 control box 9(우하단)에 배치되고 설정 아이콘만 표시한다."
     },
     {
       "id": "ui.home.control_box_8.dictation_runner",
@@ -53,11 +85,11 @@
     },
     {
       "id": "ui.overlay.backup_contract",
-      "statement": "backup route는 overlay-root(data-overlay-kind=backup) 계약을 만족한다."
+      "statement": "브레인 설정 route(/brain)는 overlay-root(data-overlay-kind=backup) 계약을 만족한다."
     },
     {
       "id": "ui.engine.no_backup_import_controls",
-      "statement": "engine overlay에서 backup import 입력 testid는 존재하면 안 된다."
+      "statement": "engine overlay에서 브레인 설정 import 입력 testid는 존재하면 안 된다."
     },
     {
       "id": "ui.engine.no_top_dataset_add_action",
@@ -86,7 +118,6 @@
       "home-root",
       "home-face",
       "home-bubble",
-      "home-mode-text",
       "home-control-grid",
       "home-control-box-1",
       "home-control-box-2",
@@ -115,7 +146,7 @@
         "home-root",
         "home-face",
         "home-bubble",
-        "home-mode-text",
+        "home-robot-name",
         "home-control-grid",
         "home-control-box-1",
         "home-control-box-2",
@@ -168,7 +199,7 @@
     },
     {
       "id": "ui.route.backup",
-      "path": "/backup",
+      "path": "/brain",
       "requiredTestIds": [
         "overlay-root",
         "overlay-title",

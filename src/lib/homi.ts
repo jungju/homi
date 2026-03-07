@@ -152,6 +152,7 @@ const ScheduleItemSchema = z
     timeEnd: z.string().trim().regex(TIME_RE).optional(),
     notes: z.string().trim().max(MAX_TEXT_LENGTH).optional(),
     tags: z.array(z.string().trim().max(MAX_TEXT_LENGTH)).optional(),
+    repeatIntervalSec: z.number().int().min(1).optional(),
     timezone: z.string().trim().max(MAX_TEXT_LENGTH).optional(),
   })
   .passthrough();
@@ -162,7 +163,15 @@ const DictationItemSchema = z
     meaning: z.string().trim().max(MAX_TEXT_LENGTH).optional(),
     hint: z.string().trim().max(MAX_TEXT_LENGTH).optional(),
     example: z.string().trim().max(MAX_TEXT_LENGTH).optional(),
-    audioUrl: z.string().trim().max(MAX_TEXT_LENGTH).optional(),
+    audioUrl: z
+      .string()
+      .trim()
+      .max(MAX_TEXT_LENGTH)
+      .url()
+      .refine((value) => value.startsWith('https://'), {
+        message: 'audioUrl은 https URL이어야 합니다.',
+      })
+      .optional(),
   })
   .passthrough();
 
@@ -202,7 +211,7 @@ const BundleSchema = z
     createdAt: z.string().optional(),
     datasets: z.array(z.unknown()).min(1),
   })
-  .passthrough();
+  .strict();
 
 const StoreSchema = z
   .object({
@@ -216,7 +225,7 @@ const StoreSchema = z
       .passthrough()
       .optional(),
   })
-  .passthrough();
+  .strict();
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -306,37 +315,44 @@ function isLegacyDictationLoveSample(dataset: DataSetV1): boolean {
   return false;
 }
 
-function sanitizeStore(store: HomiStoreV1): HomiStoreV1 {
-  let mutated = false;
-  const next: HomiStoreV1 = {
-    ...store,
-    datasetsByEngine: {
-      ...store.datasetsByEngine,
-    },
+function sanitizeStore(store: HomiStoreV1): { store: HomiStoreV1; mutated: boolean } {
+  const dictationDatasets = store.datasetsByEngine.dictation;
+  if (!dictationDatasets) {
+    return { store, mutated: false };
+  }
+
+  const sanitized = dictationDatasets.filter((item) => !isLegacyDictationLoveSample(item));
+  if (sanitized.length === dictationDatasets.length) {
+    return { store, mutated: false };
+  }
+
+  const datasetsByEngine = {
+    ...store.datasetsByEngine,
   };
-
-  if (!next.datasetsByEngine.dictation) {
-    return next;
-  }
-
-  const sanitized = next.datasetsByEngine.dictation.filter((item) => !isLegacyDictationLoveSample(item));
-  if (sanitized.length !== next.datasetsByEngine.dictation.length) {
-    if (sanitized.length > 0) {
-      next.datasetsByEngine.dictation = sanitized;
-    } else {
-      delete next.datasetsByEngine.dictation;
-    }
-    mutated = true;
-  }
-
-  if (!mutated) {
-    return next;
+  if (sanitized.length > 0) {
+    datasetsByEngine.dictation = sanitized;
+  } else {
+    delete datasetsByEngine.dictation;
   }
 
   return {
-    ...next,
-    updatedAt: nowIso(),
+    store: {
+      ...store,
+      datasetsByEngine,
+      updatedAt: nowIso(),
+    },
+    mutated: true,
   };
+}
+
+function recoverEmptyStore(): HomiStoreV1 {
+  const empty = createEmptyStore();
+  try {
+    saveStore(empty);
+  } catch {
+    // localStorage write can fail independently; returning empty state is still safer than keeping corruption
+  }
+  return empty;
 }
 
 export function parseBundleText(raw: string): ParseBundleResult | ParseBundleError {
@@ -421,16 +437,20 @@ export function parseItemsForEngine(
 }
 
 export function normalizeImportUrl(raw: string): ParseUrlResult | ParseUrlError {
-  if (!raw.trim()) {
+  const normalizedRaw = raw.trim();
+  if (!normalizedRaw) {
     return { ok: false, error: 'URL을 입력해주세요.' };
   }
 
-  if (raw.startsWith('javascript:')) {
+  if (normalizedRaw.toLowerCase().startsWith('javascript:')) {
     return { ok: false, error: 'javascript: 스킴은 사용할 수 없습니다.' };
   }
 
   try {
-    const parsed = new URL(raw);
+    const parsed = new URL(normalizedRaw);
+    if (parsed.protocol === 'javascript:') {
+      return { ok: false, error: 'javascript: 스킴은 사용할 수 없습니다.' };
+    }
     if (parsed.protocol === 'https:') {
       return { ok: true, url: parsed.href };
     }
@@ -465,7 +485,7 @@ export function loadStore(): HomiStoreV1 {
     const parsed = JSON.parse(raw);
     const checked = StoreSchema.safeParse(parsed);
     if (!checked.success) {
-      return createEmptyStore();
+      return recoverEmptyStore();
     }
 
     const next: HomiStoreV1 = {
@@ -477,31 +497,26 @@ export function loadStore(): HomiStoreV1 {
 
     for (const [engineId, rawSet] of Object.entries(checked.data.datasetsByEngine)) {
       if (!isEngineId(engineId) || !Array.isArray(rawSet)) {
-        continue;
+        return recoverEmptyStore();
       }
 
-      const parsedSet = rawSet
-        .map((rawDataSet) => {
-          const safeParsed = DataSetSchema.safeParse(rawDataSet);
-          if (!safeParsed.success) {
-            return null;
-          }
+      const parsedSet: DataSetV1[] = [];
+      for (const rawDataSet of rawSet) {
+        const safeParsed = DataSetSchema.safeParse(rawDataSet);
+        if (!safeParsed.success) {
+          return recoverEmptyStore();
+        }
 
-          if (!Array.isArray(safeParsed.data.items) || !validateEngineItems(engineId, safeParsed.data.items)) {
-            return null;
-          }
+        if (!Array.isArray(safeParsed.data.items) || !validateEngineItems(engineId, safeParsed.data.items)) {
+          return recoverEmptyStore();
+        }
 
-          return safeParsed.data as DataSetV1;
-        })
-        .filter((dataset): dataset is DataSetV1 => {
-          if (!dataset) {
-            return false;
-          }
-          if (dataset.engineId !== engineId) {
-            return false;
-          }
-          return true;
-        });
+        const dataset = safeParsed.data as DataSetV1;
+        if (dataset.engineId !== engineId) {
+          return recoverEmptyStore();
+        }
+        parsedSet.push(dataset);
+      }
 
       if (parsedSet.length > 0) {
         next.datasetsByEngine[engineId] = parsedSet;
@@ -509,12 +524,12 @@ export function loadStore(): HomiStoreV1 {
     }
 
     const normalized = sanitizeStore(next);
-    if (normalized !== next && normalized.datasetsByEngine !== next.datasetsByEngine) {
-      saveStore(normalized);
+    if (normalized.mutated) {
+      saveStore(normalized.store);
     }
-    return normalized;
+    return normalized.store;
   } catch {
-    return createEmptyStore();
+    return recoverEmptyStore();
   }
 }
 

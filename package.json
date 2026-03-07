@@ -17,8 +17,8 @@
     "qa:contract": "npm run validate:machine-docs && npm run validate:domain-schemas && npm run build:coverage && npm run build:dependency-graph",
     "qa:smoke": "playwright test",
     "qa:ai-review": "node scripts/ai-ui-review.mjs --config docs/machine/ai-review.v1.yaml --schema schemas/ai-ui-review-result.schema.json --artifacts test-results/ai-artifacts --out test-results/ai-reviews",
-    "qa:gate": "npm run qa:contract && npm run qa:smoke && npm run qa:ai-review",
-    "qa:gate:strict": "npm run qa:contract && npm run qa:smoke && npm run qa:ai-review -- --strict",
+    "qa:gate": "npm run qa:contract && npm run qa:smoke && npm run qa:ai-review && npm run build:coverage",
+    "qa:gate:strict": "npm run qa:contract && npm run qa:smoke && npm run qa:ai-review -- --strict && npm run build:coverage",
     "next-step": "node scripts/next-step.mjs"
   },
   "devDependencies": {

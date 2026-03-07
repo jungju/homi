@@ -1,0 +1,81 @@
+{
+  "screenId": "home.default",
+  "items": [
+    {
+      "id": "app-root",
+      "text": "호미\n\nPing\n\n📅\n스케줄 열기\n🎧\n받아쓰기 열기\n⚙"
+    },
+    {
+      "id": "toast-root"
+    },
+    {
+      "id": "home-root",
+      "text": "호미\n\nPing\n\n📅\n스케줄 열기\n🎧\n받아쓰기 열기\n⚙"
+    },
+    {
+      "id": "home-face"
+    },
+    {
+      "id": "home-control-grid",
+      "text": "호미\n\nPing\n\n📅\n스케줄 열기\n🎧\n받아쓰기 열기\n⚙"
+    },
+    {
+      "id": "home-control-box-1"
+    },
+    {
+      "id": "home-control-box-2",
+      "text": "호미\n\nPing"
+    },
+    {
+      "id": "home-bubble",
+      "text": "호미\n\nPing"
+    },
+    {
+      "id": "home-robot-name",
+      "text": "호미"
+    },
+    {
+      "id": "home-status-text",
+      "text": "Ping"
+    },
+    {
+      "id": "home-control-box-3"
+    },
+    {
+      "id": "home-control-box-4"
+    },
+    {
+      "id": "home-control-box-5"
+    },
+    {
+      "id": "home-control-box-6"
+    },
+    {
+      "id": "home-control-box-7"
+    },
+    {
+      "id": "home-control-box-8",
+      "text": "📅\n스케줄 열기\n🎧\n받아쓰기 열기"
+    },
+    {
+      "id": "home-open-engines",
+      "text": "📅\n스케줄 열기\n🎧\n받아쓰기 열기"
+    },
+    {
+      "id": "home-engine-btn-schedule",
+      "text": "📅\n스케줄 열기"
+    },
+    {
+      "id": "home-engine-btn-dictation",
+      "text": "🎧\n받아쓰기 열기"
+    },
+    {
+      "id": "home-control-box-9",
+      "text": "⚙"
+    },
+    {
+      "id": "home-open-backup",
+      "text": "⚙"
+    }
+  ]
+}

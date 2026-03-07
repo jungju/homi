@@ -1,0 +1,16 @@
+{
+  "screenId": "home.default",
+  "state": "정기 알림 표시",
+  "route": "http://127.0.0.1:4173/",
+  "deterministicAssertions": [
+    "home-robot-name shows 호미",
+    "home-status-text shows schedule title only",
+    "home-status-text is rendered below home-robot-name",
+    "home-status-text keeps large font size"
+  ],
+  "capturedAt": "2026-03-07T07:55:20.452Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  }
+}

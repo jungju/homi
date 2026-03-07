@@ -217,7 +217,7 @@
       "properties": {
         "entryRoute": {
           "type": "string",
-          "const": "/backup"
+          "const": "/brain"
         },
         "allowedImportMethods": {
           "type": "array",

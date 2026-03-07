@@ -69,12 +69,12 @@
           ]
         },
         {
-          "id": "ai.home.mode_text_visible",
+          "id": "ai.home.robot_name_prominent",
           "severity": "high",
           "level": "must",
-          "statement": "home-mode-text가 텍스트로 노출되어야 한다.",
+          "statement": "기본 모드에서 로봇 이름 '호미'(home-robot-name)가 명확히 보여야 한다.",
           "contractRefs": [
-            "ui.home.mode_text_visible"
+            "ui.home.robot_name_prominent"
           ]
         },
         {
@@ -89,7 +89,7 @@
       ],
       "hardFailConditions": [
         "HEADER_VISIBLE",
-        "MODE_TEXT_MISSING",
+        "ROBOT_NAME_MISSING",
         "FACE_NOT_DOMINANT"
       ],
       "softFailConditions": [
@@ -102,7 +102,7 @@
     },
     {
       "id": "backup.overlay",
-      "route": "/backup",
+      "route": "/brain",
       "state": "import preview",
       "requiredArtifacts": [
         "backup.overlay*.png",
@@ -123,7 +123,7 @@
           "id": "ai.backup.preview_before_confirm_visible",
           "severity": "high",
           "level": "must",
-          "statement": "backup 화면에 preview + confirm 단계가 동시에 식별되어야 한다.",
+          "statement": "브레인 설정 화면에 preview + confirm 단계가 동시에 식별되어야 한다.",
           "contractRefs": [
             "product.import.preview_required",
             "ui.overlay.backup_contract"
@@ -133,7 +133,7 @@
           "id": "ai.backup.overlay_stack",
           "severity": "medium",
           "level": "must",
-          "statement": "backup overlay는 홈 컨텍스트 위에 쌓여 있어야 한다.",
+          "statement": "브레인 설정 overlay는 홈 컨텍스트 위에 쌓여 있어야 한다.",
           "contractRefs": [
             "ui.overlay.backup_contract"
           ]

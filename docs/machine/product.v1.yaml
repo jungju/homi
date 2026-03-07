@@ -21,7 +21,7 @@
     },
     {
       "id": "product.import.entry_route.backup_only",
-      "statement": "Import 입력(URL/텍스트/파일/샘플)은 /backup에서만 허용한다."
+      "statement": "Import 입력(URL/텍스트/파일/샘플)은 브레인 설정 route(/brain)에서만 허용한다."
     },
     {
       "id": "product.import.preview_required",
@@ -89,10 +89,10 @@
     },
     {
       "id": "route.backup",
-      "path": "/backup",
+      "path": "/brain",
       "routeType": "overlay",
       "overlay": true,
-      "purpose": "bundle import/export and sample load"
+      "purpose": "brain settings with import/export and sample load"
     }
   ],
   "storage": {
@@ -126,7 +126,7 @@
     }
   ],
   "importExportPolicy": {
-    "entryRoute": "/backup",
+    "entryRoute": "/brain",
     "allowedImportMethods": [
       "url",
       "text",
