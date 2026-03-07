@@ -25,7 +25,7 @@
     },
     {
       "id": "ui.home.control_grid_3x3",
-      "statement": "얼굴 화면은 home-control-grid 기반 3x3(총 9개) control box(home-control-box-1..9)로 구성된다."
+      "statement": "홈 얼굴 화면은 home-control-grid 기반 3x3(총 9개) control box(home-control-box-1..9)로 구성된다."
     },
     {
       "id": "ui.home.control_box_2.bubble",
@@ -61,7 +61,7 @@
     },
     {
       "id": "ui.home.control_box_9.settings",
-      "statement": "home-open-backup은 home surface의 control box 9(우하단)에 배치되고 설정 아이콘만 표시한다."
+      "statement": "home-open-backup은 홈 얼굴 화면의 control box 9(우하단)에 배치되고 설정 아이콘만 표시한다."
     },
     {
       "id": "ui.home.control_box_8.dictation_runner",
@@ -69,7 +69,7 @@
     },
     {
       "id": "ui.home.no_page_scroll",
-      "statement": "얼굴 페이지(home surface)는 모드와 무관하게 문서 스크롤 없이 viewport 안에서 레이아웃이 완결된다."
+      "statement": "홈 얼굴 화면(route=/)은 모드와 무관하게 문서 스크롤 없이 viewport 안에서 레이아웃이 완결된다."
     },
     {
       "id": "ui.home.face_position_stable_across_modes",
@@ -80,12 +80,28 @@
       "statement": "global header/nav/testid(global-header, global-nav, top-navbar)는 금지한다."
     },
     {
+      "id": "ui.home.no_toast_surface",
+      "statement": "홈 얼굴 화면(route=/)에서는 toast-root와 schedule-toast를 렌더하지 않는다."
+    },
+    {
       "id": "ui.overlay.engine_contract",
       "statement": "engine route는 overlay-root(data-overlay-kind=engine) 계약을 만족한다."
     },
     {
       "id": "ui.overlay.backup_contract",
       "statement": "브레인 설정 route(/brain)는 overlay-root(data-overlay-kind=backup) 계약을 만족한다."
+    },
+    {
+      "id": "ui.backup.no_full_export_action",
+      "statement": "브레인 설정 overlay에는 전체 export 버튼(backup-export-btn)을 두지 않는다."
+    },
+    {
+      "id": "ui.backup.import_tabs",
+      "statement": "브레인 설정 overlay의 가져오기 방식은 backup-tablist 아래 4개 탭(backup-tab-url, backup-tab-text, backup-tab-file, backup-tab-sample)으로 제공되며, 순서는 URL 가져오기 → 텍스트로 가져오기 → 파일로 가져오기 → 샘플 가져오기다."
+    },
+    {
+      "id": "ui.backup.single_active_panel",
+      "statement": "브레인 설정 overlay에서는 한 번에 하나의 가져오기 패널만 활성화되며, backup-panel-url/text/file/sample 중 현재 선택된 탭의 패널만 보인다."
     },
     {
       "id": "ui.engine.no_backup_import_controls",
@@ -105,11 +121,7 @@
     },
     {
       "id": "ui.dictation.runner_home_surface",
-      "statement": "dictation 시작 후 engine overlay는 닫히고 홈 화면에서 실행 UI(dictation-root)가 노출된다."
-    },
-    {
-      "id": "ui.toast.schedule_during_dictation",
-      "statement": "dictation 실행 중 schedule 안내는 toast-root/schedule-toast로 노출된다."
+      "statement": "dictation 시작 후 engine overlay는 닫히고 홈 얼굴 화면에서 실행 UI(dictation-root)가 노출된다."
     }
   ],
   "global": {
@@ -129,8 +141,7 @@
       "home-control-box-8",
       "home-control-box-9",
       "home-open-engines",
-      "home-open-backup",
-      "toast-root"
+      "home-open-backup"
     ],
     "forbiddenTestIds": [
       "global-header",
@@ -165,7 +176,9 @@
       "forbiddenTestIds": [
         "backup-url-input",
         "backup-json-textarea",
-        "backup-file-input"
+        "backup-file-input",
+        "toast-root",
+        "schedule-toast"
       ]
     },
     {
@@ -205,6 +218,15 @@
         "overlay-title",
         "overlay-close",
         "engine-root",
+        "backup-tablist",
+        "backup-tab-url",
+        "backup-tab-text",
+        "backup-tab-file",
+        "backup-tab-sample",
+        "backup-panel-url",
+        "backup-panel-text",
+        "backup-panel-file",
+        "backup-panel-sample",
         "backup-url-input",
         "backup-url-preview-btn",
         "backup-json-textarea",
@@ -214,11 +236,11 @@
         "backup-preview",
         "backup-confirm",
         "backup-error",
-        "backup-export-btn",
         "backup-sample-load-btn"
       ],
       "forbiddenTestIds": [
-        "dataset-open"
+        "dataset-open",
+        "backup-export-btn"
       ],
       "requiredAttributes": {
         "overlay-root": [

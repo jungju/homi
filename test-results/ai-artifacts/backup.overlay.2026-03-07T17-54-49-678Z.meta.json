@@ -1,0 +1,20 @@
+{
+  "screenId": "backup.overlay",
+  "state": "미리보기",
+  "route": "http://127.0.0.1:4173/brain",
+  "deterministicAssertions": [
+    "backup-tablist is visible",
+    "backup-tab-url/text/file/sample are visible in order",
+    "backup panels switch with tab selection",
+    "backup-panel-sample is visible when sample tab selected",
+    "backup url/text/file/sample controls are available by tab switching",
+    "backup-export-btn is absent",
+    "backup-preview is visible",
+    "backup-confirm is visible"
+  ],
+  "capturedAt": "2026-03-07T17:54:49.723Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  }
+}

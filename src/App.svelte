@@ -61,13 +61,21 @@
 
   type HomeMood = 'smile' | 'curious' | 'proud' | 'calm' | 'concern' | 'wink';
   type DictationWriteMode = 'korean' | 'english';
+  type BackupTabId = 'url' | 'text' | 'file' | 'sample';
   const BRAIN_ROUTE_PATH = '/brain';
   const LEGACY_BACKUP_ROUTE_PATH = '/backup';
+  const BACKUP_TABS: { id: BackupTabId; label: string }[] = [
+    { id: 'url', label: 'URL 가져오기' },
+    { id: 'text', label: '텍스트로 가져오기' },
+    { id: 'file', label: '파일로 가져오기' },
+    { id: 'sample', label: '샘플 가져오기' },
+  ];
 
   let store: HomiStoreV1 = loadStore();
   let route: Route = parseRoute(window.location.pathname);
   let preview: ImportPreview | null = null;
   let importUrl = '';
+  let backupTab: BackupTabId = 'url';
   let editor: DatasetEditor = {
     mode: null,
     engineId: 'schedule',
@@ -173,12 +181,11 @@
       asString(item.notes) ?? '',
       asString(item.date) ?? '',
     ].filter(Boolean);
-    const messageText = `${datasetTitle} · ${title}${bodyParts.length > 0 ? ` - ${bodyParts.join(' ')}` : ''}`;
-    const reminderText = `일정 알림: ${messageText}`;
+    const notificationBody = `${title}${bodyParts.length > 0 ? ` - ${bodyParts.join(' ')}` : ''}`;
 
     const isDictationGameActive = dictationRunning && dictationGameMode;
     if (isDictationGameActive) {
-      setMessage(reminderText, 'ok');
+      // 얼굴 실행 화면에서는 일정 알림 toast를 띄우지 않는다.
       return;
     }
 
@@ -187,7 +194,7 @@
     if (typeof Notification !== 'undefined') {
       if (Notification.permission === 'granted') {
         new Notification(`Homi / ${datasetTitle}`, {
-          body: `${title}${bodyParts.length > 0 ? ` - ${bodyParts.join(' ')}` : ''}`,
+          body: notificationBody,
         });
       } else if (!reminderPermissionWarned && Notification.permission !== 'denied') {
         setMessage('브라우저 알림이 차단되어 있어 표시되지 않을 수 있어요. 알림 허용 시 스케줄 알림이 뜹니다.', 'error');
@@ -611,6 +618,7 @@
       }
     } else if (route.kind === 'backup') {
       // 브레인 설정에서는 전체 export만 사용한다.
+      backupTab = 'url';
       stopDictationSession();
     } else if (route.kind === 'home') {
       exportSelection = new Set();
@@ -659,6 +667,41 @@
   function currentEngineMeta() {
     if (route.kind !== 'engine') return undefined;
     return getEngineMeta(route.engineId);
+  }
+
+  function focusBackupTab(tabId: BackupTabId) {
+    requestAnimationFrame(() => {
+      document.getElementById(`backup-tab-${tabId}`)?.focus();
+    });
+  }
+
+  function selectBackupTab(tabId: BackupTabId) {
+    backupTab = tabId;
+  }
+
+  function onBackupTabKeydown(event: KeyboardEvent) {
+    const currentIndex = BACKUP_TABS.findIndex((tab) => tab.id === backupTab);
+    if (currentIndex < 0) {
+      return;
+    }
+
+    let nextIndex = currentIndex;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      nextIndex = (currentIndex + 1) % BACKUP_TABS.length;
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      nextIndex = (currentIndex - 1 + BACKUP_TABS.length) % BACKUP_TABS.length;
+    } else if (event.key === 'Home') {
+      nextIndex = 0;
+    } else if (event.key === 'End') {
+      nextIndex = BACKUP_TABS.length - 1;
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+    const nextTab = BACKUP_TABS[nextIndex];
+    backupTab = nextTab.id;
+    focusBackupTab(nextTab.id);
   }
 
   function onHomeEngineClick(engineId: EngineId) {
@@ -791,21 +834,6 @@
     });
     downloadBundle(bundle, `homi-${meta.id}-${nowTag()}.json`);
     setMessage('선택한 자료 세트를 내보냈습니다.', 'ok');
-  }
-
-  function exportAllForBackup() {
-    const allIds = Object.values(store.datasetsByEngine).flatMap((list) => list.map((item) => item.id));
-    if (allIds.length === 0) {
-      setMessage('내보낼 자료 세트가 없습니다.', 'error');
-      return;
-    }
-    const bundle = buildBundleFromDatasetIds(store, allIds, {
-      bundleType: 'backup',
-      title: 'Homi 브레인 전체 내보내기',
-      description: 'export from all datasets',
-    });
-    downloadBundle(bundle, `homi-brain-${nowTag()}.json`);
-    setMessage('브레인 내보내기 파일을 생성했습니다.', 'ok');
   }
 
   function downloadBundle(bundle: HomiBundleV1, filename: string) {
@@ -999,10 +1027,6 @@
     preview = null;
   }
 
-  function hasDatasets() {
-    return Object.values(store.datasetsByEngine).some((list) => list.length > 0);
-  }
-
   function totalDatasetCount() {
     return Object.values(store.datasetsByEngine).reduce((sum, list) => sum + list.length, 0);
   }
@@ -1049,16 +1073,14 @@
 </script>
 
 <div class="layout home-layout" data-testid="app-root">
-  <div
-    data-testid="toast-root"
-    class={`toast ${message?.type ?? 'ok'}`}
-    aria-live="polite"
-    hidden={!message}
-  >
-    {message?.text ?? ''}
-  </div>
-  {#if message?.type === 'ok' && message.text.startsWith('일정 알림:')}
-    <div data-testid="schedule-toast" class="toast ok">{message.text}</div>
+  {#if message && (route.kind === 'engine' || route.kind === 'backup')}
+    <div
+      data-testid="toast-root"
+      class={`toast ${message.type}`}
+      aria-live="polite"
+    >
+      {message.text}
+    </div>
   {/if}
 
   <main class="home" data-testid="home-root">
@@ -1387,84 +1409,134 @@
           <section class="card">
             <h2>브레인 설정</h2>
             <p class="muted">현재 저장 데이터: {totalDatasetCount()}개</p>
-            <div class="inline">
-              <button data-testid="backup-export-btn" on:click={exportAllForBackup} disabled={!hasDatasets()}>
-                브레인 전체 내보내기
-              </button>
-            </div>
           </section>
 
           <section class="card">
             <h2>브레인 입력</h2>
-            <p class="muted">브레인 URL 또는 JSON 텍스트를 넣어 가져올 수 있습니다.</p>
-          </section>
-
-          <section class="card">
-            <h3>샘플 가져오기</h3>
-            <p class="muted">기본 샘플 뇌(스케줄 + 받아쓰기) 번들을 한 번에 가져올 수 있습니다.</p>
-            <button
-              type="button"
-              data-testid="backup-sample-load-btn"
-              on:click={loadSampleBundle}
+            <p class="muted">가져오기 방식은 탭으로 전환합니다.</p>
+            <div
+              class="backup-tabs"
+              data-testid="backup-tablist"
+              role="tablist"
+              aria-label="브레인 가져오기 방식"
+              tabindex="0"
+              on:keydown={onBackupTabKeydown}
             >
-              기본 샘플 뇌 가져오기
-            </button>
-          </section>
-
-          <section class="card">
-            <h3>URL Import</h3>
-            <div class="inline">
-              <input
-                data-testid="backup-url-input"
-                placeholder="https://.../bundle.json"
-                bind:value={importUrl}
-                type="url"
-                inputmode="url"
-              />
-              <button data-testid="backup-url-preview-btn" type="button" on:click={runUrlImport}>가져오기</button>
+              {#each BACKUP_TABS as tab}
+                <button
+                  id={`backup-tab-${tab.id}`}
+                  type="button"
+                  role="tab"
+                  class="backup-tab-button"
+                  class:active={backupTab === tab.id}
+                  data-testid={`backup-tab-${tab.id}`}
+                  aria-selected={backupTab === tab.id}
+                  aria-controls={`backup-panel-${tab.id}`}
+                  tabindex={backupTab === tab.id ? 0 : -1}
+                  on:click={() => selectBackupTab(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              {/each}
             </div>
-            <p class="muted">{`허용 스킴: https://  (개발환경: http://localhost 허용)`}</p>
-          </section>
 
-          <section class="card">
-            <h3>JSON 텍스트 Import</h3>
-            <label for="import-json-text-backup">JSON 텍스트</label>
-            <textarea
-              id="import-json-text-backup"
-              data-testid="backup-json-textarea"
-              rows="10"
-              bind:value={importJsonText}
-              placeholder="브레인 JSON 붙여넣기 예: format:homi, version:1, datasets:..."
-            ></textarea>
-            <div class="inline">
+            <div
+              class="backup-tab-panel"
+              id="backup-panel-url"
+              data-testid="backup-panel-url"
+              role="tabpanel"
+              aria-labelledby="backup-tab-url"
+              hidden={backupTab !== 'url'}
+            >
+              <h3>URL 가져오기</h3>
+              <div class="inline">
+                <input
+                  data-testid="backup-url-input"
+                  placeholder="https://.../bundle.json"
+                  bind:value={importUrl}
+                  type="url"
+                  inputmode="url"
+                />
+                <button data-testid="backup-url-preview-btn" type="button" on:click={runUrlImport}>
+                  가져오기
+                </button>
+              </div>
+              <p class="muted">{`허용 스킴: https://  (개발환경: http://localhost 허용)`}</p>
+            </div>
+
+            <div
+              class="backup-tab-panel"
+              id="backup-panel-text"
+              data-testid="backup-panel-text"
+              role="tabpanel"
+              aria-labelledby="backup-tab-text"
+              hidden={backupTab !== 'text'}
+            >
+              <h3>텍스트로 가져오기</h3>
+              <label for="import-json-text-backup">JSON 텍스트</label>
+              <textarea
+                id="import-json-text-backup"
+                data-testid="backup-json-textarea"
+                rows="10"
+                bind:value={importJsonText}
+                placeholder="브레인 JSON 붙여넣기 예: format:homi, version:1, datasets:..."
+              ></textarea>
+              <div class="inline">
+                <button
+                  type="button"
+                  data-testid="backup-text-preview-btn"
+                  on:click={runTextImport}
+                >
+                  텍스트로 가져오기
+                </button>
+              </div>
+              <p class="muted">브레인 JSON을 붙여넣으면 미리보기 후 확인 저장됩니다.</p>
+            </div>
+
+            <div
+              class="backup-tab-panel"
+              id="backup-panel-file"
+              data-testid="backup-panel-file"
+              role="tabpanel"
+              aria-labelledby="backup-tab-file"
+              hidden={backupTab !== 'file'}
+            >
+              <h3>파일로 가져오기</h3>
+              <div class="inline">
+                <button type="button" data-testid="backup-file-preview-btn" on:click={() => fileImportInput?.click()}>
+                  파일 선택
+                </button>
+                <span>또는 파일 입력</span>
+              </div>
+              <input
+                bind:this={fileImportInput}
+                data-testid="backup-file-input"
+                style="display:none"
+                type="file"
+                accept="application/json,.json"
+                on:change={importFromFile}
+              />
+              <p class="muted">파일 Import도 URL Import와 동일하게 미리보기 후 확인 저장됩니다.</p>
+            </div>
+
+            <div
+              class="backup-tab-panel"
+              id="backup-panel-sample"
+              data-testid="backup-panel-sample"
+              role="tabpanel"
+              aria-labelledby="backup-tab-sample"
+              hidden={backupTab !== 'sample'}
+            >
+              <h3>샘플 가져오기</h3>
+              <p class="muted">기본 샘플 뇌(스케줄 + 받아쓰기) 번들을 한 번에 가져올 수 있습니다.</p>
               <button
                 type="button"
-                data-testid="backup-text-preview-btn"
-                on:click={runTextImport}
+                data-testid="backup-sample-load-btn"
+                on:click={loadSampleBundle}
               >
-                텍스트로 가져오기
+                기본 샘플 뇌 가져오기
               </button>
             </div>
-            <p class="muted">브레인 JSON을 붙여넣으면 미리보기 후 확인 저장됩니다.</p>
-          </section>
-
-          <section class="card">
-            <h3>파일 Import</h3>
-            <div class="inline">
-              <button type="button" data-testid="backup-file-preview-btn" on:click={() => fileImportInput?.click()}>
-                파일 선택
-              </button>
-              <span>또는 파일 입력</span>
-            </div>
-            <input
-              bind:this={fileImportInput}
-              data-testid="backup-file-input"
-              style="display:none"
-              type="file"
-              accept="application/json,.json"
-              on:change={importFromFile}
-            />
-            <p class="muted">파일 Import도 URL Import와 동일하게 미리보기 후 확인 저장됩니다.</p>
           </section>
 
           {#if preview}
@@ -1632,6 +1704,30 @@
   .popup-content {
     display: grid;
     gap: 0.8rem;
+  }
+
+  .backup-tabs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.65rem;
+  }
+
+  .backup-tab-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .backup-tab-panel {
+    display: grid;
+    gap: 0.8rem;
+    padding: 1rem;
+    border: 1px dashed var(--panel-border);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--button-hover-bg) 56%, #fff 44%);
+  }
+
+  .backup-tab-panel[hidden] {
+    display: none;
   }
 
   h2,
@@ -2290,6 +2386,10 @@
       max-height: 95vh;
       border-radius: 12px;
       padding: 0.85rem;
+    }
+
+    .backup-tabs {
+      grid-template-columns: 1fr;
     }
 
   }

@@ -11,8 +11,19 @@ async function resetLocalData(page: Page) {
   await page.reload();
 }
 
+async function selectBackupTab(
+  page: Page,
+  label: 'URL 가져오기' | '텍스트로 가져오기' | '파일로 가져오기' | '샘플 가져오기',
+) {
+  const tab = page.getByRole('tab', { name: label });
+  await expect(tab).toBeVisible();
+  await tab.click();
+  await expect(tab).toHaveAttribute('aria-selected', 'true');
+}
+
 async function openBackupAndImportSample(page: Page) {
   await page.goto('/brain');
+  await selectBackupTab(page, '샘플 가져오기');
   await page.getByRole('button', { name: '기본 샘플 뇌 가져오기' }).click();
   await expect(page.getByRole('button', { name: '가져오기 확정' })).toBeVisible({ timeout: 8_000 });
   await page.getByRole('button', { name: '가져오기 확정' }).click();
@@ -21,6 +32,7 @@ async function openBackupAndImportSample(page: Page) {
 
 async function openBackupAndPreviewText(page: Page, bundleText: string) {
   await page.goto('/brain');
+  await selectBackupTab(page, '텍스트로 가져오기');
   await page.getByTestId('backup-json-textarea').fill(bundleText);
   await page.getByTestId('backup-text-preview-btn').click();
   await expect(page.getByTestId('backup-preview')).toBeVisible({ timeout: 8_000 });
@@ -128,7 +140,7 @@ async function selectFirstDictationDataset(page: Page) {
 }
 
 test.describe('Homi v1 실행 시각화 기본 체크', () => {
-  test('[test.p0.home.base_layout] 홈 화면은 얼굴과 최소 말풍선 구성을 보여야 한다', async ({ page }) => {
+  test('[test.p0.home.base_layout] 홈 얼굴 화면은 캐릭터 얼굴과 최소 말풍선 구성을 보여야 한다', async ({ page }) => {
     await resetLocalData(page);
     await page.goto('/');
 
@@ -146,6 +158,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByTestId('home-robot-name')).toHaveText('호미');
     await expect(page.getByTestId('home-status-text')).toHaveCount(0);
     await expect(page.getByTestId('home-mode-text')).toHaveCount(0);
+    await expect(page.getByTestId('toast-root')).toHaveCount(0);
     await expect(page.getByTestId('home-control-box-8').getByTestId('home-open-engines')).toBeVisible();
     await expect(page.locator('[data-testid="global-header"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="global-nav"]')).toHaveCount(0);
@@ -168,6 +181,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-bubble may overflow box 2 into adjacent zones',
       'home-robot-name shows 호미',
       'home-status-text is absent without alert',
+      'toast-root is absent on home face screen',
       'home-open-engines is in control box 8',
       'home-open-backup icon button is in control box 9 right bottom',
       'home-bubble is visible',
@@ -198,6 +212,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
 
     await expect(nameLocator).toHaveText('호미');
     await expect(statusLocator).toHaveText('Ping', { timeout: 10_000 });
+    await expect(page.getByTestId('toast-root')).toHaveCount(0);
 
     const nameBox = await nameLocator.boundingBox();
     const statusBox = await statusLocator.boundingBox();
@@ -210,6 +225,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-robot-name shows 호미',
       'home-status-text shows schedule title only',
       'home-status-text is rendered below home-robot-name',
+      'toast-root is absent while home face screen alert text is visible',
       'home-status-text keeps large font size',
     ]);
   });
@@ -231,7 +247,32 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await resetLocalData(page);
     await page.goto('/brain');
     await expect(page.getByTestId('overlay-root')).toHaveAttribute('data-overlay-kind', 'backup');
-    await expect(page.getByTestId('backup-export-btn')).toBeVisible();
+    await expect(page.getByTestId('backup-tablist')).toBeVisible();
+    const tabLabels = await page.getByTestId('backup-tablist').getByRole('tab').allTextContents();
+    expect(tabLabels.map((text) => text.trim())).toEqual([
+      'URL 가져오기',
+      '텍스트로 가져오기',
+      '파일로 가져오기',
+      '샘플 가져오기',
+    ]);
+    await expect(page.getByRole('tab', { name: 'URL 가져오기' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByRole('tab', { name: '텍스트로 가져오기' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: '파일로 가져오기' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: '샘플 가져오기' })).toBeVisible();
+    await expect(page.getByTestId('backup-panel-url')).toBeVisible();
+    await expect(page.getByTestId('backup-panel-text')).toBeHidden();
+    await expect(page.getByTestId('backup-panel-file')).toBeHidden();
+    await expect(page.getByTestId('backup-panel-sample')).toBeHidden();
+    await expect(page.getByTestId('backup-export-btn')).toHaveCount(0);
+    await selectBackupTab(page, '텍스트로 가져오기');
+    await expect(page.getByTestId('backup-panel-url')).toBeHidden();
+    await expect(page.getByTestId('backup-panel-text')).toBeVisible();
+    await selectBackupTab(page, '파일로 가져오기');
+    await expect(page.getByTestId('backup-panel-text')).toBeHidden();
+    await expect(page.getByTestId('backup-panel-file')).toBeVisible();
+    await selectBackupTab(page, '샘플 가져오기');
+    await expect(page.getByTestId('backup-panel-file')).toBeHidden();
+    await expect(page.getByTestId('backup-panel-sample')).toBeVisible();
     await page.getByRole('button', { name: '기본 샘플 뇌 가져오기' }).click();
     await expect(page.getByRole('button', { name: '가져오기 확정' })).toBeVisible({ timeout: 8_000 });
 
@@ -241,9 +282,12 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByText(/Import 미리보기/)).toBeVisible();
     await expect(page.getByRole('button', { name: '취소' })).toBeVisible();
     await captureState(page, 'backup.overlay', '미리보기', [
-      'backup-url-input exists',
-      'backup-json-textarea exists',
-      'backup-file-input exists',
+      'backup-tablist is visible',
+      'backup-tab-url/text/file/sample are visible in order',
+      'backup panels switch with tab selection',
+      'backup-panel-sample is visible when sample tab selected',
+      'backup url/text/file/sample controls are available by tab switching',
+      'backup-export-btn is absent',
       'backup-preview is visible',
       'backup-confirm is visible',
     ]);
@@ -271,9 +315,11 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await resetLocalData(page);
     await page.goto('/brain');
 
+    await selectBackupTab(page, '샘플 가져오기');
     await page.getByRole('button', { name: '기본 샘플 뇌 가져오기' }).click();
     await expect(page.getByTestId('backup-preview')).toBeVisible({ timeout: 8_000 });
 
+    await selectBackupTab(page, '텍스트로 가져오기');
     await page.getByTestId('backup-json-textarea').fill('{');
     await page.getByTestId('backup-text-preview-btn').click();
 
@@ -295,6 +341,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await startButton.click();
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByTestId('overlay-root')).toHaveCount(0);
+    await expect(page.getByTestId('toast-root')).toHaveCount(0);
     await expect(page.getByTestId('home-face')).toBeVisible();
     const runningFaceRect = await getFaceRect(page);
     expect(Math.abs(runningFaceRect.x - idleFaceRect.x)).toBeLessThanOrEqual(2);
@@ -308,7 +355,8 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-face is visible',
       'dictation-root is visible',
       'overlay-root is closed',
-      'face page has no vertical scroll',
+      'toast-root is absent on running home face screen',
+      'home face screen has no vertical scroll',
       'home-face position is stable across mode change',
       'dictation-progress is visible',
       'dictation-next is visible',
@@ -317,7 +365,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     ]);
   });
 
-  test('[test.p0.dictation.timer_next_exit] dictation은 자동 진행과 Next/Exit를 안정적으로 처리해야 한다', async ({ page }) => {
+  test('[test.p0.dictation.timer_next_exit] dictation은 자동 진행과 Next/자동 완료/수동 종료를 안정적으로 처리해야 한다', async ({ page }) => {
     await resetLocalData(page);
     await openBackupAndImportSample(page);
 
@@ -334,14 +382,28 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await page.getByTestId('dictation-next').click();
     await expect(page.getByTestId('dictation-progress-index')).toHaveText('3');
 
+    await page.waitForTimeout(10_500);
+    await expect(page.getByTestId('dictation-root')).toHaveCount(0);
+    await expect(page.getByTestId('home-mode-text')).toHaveCount(0);
+    await expect(page.getByTestId('toast-root')).toHaveCount(0);
+    await expect(page.getByTestId('schedule-toast')).toHaveCount(0);
+    await expect(page.getByTestId('home-status-text')).toContainText('마지막 항목까지 진행했습니다.');
+
+    await page.goto('/engines/dictation');
+    await page.waitForLoadState('networkidle');
+
+    const restart = await selectFirstDictationDataset(page);
+    await restart.startButton.click();
+    await expect(page.getByTestId('dictation-root')).toBeVisible();
+
     await page.getByTestId('dictation-exit').click();
     await expect(page.getByTestId('dictation-root')).toHaveCount(0);
     await expect(page.getByTestId('home-mode-text')).toHaveCount(0);
-    await expect(page.getByTestId('home-status-text')).toHaveCount(0);
+    await expect(page.getByTestId('toast-root')).toHaveCount(0);
     await expect(page.getByTestId('home-open-engines')).toBeVisible();
   });
 
-  test('[test.p0.schedule.no_interrupt_during_dictation] 받아쓰기 실행 중 스케줄 알림은 토스트로만 노출되어야 한다', async ({
+  test('[test.p0.schedule.no_interrupt_during_dictation] 받아쓰기 실행 중 스케줄 알림은 토스트 없이 지나가야 한다', async ({
     page,
   }) => {
     await page.addInitScript(() => {
@@ -375,8 +437,9 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     const notificationCountBefore = await page.evaluate(
       () => (window as Window & { __homiNotificationCalls?: number }).__homiNotificationCalls ?? 0,
     );
-    const scheduleToast = page.getByTestId('schedule-toast');
-    await expect(scheduleToast).toBeVisible({ timeout: 10_000 });
+    await page.waitForTimeout(2_500);
+    await expect(page.getByTestId('schedule-toast')).toHaveCount(0);
+    await expect(page.getByTestId('toast-root')).toHaveCount(0);
     await expect(page.getByTestId('dictation-root')).toBeVisible();
     await expect(page.getByText('받아쓰기 게임')).toBeVisible();
     const notificationCountAfter = await page.evaluate(
@@ -384,8 +447,9 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     );
     expect(notificationCountAfter).toBe(notificationCountBefore);
 
-    await captureState(page, 'schedule.toast.during-dictation', '실행 중 알림', [
-      'schedule-toast is visible during dictation',
+    await captureState(page, 'schedule.quiet.during-dictation', '실행 중 무토스트', [
+      'schedule-toast is absent during dictation',
+      'toast-root is absent during dictation',
       'dictation-root remains visible',
       'Notification constructor is not called while dictation is active',
     ]);
@@ -397,6 +461,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await resetLocalData(page);
     await page.goto('/brain');
 
+    await selectBackupTab(page, 'URL 가져오기');
     await page.getByTestId('backup-url-input').fill('  JavaScript:alert(1)');
     await page.getByTestId('backup-url-preview-btn').click();
 

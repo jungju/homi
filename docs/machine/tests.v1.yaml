@@ -9,7 +9,7 @@
   "scenarios": [
     {
       "id": "test.p0.home.base_layout",
-      "title": "홈 기본 화면은 얼굴과 최소 말풍선 구성을 보여야 한다.",
+      "title": "홈 얼굴 화면은 캐릭터 얼굴과 최소 말풍선 구성을 보여야 한다.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
@@ -26,7 +26,9 @@
         "ui.home.control_box_8.idle_controls",
         "ui.home.control_box_9.settings",
         "ui.home.no_page_scroll",
-        "ui.home.no_global_header"
+        "ui.home.no_global_header",
+        "ui.home.no_toast_surface",
+        "product.toast.overlay_only"
       ],
       "preconditions": [
         "localStorage clear"
@@ -47,8 +49,9 @@
         "home-open-backup icon button is in control box 9 right bottom",
         "home-bubble visible",
         "home-mode-text absent in basic mode",
+        "toast-root absent on home face screen",
         "home key text and buttons use tablet-large font sizes",
-        "face page no document scroll",
+        "home face screen has no document scroll",
         "home-engine-btn-schedule/dictation visible"
       ],
       "artifacts": [
@@ -75,7 +78,9 @@
         "ui.home.robot_name_prominent",
         "ui.home.alert_text_under_robot_name",
         "ui.home.default_text_minimal",
-        "ui.typography.tablet_large_text"
+        "ui.typography.tablet_large_text",
+        "ui.home.no_toast_surface",
+        "product.toast.overlay_only"
       ],
       "preconditions": [
         "schedule dataset repeatIntervalSec > 0",
@@ -87,7 +92,8 @@
       "assertions": [
         "home-status-text equals schedule item title only",
         "home-status-text is rendered below home-robot-name",
-        "home-status-text keeps large font size"
+        "home-status-text keeps large font size",
+        "toast-root absent while home face screen alert text is visible"
       ],
       "artifacts": [
         "test-results/ai-artifacts/home.default*.png"
@@ -139,21 +145,28 @@
     },
     {
       "id": "test.p0.backup.overlay_contract",
-      "title": "브레인 설정 오버레이는 import/export 제어를 모두 제공한다.",
+      "title": "브레인 설정 오버레이는 4개 import 탭과 preview 제어를 제공한다.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
         "ui.overlay.backup_contract",
+        "ui.backup.no_full_export_action",
+        "ui.backup.import_tabs",
+        "ui.backup.single_active_panel",
         "product.import.entry_route.backup_only"
       ],
       "preconditions": [
         "route=/brain"
       ],
       "actions": [
-        "샘플 버튼 클릭으로 preview 생성"
+        "샘플 탭 선택 후 샘플 버튼 클릭으로 preview 생성"
       ],
       "assertions": [
-        "backup-url-input/text/file control visible",
+        "backup-tablist visible",
+        "backup-tab-url/text/file/sample visible in order",
+        "only selected backup panel is visible",
+        "backup-url/text/file/sample control available by tab switching",
+        "backup-export-btn absent",
         "backup-preview visible",
         "backup-confirm visible"
       ],
@@ -276,13 +289,15 @@
         "flow.dictation.start_sets_mode",
         "product.dictation.start_closes_engine_overlay",
         "product.dictation.start_requires_selected_dataset",
+        "product.toast.overlay_only",
         "ui.home.face_visible",
         "ui.home.control_box_2.bubble",
         "ui.home.control_box_8.dictation_runner",
         "ui.home.no_page_scroll",
         "ui.home.face_position_stable_across_modes",
         "ui.dictation.runner_contract",
-        "ui.dictation.runner_home_surface"
+        "ui.dictation.runner_home_surface",
+        "ui.home.no_toast_surface"
       ],
       "preconditions": [
         "dictation dataset 존재"
@@ -298,8 +313,9 @@
         "dictation-root is in control box 8",
         "dictation-root visible",
         "overlay-root closed",
-        "face page no document scroll",
+        "home face screen has no document scroll",
         "home-mode-text contains 받아쓰기 실행모드",
+        "toast-root absent on running home face screen",
         "dictation-next/exit visible"
       ],
       "artifacts": [
@@ -317,12 +333,14 @@
     },
     {
       "id": "test.p0.dictation.timer_next_exit",
-      "title": "dictation은 10초 자동 진행/Next 즉시 진행/종료 복귀를 만족한다.",
+      "title": "dictation은 10초 자동 진행/Next 즉시 진행/자동 완료/수동 종료를 만족한다.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
         "product.dictation.auto_advance_10s",
-        "product.dictation.auto_exit_after_last_item"
+        "product.dictation.auto_exit_after_last_item",
+        "ui.home.no_toast_surface",
+        "product.toast.overlay_only"
       ],
       "preconditions": [
         "dictation running"
@@ -330,11 +348,13 @@
       "actions": [
         "10초 경과 관찰",
         "Next 클릭",
-        "게임 나가기 클릭"
+        "마지막 항목 자동 완료 대기",
+        "재진입 후 게임 나가기 클릭"
       ],
       "assertions": [
         "progress 증가",
         "Next 즉시 이동",
+        "자동 완료 후 toast-root absent",
         "종료 후 basic mode text stays hidden"
       ],
       "artifacts": [
@@ -352,13 +372,14 @@
     },
     {
       "id": "test.p0.schedule.no_interrupt_during_dictation",
-      "title": "dictation 실행 중 schedule은 toast로만 안내한다.",
+      "title": "dictation 실행 중 schedule은 토스트 없이 조용히 지나가야 한다.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
         "product.schedule.no_os_notification_during_dictation",
+        "product.toast.overlay_only",
         "flow.schedule.reminder_non_interrupt",
-        "ui.toast.schedule_during_dictation"
+        "ui.home.no_toast_surface"
       ],
       "preconditions": [
         "schedule dataset repeatIntervalSec > 0",
@@ -368,11 +389,12 @@
         "reminder tick 유도"
       ],
       "assertions": [
-        "schedule-toast visible",
+        "schedule-toast absent",
+        "toast-root absent",
         "dictation state 유지"
       ],
       "artifacts": [
-        "test-results/ai-artifacts/schedule.toast.during-dictation*.png"
+        "test-results/ai-artifacts/schedule.quiet.during-dictation*.png"
       ],
       "gate": {
         "behavior": "hard_fail",
@@ -506,7 +528,7 @@
     },
     {
       "id": "test.ai.home.intent",
-      "title": "AI 리뷰: 홈 화면은 얼굴 중심 의도를 만족한다.",
+      "title": "AI 리뷰: 홈 얼굴 화면은 얼굴 중심 의도를 만족한다.",
       "priority": "P1",
       "type": "ai",
       "contractRefs": [

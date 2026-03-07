@@ -177,7 +177,7 @@
       "to": "flow.state.home.dictation.running",
       "contractRefs": [
         "product.schedule.no_os_notification_during_dictation",
-        "ui.toast.schedule_during_dictation"
+        "ui.home.no_toast_surface"
       ]
     }
   ],

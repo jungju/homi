@@ -1,13 +1,14 @@
 {
-  "screenId": "schedule.toast.during-dictation",
-  "state": "실행 중 알림",
+  "screenId": "schedule.quiet.during-dictation",
+  "state": "실행 중 무토스트",
   "route": "http://127.0.0.1:4173/",
   "deterministicAssertions": [
-    "schedule-toast is visible during dictation",
+    "schedule-toast is absent during dictation",
+    "toast-root is absent during dictation",
     "dictation-root remains visible",
     "Notification constructor is not called while dictation is active"
   ],
-  "capturedAt": "2026-03-07T07:55:38.105Z",
+  "capturedAt": "2026-03-07T17:55:19.290Z",
   "viewport": {
     "width": 1280,
     "height": 720

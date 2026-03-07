@@ -15,18 +15,18 @@
 선택 내보내기
 우리집 기본 일정
 
-아이템 2개 · 마지막 수정 2026-03-07T07:55:39.210Z
+아이템 2개 · 마지막 수정 2026-03-07T17:55:21.136Z
 
-source: {"type":"sample","importedAt":"2026-03-07T07:55:39.133Z","bundleId":"bundle_sample_all_v1"}
+source: {"type":"sample","importedAt":"2026-03-07T17:55:21.053Z","bundleId":"bundle_sample_all_v1"}
 
 사용안함
 편집
 삭제
 1분마다 알림
 
-아이템 1개 · 마지막 수정 2026-03-07T07:55:39.133Z
+아이템 1개 · 마지막 수정 2026-03-07T17:55:21.053Z
 
-source: {"type":"sample","importedAt":"2026-03-07T07:55:39.133Z","bundleId":"bundle_sample_all_v1"}
+source: {"type":"sample","importedAt":"2026-03-07T17:55:21.053Z","bundleId":"bundle_sample_all_v1"}
 
 사용함
 편집

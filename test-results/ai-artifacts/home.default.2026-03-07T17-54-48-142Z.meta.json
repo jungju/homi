@@ -6,9 +6,10 @@
     "home-robot-name shows 호미",
     "home-status-text shows schedule title only",
     "home-status-text is rendered below home-robot-name",
+    "toast-root is absent while home face screen alert text is visible",
     "home-status-text keeps large font size"
   ],
-  "capturedAt": "2026-03-07T07:55:20.452Z",
+  "capturedAt": "2026-03-07T17:54:48.202Z",
   "viewport": {
     "width": 1280,
     "height": 720

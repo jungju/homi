@@ -12,6 +12,7 @@
     "home-bubble may overflow box 2 into adjacent zones",
     "home-robot-name shows 호미",
     "home-status-text is absent without alert",
+    "toast-root is absent on home face screen",
     "home-open-engines is in control box 8",
     "home-open-backup icon button is in control box 9 right bottom",
     "home-bubble is visible",
@@ -19,7 +20,7 @@
     "home typography is tablet-large",
     "engine entry buttons are visible"
   ],
-  "capturedAt": "2026-03-07T07:55:17.088Z",
+  "capturedAt": "2026-03-07T17:54:44.523Z",
   "viewport": {
     "width": 1280,
     "height": 720

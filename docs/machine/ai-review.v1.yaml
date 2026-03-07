@@ -63,7 +63,7 @@
           "id": "ai.home.face_dominant",
           "severity": "high",
           "level": "must",
-          "statement": "홈에서 얼굴(home-face)이 주 시각 요소여야 한다.",
+          "statement": "홈 얼굴 화면에서 얼굴(home-face)이 주 시각 요소여야 한다.",
           "contractRefs": [
             "ui.home.face_visible"
           ]
@@ -85,12 +85,22 @@
           "contractRefs": [
             "ui.home.no_global_header"
           ]
+        },
+        {
+          "id": "ai.home.no_toast",
+          "severity": "medium",
+          "level": "must",
+          "statement": "홈 얼굴 화면에 toast-root 또는 동등 상단 토스트가 보이면 실패다.",
+          "contractRefs": [
+            "ui.home.no_toast_surface"
+          ]
         }
       ],
       "hardFailConditions": [
         "HEADER_VISIBLE",
         "ROBOT_NAME_MISSING",
-        "FACE_NOT_DOMINANT"
+        "FACE_NOT_DOMINANT",
+        "TOAST_VISIBLE_ON_HOME"
       ],
       "softFailConditions": [
         "LAYOUT_NOISE",
@@ -201,15 +211,15 @@
       ]
     },
     {
-      "id": "schedule.toast.during-dictation",
+      "id": "schedule.quiet.during-dictation",
       "route": "/engines/dictation",
-      "state": "dictation running with schedule reminder",
+      "state": "dictation running without toast",
       "requiredArtifacts": [
-        "schedule.toast.during-dictation*.png",
-        "schedule.toast.during-dictation*.dom-testids.json",
-        "schedule.toast.during-dictation*.visible-text.txt",
-        "schedule.toast.during-dictation*.aria-snapshot.json",
-        "schedule.toast.during-dictation*.meta.json"
+        "schedule.quiet.during-dictation*.png",
+        "schedule.quiet.during-dictation*.dom-testids.json",
+        "schedule.quiet.during-dictation*.visible-text.txt",
+        "schedule.quiet.during-dictation*.aria-snapshot.json",
+        "schedule.quiet.during-dictation*.meta.json"
       ],
       "promptInputs": [
         "screenshot",
@@ -219,22 +229,22 @@
       ],
       "rubricChecks": [
         {
-          "id": "ai.schedule.toast_visible_during_dictation",
+          "id": "ai.schedule.no_toast_visible_during_dictation",
           "severity": "high",
           "level": "must",
-          "statement": "dictation 실행 중 schedule-toast 또는 동등 in-app toast가 확인되어야 한다.",
+          "statement": "dictation 실행 중 홈 얼굴 화면에 schedule-toast 또는 동등 in-app toast가 보이면 실패다.",
           "contractRefs": [
-            "ui.toast.schedule_during_dictation",
+            "ui.home.no_toast_surface",
             "product.schedule.no_os_notification_during_dictation"
           ]
         }
       ],
       "hardFailConditions": [
-        "TOAST_MISSING_DURING_DICTATION",
+        "TOAST_VISIBLE_DURING_DICTATION",
         "OS_NOTIFICATION_BLOCKING"
       ],
       "softFailConditions": [
-        "TOAST_READABILITY_LOW"
+        "REMINDER_STATE_UNCLEAR"
       ],
       "contractRefs": [
         "test.p0.schedule.no_interrupt_during_dictation"

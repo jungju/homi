@@ -5,13 +5,13 @@
   "schemaRef": "schemas/machine/coverage.v1.schema.json",
   "authoritative": false,
   "generated": true,
-  "generatedAt": "2026-03-07T07:54:58.506Z",
+  "generatedAt": "2026-03-07T17:54:42.307Z",
   "generatedFrom": {
     "testsContract": "docs/machine/tests.v1.yaml",
     "testCode": [
       "tests/e2e/qa-homi.spec.ts"
     ],
-    "testResults": "test-results/.last-run.json#status=passed"
+    "testResults": "test-results/.last-run.json#status=missing"
   },
   "summary": {
     "totalScenarios": 16,

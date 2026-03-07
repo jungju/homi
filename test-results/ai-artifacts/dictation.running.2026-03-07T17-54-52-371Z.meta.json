@@ -6,14 +6,15 @@
     "home-face is visible",
     "dictation-root is visible",
     "overlay-root is closed",
-    "face page has no vertical scroll",
+    "toast-root is absent on running home face screen",
+    "home face screen has no vertical scroll",
     "home-face position is stable across mode change",
     "dictation-progress is visible",
     "dictation-next is visible",
     "dictation-exit is visible",
     "home-mode-text shows 받아쓰기 실행모드"
   ],
-  "capturedAt": "2026-03-07T07:55:23.267Z",
+  "capturedAt": "2026-03-07T17:54:52.429Z",
   "viewport": {
     "width": 1280,
     "height": 720

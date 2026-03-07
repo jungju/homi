@@ -60,8 +60,12 @@
       "statement": "받아쓰기 설정에서 dataset 미선택 상태는 시작 버튼 비활성으로 유지한다."
     },
     {
+      "id": "product.toast.overlay_only",
+      "statement": "토스트는 engine/brain overlay에서만 표시하고 홈 얼굴 화면(route=/)에서는 표시하지 않는다."
+    },
+    {
       "id": "product.schedule.no_os_notification_during_dictation",
-      "statement": "받아쓰기 실행 중 schedule 알림은 OS notification으로 인터럽트하지 않는다."
+      "statement": "받아쓰기 실행 중 schedule 알림은 OS notification이나 홈 toast로 인터럽트하지 않는다."
     },
     {
       "id": "product.security.block_javascript_scheme",
@@ -78,7 +82,7 @@
       "path": "/",
       "routeType": "page",
       "overlay": false,
-      "purpose": "face-centric home"
+      "purpose": "home face screen"
     },
     {
       "id": "route.engine",
@@ -92,7 +96,7 @@
       "path": "/brain",
       "routeType": "overlay",
       "overlay": true,
-      "purpose": "brain settings with import/export and sample load"
+      "purpose": "brain settings with import and sample load"
     }
   ],
   "storage": {
@@ -147,11 +151,11 @@
   "notificationPolicy": {
     "dictationRunning": {
       "osNotificationAllowed": false,
-      "fallbackChannel": "in_app_toast"
+      "fallbackChannel": "none"
     },
     "default": {
       "osNotificationAllowed": true,
-      "fallbackChannel": "in_app_toast"
+      "fallbackChannel": "overlay_toast_or_home_status"
     }
   },
   "securityPolicy": {
