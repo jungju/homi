@@ -86,7 +86,6 @@
   };
   let message: Message | null = null;
   let exportSelection = new Set<string>();
-  let fileImportInput: HTMLInputElement | null = null;
   let blink = false;
   let blinkResetTimeout: number | null = null;
   let homeAlertText = '';
@@ -1503,19 +1502,18 @@
             >
               <h3>파일로 가져오기</h3>
               <div class="inline">
-                <button type="button" data-testid="backup-file-preview-btn" on:click={() => fileImportInput?.click()}>
-                  파일 선택
-                </button>
+                <label class="file-input-trigger" data-testid="backup-file-preview-btn">
+                  <span>파일 선택</span>
+                  <input
+                    data-testid="backup-file-input"
+                    class="file-input-native"
+                    type="file"
+                    accept="application/json,.json"
+                    on:change={importFromFile}
+                  />
+                </label>
                 <span>또는 파일 입력</span>
               </div>
-              <input
-                bind:this={fileImportInput}
-                data-testid="backup-file-input"
-                style="display:none"
-                type="file"
-                accept="application/json,.json"
-                on:change={importFromFile}
-              />
               <p class="muted">파일 Import도 URL Import와 동일하게 미리보기 후 확인 저장됩니다.</p>
             </div>
 
@@ -1751,6 +1749,35 @@
     cursor: pointer;
     font-size: var(--font-button);
     font-weight: 700;
+  }
+
+  .file-input-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid var(--button-border);
+    border-radius: 8px;
+    padding: 0.85rem 1.2rem;
+    color: var(--button-text);
+    background: var(--button-bg);
+    cursor: pointer;
+    font-size: var(--font-button);
+    font-weight: 700;
+  }
+
+  .file-input-trigger:hover {
+    background: var(--button-hover-bg);
+  }
+
+  .file-input-native {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
   }
 
   .dictation-selected {
