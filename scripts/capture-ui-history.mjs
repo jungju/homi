@@ -1,5 +1,5 @@
 import { execFileSync, execSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 function readManifestVersion() {
@@ -34,7 +34,25 @@ const commit = getGitCommit();
 const outputDir = path.resolve('artifacts', 'ui-history', version, stamp);
 const rootDir = path.resolve('artifacts', 'ui-history', version);
 const latestRunPath = path.join(rootDir, 'latest-run.json');
-const playwrightCliPath = path.resolve('node_modules', 'playwright', 'cli.js');
+
+function resolvePlaywrightCliPath() {
+  const candidates = [
+    path.resolve('node_modules', '@playwright', 'test', 'cli.js'),
+    path.resolve('node_modules', 'playwright', 'cli.js'),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  throw new Error(
+    `Could not find a Playwright CLI entrypoint. Checked: ${candidates.join(', ')}`,
+  );
+}
+
+const playwrightCliPath = resolvePlaywrightCliPath();
 
 mkdirSync(outputDir, { recursive: true });
 
