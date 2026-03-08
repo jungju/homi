@@ -23,3 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 public/version.json
+artifacts/ui-history/
+playwright-results/

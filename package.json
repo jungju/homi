@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "ui:history": "node scripts/capture-ui-history.mjs",
     "qa:install": "playwright install --with-deps",
     "validate:machine-docs": "node scripts/validate-machine-docs.mjs",
     "validate:domain-schemas": "node scripts/validate-domain-schemas.mjs",
