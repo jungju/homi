@@ -36,6 +36,10 @@
       "statement": "기본 모드/실행 모드 공통으로 home-bubble은 control box 2(상단 중앙)에 배치된다."
     },
     {
+      "id": "ui.home.control_box_6.clock",
+      "statement": "홈(/)의 control box 6(중앙 오른쪽)에는 home-clock이 표시되고, home-clock-date/home-clock-time으로 날짜·요일·시:분을 큰 글자로 보여준다."
+    },
+    {
       "id": "ui.home.zone_bounds_soft",
       "statement": "home-control-grid의 9개 구역은 배치 기준점이며, 콘텐츠는 필요 시 인접 구역을 침범할 수 있다. 특히 home-bubble은 control box 2를 기준으로 box 1/3 영역까지 수평 확장이 가능하다."
     },
@@ -112,6 +116,10 @@
       "statement": "브레인 설정 overlay에는 30분 조용히 시작/해제 버튼과 현재 상태 문구(backup-quiet-enable, backup-quiet-clear, backup-quiet-status)가 표시된다."
     },
     {
+      "id": "ui.backup.url_sync_status",
+      "statement": "브레인 설정 overlay의 URL 가져오기 패널에는 backup-url-sync-status가 표시되어 현재 URL 자동 업데이트 연결 여부를 보여준다."
+    },
+    {
       "id": "ui.engine.no_backup_import_controls",
       "statement": "engine overlay에서 브레인 설정 import 입력 testid는 존재하면 안 된다."
     },
@@ -173,6 +181,9 @@
         "home-control-box-4",
         "home-control-box-5",
         "home-control-box-6",
+        "home-clock",
+        "home-clock-date",
+        "home-clock-time",
         "home-control-box-7",
         "home-control-box-8",
         "home-control-box-9",
@@ -238,6 +249,7 @@
         "backup-panel-text",
         "backup-panel-file",
         "backup-panel-sample",
+        "backup-url-sync-status",
         "backup-url-input",
         "backup-url-preview-btn",
         "backup-json-textarea",

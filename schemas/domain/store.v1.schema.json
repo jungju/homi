@@ -40,6 +40,30 @@
         "scheduleQuietUntil": {
           "type": "string",
           "format": "date-time"
+        },
+        "linkedImport": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourceType",
+            "url",
+            "signature"
+          ],
+          "properties": {
+            "sourceType": {
+              "const": "url"
+            },
+            "url": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            },
+            "signature": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
         }
       }
     }

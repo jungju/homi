@@ -6,9 +6,11 @@
     type DataSetPayloadV1,
     type EngineId,
     type HomiBundleV1,
+    type LinkedUrlImportV1,
     type HomiStoreUI,
     type HomiStoreV1,
     buildBundleFromDatasetIds,
+    computeImportSelectionSignature,
     createEmptyStore,
     createId,
     MAX_BUNDLE_JSON_BYTES,
@@ -63,6 +65,7 @@
   type HomeMood = 'smile' | 'curious' | 'proud' | 'calm' | 'concern' | 'wink';
   type DictationWriteMode = 'korean' | 'english';
   type BackupTabId = 'url' | 'text' | 'file' | 'sample';
+  type HomiWindow = Window & { __HOMI_URL_SYNC_INTERVAL_MS__?: number };
   const BRAIN_ROUTE_PATH = '/brain';
   const LEGACY_BACKUP_ROUTE_PATH = '/backup';
   const SHARED_IMPORT_PARAM = 'import';
@@ -107,6 +110,13 @@
   let datasetCount = 0;
   let homeMood: HomeMood = 'smile';
   let displayMood: HomeMood = 'smile';
+  let homeClockNow = Date.now();
+  let homeClockTimer: number | null = null;
+  let homeClockDateText = '';
+  let homeClockTimeText = '';
+  let linkedImportSyncTimer: number | null = null;
+  let linkedImportSyncInFlight = false;
+  let backupUrlSyncStatusText = '현재 URL 자동 업데이트 연결 없음';
   let homeModeText = '';
   let homeStatusText = '';
   let homeStatusTone: 'default' | 'alert' | 'error' | 'running' = 'default';
@@ -120,6 +130,8 @@
   const DICTATION_INTERVAL_MS = 10_000;
   const HOME_ALERT_VISIBILITY_MS = 8_000;
   const SCHEDULE_QUIET_MODE_MS = 30 * 60 * 1000;
+  const LINKED_URL_SYNC_INTERVAL_MS = 5 * 60 * 1000;
+  const HOME_CLOCK_WEEKDAYS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
   const ENGINE_VISUALS: Record<EngineId, { icon: string; accent: string; bg: string }> = {
     schedule: {
@@ -167,6 +179,52 @@
     }
     return null;
   }
+
+  function formatHomeClockDate(timestamp: number) {
+    const now = new Date(timestamp);
+    return `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(
+      now.getDate(),
+    ).padStart(2, '0')} ${HOME_CLOCK_WEEKDAYS[now.getDay()]}`;
+  }
+
+  function formatHomeClockTime(timestamp: number) {
+    const now = new Date(timestamp);
+    return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  }
+
+  function refreshHomeClock() {
+    homeClockNow = Date.now();
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const elapsedInMinute = homeClockNow % 60_000;
+    const remainingMs = elapsedInMinute === 0 ? 60_000 : 60_000 - elapsedInMinute;
+    if (homeClockTimer !== null) {
+      clearTimeout(homeClockTimer);
+    }
+    homeClockTimer = window.setTimeout(() => {
+      homeClockTimer = null;
+      refreshHomeClock();
+    }, remainingMs);
+  }
+
+  function startHomeClock() {
+    refreshHomeClock();
+  }
+
+  function stopHomeClock() {
+    if (homeClockTimer !== null) {
+      clearTimeout(homeClockTimer);
+      homeClockTimer = null;
+    }
+  }
+
+  $: homeClockDateText = formatHomeClockDate(homeClockNow);
+  $: homeClockTimeText = formatHomeClockTime(homeClockNow);
+  $: backupUrlSyncStatusText = store.ui?.linkedImport
+    ? `URL 자동 업데이트 연결됨: ${store.ui.linkedImport.url}`
+    : '현재 URL 자동 업데이트 연결 없음';
 
   function getReminderKey(datasetId: string, itemIndex: number) {
     return `${datasetId}:${itemIndex}`;
@@ -447,7 +505,7 @@
       meta: nextMeta,
       updatedAt: now,
     };
-    persist(upsertDataset(store, nextDataset));
+    persist(withLinkedImport(upsertDataset(store, nextDataset)));
     setMessage(
       `${dataset.title}를 ${nextEnabled ? '사용' : '사용안함'} 상태로 바꿨습니다.`,
       'ok',
@@ -640,7 +698,7 @@
   }
 
   function updateStoreUi(patch: Partial<HomiStoreUI>) {
-    const nextUi: Record<string, string | undefined> = {
+    const nextUi: HomiStoreUI & Record<string, unknown> = {
       ...(store.ui ?? {}),
       ...patch,
     };
@@ -655,6 +713,124 @@
       ...store,
       ui: nextUi,
     });
+  }
+
+  function currentLinkedImport(): LinkedUrlImportV1 | null {
+    return store.ui?.linkedImport?.sourceType === 'url' ? store.ui.linkedImport : null;
+  }
+
+  function withLinkedImport(baseStore: HomiStoreV1, linkedImport?: LinkedUrlImportV1): HomiStoreV1 {
+    const nextUi: HomiStoreUI = {
+      ...(baseStore.ui ?? {}),
+    };
+
+    if (linkedImport) {
+      nextUi.linkedImport = linkedImport;
+    } else {
+      delete nextUi.linkedImport;
+    }
+
+    return {
+      ...baseStore,
+      ui: nextUi,
+    };
+  }
+
+  function getLinkedImportSyncIntervalMs() {
+    if (typeof window !== 'undefined') {
+      const rawValue = Number((window as HomiWindow).__HOMI_URL_SYNC_INTERVAL_MS__);
+      if (Number.isFinite(rawValue) && rawValue >= 100) {
+        return rawValue;
+      }
+    }
+    return LINKED_URL_SYNC_INTERVAL_MS;
+  }
+
+  async function syncLinkedImportIfNeeded() {
+    const linkedImport = currentLinkedImport();
+    if (!linkedImport || linkedImportSyncInFlight) {
+      return;
+    }
+
+    linkedImportSyncInFlight = true;
+    try {
+      const response = await fetch(linkedImport.url, { cache: 'no-store' });
+      if (!response.ok) {
+        return;
+      }
+
+      const contentLength = response.headers.get('content-length');
+      if (contentLength) {
+        const length = Number.parseInt(contentLength, 10);
+        if (Number.isFinite(length) && length > LIMIT_BYTES) {
+          return;
+        }
+      }
+
+      const text = await response.text();
+      if (new TextEncoder().encode(text).byteLength > LIMIT_BYTES) {
+        return;
+      }
+
+      const parsed = parseBundleText(text);
+      if (!parsed.ok) {
+        return;
+      }
+
+      const nextSignature = computeImportSelectionSignature(parsed.datasets);
+      if (nextSignature === linkedImport.signature) {
+        return;
+      }
+
+      const activeLinkedImport = currentLinkedImport();
+      if (
+        !activeLinkedImport ||
+        activeLinkedImport.url !== linkedImport.url ||
+        activeLinkedImport.signature !== linkedImport.signature
+      ) {
+        return;
+      }
+
+      const replaceStore: HomiStoreV1 = createEmptyStore();
+      replaceStore.ui = {
+        ...(store.ui ?? {}),
+      };
+      const imported = importDatasets(replaceStore, parsed.datasets, 'url', {
+        bundleId: parsed.bundle.bundleId,
+        sourceUrl: linkedImport.url,
+      });
+      const nextStore = withLinkedImport(imported.nextStore, {
+        sourceType: 'url',
+        url: linkedImport.url,
+        signature: nextSignature,
+      });
+
+      persist(nextStore);
+      ensureDictationUiStopsIfNeeded();
+      if (route.kind !== 'home') {
+        setMessage(`연결된 브레인 JSON 변경을 감지해 ${imported.imported.length}개 자료 세트를 업데이트했습니다.`, 'ok');
+      }
+    } catch {
+      // 네트워크/CORS 실패는 현재 데이터를 유지하고 다음 주기에서 재시도한다.
+    } finally {
+      linkedImportSyncInFlight = false;
+    }
+  }
+
+  function startLinkedImportSync() {
+    if (typeof window === 'undefined' || linkedImportSyncTimer !== null) {
+      return;
+    }
+    linkedImportSyncTimer = window.setInterval(() => {
+      void syncLinkedImportIfNeeded();
+    }, getLinkedImportSyncIntervalMs());
+  }
+
+  function stopLinkedImportSync() {
+    if (linkedImportSyncTimer !== null) {
+      clearInterval(linkedImportSyncTimer);
+      linkedImportSyncTimer = null;
+    }
   }
 
   function startScheduleQuietMode() {
@@ -847,7 +1023,7 @@
       source: origin?.source ?? { type: 'manual' },
     };
 
-    persist(upsertDataset(store, nextDataset));
+    persist(withLinkedImport(upsertDataset(store, nextDataset)));
     if (route.kind === 'engine' && editor.engineId === 'dictation') {
       ensureDictationUiStopsIfNeeded();
     }
@@ -857,7 +1033,7 @@
 
   function onDeleteDataset(dataset: DataSetV1) {
     if (!confirm(`"${dataset.title}"를 삭제할까요?`)) return;
-    persist(removeDataset(store, dataset.engineId, dataset.id));
+    persist(withLinkedImport(removeDataset(store, dataset.engineId, dataset.id)));
     if (dataset.engineId === 'dictation' && dictationDatasetId === dataset.id) {
       stopDictationSession();
       dictationDatasetId = null;
@@ -1200,17 +1376,32 @@
             : 'url';
 
     const replaceStore: HomiStoreV1 = createEmptyStore();
-    if (store.ui) {
-      replaceStore.ui = store.ui;
-    }
+    const linkEligible = preview.sourceKind === 'url' && selected.length === preview.candidates.length;
+    const linkedImport =
+      linkEligible && preview.sourceKind === 'url'
+        ? {
+            sourceType: 'url' as const,
+            url: preview.sourceText,
+            signature: computeImportSelectionSignature(selected),
+          }
+        : undefined;
+    replaceStore.ui = {
+      ...(store.ui ?? {}),
+    };
     const imported = importDatasets(replaceStore, selected, sourceType, {
       bundleId: preview.bundle.bundleId,
       sourceUrl: preview.sourceKind === 'url' ? preview.sourceText : undefined,
     });
 
-    persist(imported.nextStore);
+    persist(withLinkedImport(imported.nextStore, linkedImport));
     ensureDictationUiStopsIfNeeded();
-    setMessage(`기존 자료를 교체하고 총 ${imported.imported.length}개 자료 세트를 가져왔습니다.`, 'ok');
+    const linkedMessage =
+      preview.sourceKind !== 'url'
+        ? ''
+        : linkedImport
+          ? ' URL 연결이 저장되어 이후 변경을 자동으로 확인합니다.'
+          : ' 일부만 가져온 URL은 자동 업데이트에 연결되지 않습니다.';
+    setMessage(`기존 자료를 교체하고 총 ${imported.imported.length}개 자료 세트를 가져왔습니다.${linkedMessage}`, 'ok');
     preview = null;
   }
 
@@ -1226,6 +1417,8 @@
     if (!store?.datasetsByEngine) {
       store = createEmptyStore();
     }
+    startHomeClock();
+    startLinkedImportSync();
     startScheduleReminder();
 
     if (route.kind === 'unknown') {
@@ -1254,6 +1447,8 @@
       clearTimeout(homeAlertTimeout);
       homeAlertTimeout = null;
     }
+    stopHomeClock();
+    stopLinkedImportSync();
     stopDictationSession();
     stopScheduleReminder();
   });
@@ -1304,7 +1499,12 @@
           <div class="home-control-box" data-box="3" data-testid="home-control-box-3"></div>
           <div class="home-control-box" data-box="4" data-testid="home-control-box-4"></div>
           <div class="home-control-box" data-box="5" data-testid="home-control-box-5"></div>
-          <div class="home-control-box" data-box="6" data-testid="home-control-box-6"></div>
+          <div class="home-control-box" data-box="6" data-testid="home-control-box-6">
+            <section class="home-clock" data-testid="home-clock" aria-label="현재 날짜와 시간">
+              <p class="home-clock-date" data-testid="home-clock-date">{homeClockDateText}</p>
+              <p class="home-clock-time" data-testid="home-clock-time">{homeClockTimeText}</p>
+            </section>
+          </div>
           <div class="home-control-box" data-box="7" data-testid="home-control-box-7"></div>
           <div class="home-control-box" data-box="8" data-testid="home-control-box-8">
             {#if dictationGameMode && selectedDictationDataset}
@@ -1656,6 +1856,7 @@
             >
               <h3>URL 가져오기</h3>
               <p class="muted">HTTPS JSON URL 또는 공유 링크를 붙여넣거나 바로 열 수 있습니다.</p>
+              <p class="muted" data-testid="backup-url-sync-status">{backupUrlSyncStatusText}</p>
               <div class="inline">
                 <input
                   data-testid="backup-url-input"
@@ -2099,6 +2300,12 @@
     padding-bottom: clamp(8px, 1.8vh, 18px);
   }
 
+  .home-control-box[data-box='6'] {
+    justify-content: flex-end;
+    padding-right: clamp(10px, 2.2vw, 26px);
+    z-index: 4;
+  }
+
   .home-control-box[data-box='9'] {
     align-items: flex-end;
     justify-content: flex-end;
@@ -2189,6 +2396,39 @@
 
   .home-dialog:after {
     display: none;
+  }
+
+  .home-clock {
+    display: grid;
+    gap: 0.2rem;
+    justify-items: end;
+    text-align: right;
+    padding: 0.9rem 1rem;
+    border-radius: 24px;
+    border: 1px solid rgba(84, 117, 153, 0.24);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(233, 243, 255, 0.92) 100%);
+    box-shadow: 0 14px 32px rgba(23, 53, 93, 0.12);
+    backdrop-filter: blur(14px);
+    pointer-events: none;
+  }
+
+  .home-clock-date {
+    font-size: clamp(1.05rem, 1.85vw, 1.55rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #436180;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .home-clock-time {
+    font-size: clamp(2.85rem, 5.8vw, 5rem);
+    line-height: 0.92;
+    font-weight: 900;
+    letter-spacing: -0.06em;
+    color: #133b66;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
 
   @media (max-width: 700px) {

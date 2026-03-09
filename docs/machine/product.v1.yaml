@@ -32,6 +32,14 @@
       "statement": "URL Import는 https 공유 링크 안의 inline bundle(import query/hash)을 fetch 없이 preview 후 confirm으로 처리할 수 있다."
     },
     {
+      "id": "product.import.url_full_bundle_auto_sync",
+      "statement": "URL Import에서 번들 전체를 confirm하면 현재 store는 해당 URL과 연결되고, 앱은 주기적으로 원본 JSON을 다시 가져와 datasets 내용이 바뀌면 replace 방식으로 자동 갱신한다."
+    },
+    {
+      "id": "product.import.url_sync_disconnect_on_local_change",
+      "statement": "URL 연결 상태에서 자료 세트 추가/수정/삭제/enabled 토글 또는 비-URL import가 일어나면 자동 URL 동기화 연결을 해제한다."
+    },
+    {
       "id": "product.import.apply_mode.replace",
       "statement": "Import 적용 모드는 v1에서 replace(전체 교체)만 허용한다."
     },

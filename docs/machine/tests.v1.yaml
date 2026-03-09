@@ -17,6 +17,7 @@
         "ui.home.bubble_visible",
         "ui.home.control_grid_3x3",
         "ui.home.control_box_2.bubble",
+        "ui.home.control_box_6.clock",
         "ui.home.zone_bounds_soft",
         "ui.home.face_large_tablet",
         "ui.home.eyes_prominent",
@@ -43,6 +44,9 @@
         "home-control-grid has 9 control boxes",
         "home-bubble is in control box 2",
         "home-bubble may extend beyond control box 2 into box 1/3 width",
+        "home-clock is visible in control box 6",
+        "home-clock shows date, weekday, and HH:MM",
+        "home-clock time uses large tablet font size",
         "home-robot-name contains 호미",
         "home-status-text absent without alert or quiet mode",
         "home-open-engines are in control box 8",
@@ -154,6 +158,7 @@
         "ui.backup.import_tabs",
         "ui.backup.single_active_panel",
         "ui.backup.schedule_quiet_controls",
+        "ui.backup.url_sync_status",
         "product.import.entry_route.backup_only"
       ],
       "preconditions": [
@@ -166,6 +171,7 @@
         "backup-tablist visible",
         "backup-tab-url/text/file/sample visible in order",
         "backup quiet status and control buttons visible",
+        "backup url sync status visible",
         "only selected backup panel is visible",
         "backup-url/text/file/sample control available by tab switching",
         "backup-export-btn absent",
@@ -504,6 +510,44 @@
         "framework": "playwright",
         "file": "tests/e2e/qa-homi.spec.ts",
         "scenarioTag": "test.p1.import.share_link_preview"
+      }
+    },
+    {
+      "id": "test.p1.import.url_linked_auto_refresh",
+      "title": "URL로 연결된 브레인은 주기 재확인 후 변경 시 자동 교체된다.",
+      "priority": "P1",
+      "type": "automated",
+      "contractRefs": [
+        "product.import.url_full_bundle_auto_sync",
+        "flow.invariant.url_sync_keeps_route",
+        "ui.backup.url_sync_status"
+      ],
+      "preconditions": [
+        "URL import로 전체 bundle confirm",
+        "테스트용 짧은 sync interval 설정",
+        "mock URL bundle이 이후 다른 payload를 반환"
+      ],
+      "actions": [
+        "URL import confirm",
+        "mock payload 변경 후 sync interval 대기"
+      ],
+      "assertions": [
+        "backup-url-sync-status shows connected URL",
+        "변경 전 dataset title visible",
+        "변경 후 dataset title이 수동 confirm 없이 갱신됨",
+        "자동 갱신 후 current route 유지"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/backup.overlay*.meta.json"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p1.import.url_linked_auto_refresh"
       }
     },
     {

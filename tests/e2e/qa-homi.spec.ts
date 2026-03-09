@@ -48,6 +48,20 @@ function buildSharedImportPath(bundleText: string) {
   return `/brain?import=${encoded}`;
 }
 
+function buildBundleText(datasets: unknown[], bundleId = 'bundle_sync') {
+  return JSON.stringify(
+    {
+      format: 'homi',
+      version: 1,
+      bundleType: 'import',
+      bundleId,
+      datasets,
+    },
+    null,
+    2,
+  );
+}
+
 async function openBackupAndImportFixture(page: Page, fixturePath: string) {
   await openBackupAndPreviewFixture(page, fixturePath);
   await page.getByTestId('backup-confirm').click();
@@ -128,6 +142,15 @@ async function expectSettingsIconButtonInBox9(page: Page) {
   expect(buttonBox!.y + buttonBox!.height).toBeGreaterThan(zoneBox!.y + zoneBox!.height - 36);
 }
 
+async function expectHomeClockInBox6(page: Page) {
+  const clock = page.getByTestId('home-control-box-6').getByTestId('home-clock');
+  await expect(clock).toBeVisible();
+  await expect(page.getByTestId('home-clock-date')).toHaveText(
+    /^\d{4}\.\d{2}\.\d{2} (일|월|화|수|목|금|토)요일$/,
+  );
+  await expect(page.getByTestId('home-clock-time')).toHaveText(/^\d{2}:\d{2}$/);
+}
+
 async function selectFirstDictationDataset(page: Page) {
   const selectButton = page.getByTestId('dataset-open').first();
   await expect(selectButton).toBeVisible();
@@ -167,10 +190,12 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByTestId('home-control-box-8').getByTestId('home-open-engines')).toBeVisible();
     await expect(page.locator('[data-testid="global-header"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="global-nav"]')).toHaveCount(0);
+    await expectHomeClockInBox6(page);
     const faceRect = await getFaceRect(page);
     expect(faceRect.width).toBeGreaterThanOrEqual(620);
     expect(await getSelectorSizePx(page, '.home-face__eye', 'width')).toBeGreaterThanOrEqual(100);
     expect(await getFontSizePx(page, 'home-robot-name')).toBeGreaterThanOrEqual(60);
+    expect(await getFontSizePx(page, 'home-clock-time')).toBeGreaterThanOrEqual(56);
     expect(await getFontSizePx(page, 'home-open-backup')).toBeGreaterThanOrEqual(22);
     await expectBubbleCanOverflowZone(page);
     await expectSettingsIconButtonInBox9(page);
@@ -184,6 +209,9 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-control-grid has 9 control boxes',
       'home-bubble is in control box 2',
       'home-bubble may overflow box 2 into adjacent zones',
+      'home-clock is visible in control box 6',
+      'home-clock shows date, weekday, and HH:MM',
+      'home-clock time uses large tablet font size',
       'home-robot-name shows 호미',
       'home-status-text is absent without alert or quiet mode',
       'toast-root is absent on home face screen',
@@ -267,6 +295,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByTestId('backup-quiet-status')).toContainText('현재 상태: 꺼짐');
     await expect(page.getByTestId('backup-quiet-enable')).toBeVisible();
     await expect(page.getByTestId('backup-quiet-clear')).toBeDisabled();
+    await expect(page.getByTestId('backup-url-sync-status')).toContainText('현재 URL 자동 업데이트 연결 없음');
     await expect(page.getByTestId('backup-panel-url')).toBeVisible();
     await expect(page.getByTestId('backup-panel-text')).toBeHidden();
     await expect(page.getByTestId('backup-panel-file')).toBeHidden();
@@ -293,6 +322,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'backup-tablist is visible',
       'backup-tab-url/text/file/sample are visible in order',
       'backup quiet status and control buttons are visible',
+      'backup url sync status is visible',
       'backup panels switch with tab selection',
       'backup-panel-sample is visible when sample tab selected',
       'backup url/text/file/sample controls are available by tab switching',
@@ -510,6 +540,64 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByTestId('backup-preview')).toBeVisible({ timeout: 8_000 });
     await expect(page.getByTestId('backup-confirm')).toBeVisible();
     await expect(page).toHaveURL(/\/brain$/);
+  });
+
+  test('[test.p1.import.url_linked_auto_refresh] URL로 연결된 브레인은 변경 시 자동 갱신되어야 한다', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      (window as Window & { __HOMI_URL_SYNC_INTERVAL_MS__?: number }).__HOMI_URL_SYNC_INTERVAL_MS__ = 100;
+    });
+
+    const remoteUrl = 'https://sync.example.com/homi-sync.json';
+    let remoteBundleText = buildBundleText([
+      {
+        id: 'schedule_sync_1',
+        engineId: 'schedule',
+        engineSchemaVersion: 1,
+        title: '원격 일정 A',
+        items: [{ date: '2026-03-09', title: '원격 일정 A', timeStart: '09:00' }],
+      },
+    ]);
+
+    await page.route(remoteUrl, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: {
+          'access-control-allow-origin': '*',
+        },
+        body: remoteBundleText,
+      });
+    });
+
+    await resetLocalData(page);
+    await page.goto('/brain');
+    await selectBackupTab(page, 'URL 가져오기');
+    await expect(page.getByTestId('backup-url-sync-status')).toContainText('현재 URL 자동 업데이트 연결 없음');
+
+    await page.getByTestId('backup-url-input').fill(remoteUrl);
+    await page.getByTestId('backup-url-preview-btn').click();
+    await expect(page.getByTestId('backup-preview')).toBeVisible({ timeout: 8_000 });
+    await page.getByTestId('backup-confirm').click();
+    await expect(page.getByText(/기존 자료를 교체하고 총 1개 자료 세트를 가져왔습니다\./)).toBeVisible();
+    await expect(page.getByTestId('backup-url-sync-status')).toContainText(remoteUrl);
+
+    await page.goto('/engines/schedule');
+    await expect(page.getByRole('heading', { name: '원격 일정 A' })).toBeVisible();
+
+    remoteBundleText = buildBundleText([
+      {
+        id: 'schedule_sync_1',
+        engineId: 'schedule',
+        engineSchemaVersion: 1,
+        title: '원격 일정 B',
+        items: [{ date: '2026-03-09', title: '원격 일정 B', timeStart: '10:00' }],
+      },
+    ]);
+
+    await expect(page.getByRole('heading', { name: '원격 일정 B' })).toBeVisible({ timeout: 5_000 });
+    await expect(page).toHaveURL(/\/engines\/schedule$/);
   });
 
   test('[test.p1.schedule.quiet_mode_suppresses_reminders] 30분 조용히 모드가 켜져 있으면 schedule 알림은 무시되어야 한다', async ({

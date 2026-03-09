@@ -12,6 +12,12 @@ export interface SourceV1 {
   originalDatasetId?: string;
 }
 
+export interface LinkedUrlImportV1 {
+  sourceType: 'url';
+  url: string;
+  signature: string;
+}
+
 export interface DataSetPayloadV1 {
   id?: string;
   engineId: EngineId;
@@ -32,6 +38,7 @@ export interface DataSetV1 extends DataSetPayloadV1 {
 export interface HomiStoreUI {
   lastOpenedEngineId?: string;
   scheduleQuietUntil?: string;
+  linkedImport?: LinkedUrlImportV1;
 }
 
 export interface HomiStoreV1 {
@@ -145,6 +152,12 @@ const SourceSchema = z
   })
   .passthrough();
 
+const LinkedUrlImportSchema = z.strictObject({
+  sourceType: z.literal('url'),
+  url: z.string().trim().min(1).max(2000),
+  signature: z.string().trim().min(1).max(128),
+});
+
 const ScheduleItemSchema = z
   .object({
     date: z.string().regex(DATE_RE),
@@ -223,6 +236,7 @@ const StoreSchema = z
       .object({
         lastOpenedEngineId: z.string().optional(),
         scheduleQuietUntil: z.string().optional(),
+        linkedImport: LinkedUrlImportSchema.optional(),
       })
       .passthrough()
       .optional(),
@@ -235,6 +249,27 @@ function nowIso(): string {
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function stableSortValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => stableSortValue(item));
+  }
+  if (!isPlainObject(value)) {
+    return value;
+  }
+
+  const sortedEntries = Object.entries(value).sort(([left], [right]) => left.localeCompare(right));
+  return Object.fromEntries(sortedEntries.map(([key, nested]) => [key, stableSortValue(nested)]));
+}
+
+function fnv1aHex(text: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
 function validateEngineItem(engineId: EngineId, item: unknown): boolean {
@@ -271,6 +306,10 @@ export function createEmptyStore(): HomiStoreV1 {
     datasetsByEngine: {},
     ui: {},
   };
+}
+
+export function computeImportSelectionSignature(selected: DataSetPayloadV1[]): string {
+  return fnv1aHex(JSON.stringify(stableSortValue(selected)));
 }
 
 function normalizeDatasetPayload(payload: DataSetPayloadV1, index: number, errors: string[]): DataSetPayloadV1 | null {

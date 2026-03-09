@@ -71,6 +71,9 @@
       "id": "flow.event.import.cancel"
     },
     {
+      "id": "flow.event.import.url_sync_tick"
+    },
+    {
       "id": "flow.event.schedule.reminder_tick"
     },
     {
@@ -207,6 +210,20 @@
       "statement": "import confirm 전에 preview 상태가 존재해야 한다.",
       "contractRefs": [
         "product.import.preview_required"
+      ]
+    },
+    {
+      "id": "flow.invariant.url_sync_keeps_route",
+      "statement": "URL 연결 브레인 자동 동기화는 현재 route/mode를 유지한 채 store만 replace 업데이트한다.",
+      "contractRefs": [
+        "product.import.url_full_bundle_auto_sync"
+      ]
+    },
+    {
+      "id": "flow.invariant.url_sync_disconnect_on_local_change",
+      "statement": "자료 세트의 로컬 변경이나 비-URL import가 발생하면 이후 url_sync_tick은 더 이상 자동 replace를 수행하지 않는다.",
+      "contractRefs": [
+        "product.import.url_sync_disconnect_on_local_change"
       ]
     },
     {
