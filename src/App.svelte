@@ -2339,7 +2339,7 @@
   .home-control-box[data-box='6'] {
     align-items: stretch;
     justify-content: center;
-    padding: clamp(6px, 1.2vw, 14px);
+    padding: clamp(10px, 1.4vw, 16px);
     z-index: 4;
   }
 
@@ -2436,10 +2436,10 @@
   }
 
   .home-clock {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-end;
+    display: grid;
+    justify-items: end;
+    align-content: center;
+    gap: clamp(0.35rem, 0.9vmin, 0.75rem);
     width: 100%;
     height: 100%;
     box-sizing: border-box;
