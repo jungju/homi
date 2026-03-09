@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/flows.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-07",
+  "updated": "2026-03-09",
   "states": [
     {
       "id": "flow.state.home.idle",
@@ -72,6 +72,9 @@
     },
     {
       "id": "flow.event.schedule.reminder_tick"
+    },
+    {
+      "id": "flow.event.schedule.quiet_mode_start"
     }
   ],
   "transitions": [
@@ -171,6 +174,16 @@
       ]
     },
     {
+      "id": "flow.schedule.quiet_mode_start",
+      "from": "flow.state.backup.overlay",
+      "event": "flow.event.schedule.quiet_mode_start",
+      "to": "flow.state.backup.overlay",
+      "contractRefs": [
+        "product.schedule.quiet_mode_30m_suppresses_reminders",
+        "ui.backup.schedule_quiet_controls"
+      ]
+    },
+    {
       "id": "flow.schedule.reminder_non_interrupt",
       "from": "flow.state.home.dictation.running",
       "event": "flow.event.schedule.reminder_tick",
@@ -220,6 +233,13 @@
       "statement": "dictation running 중 schedule 알림은 상태 전이를 강제하지 않는다.",
       "contractRefs": [
         "product.schedule.no_os_notification_during_dictation"
+      ]
+    },
+    {
+      "id": "flow.invariant.schedule_quiet_mode_suppresses_effects",
+      "statement": "schedule quiet mode가 켜져 있으면 due reminder는 소비되더라도 알림 제목/OS notification/음성 출력은 발생시키지 않고, 홈에는 quiet mode 상태 문구만 남길 수 있다.",
+      "contractRefs": [
+        "product.schedule.quiet_mode_30m_suppresses_reminders"
       ]
     }
   ],

@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/ui.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-07",
+  "updated": "2026-03-09",
   "rules": [
     {
       "id": "ui.home.face_visible",
@@ -21,7 +21,11 @@
     },
     {
       "id": "ui.home.default_text_minimal",
-      "statement": "기본 모드에서 active alert/error가 없으면 home-status-text와 home-mode-text를 렌더하지 않는다."
+      "statement": "기본 모드에서 active alert/error/quiet mode가 없으면 home-status-text와 home-mode-text를 렌더하지 않는다."
+    },
+    {
+      "id": "ui.home.quiet_mode_text_visible",
+      "statement": "기본 모드에서 quiet mode가 활성화되면 home-status-text에 quiet mode 진행 상태 문구가 표시된다."
     },
     {
       "id": "ui.home.control_grid_3x3",
@@ -102,6 +106,10 @@
     {
       "id": "ui.backup.single_active_panel",
       "statement": "브레인 설정 overlay에서는 한 번에 하나의 가져오기 패널만 활성화되며, backup-panel-url/text/file/sample 중 현재 선택된 탭의 패널만 보인다."
+    },
+    {
+      "id": "ui.backup.schedule_quiet_controls",
+      "statement": "브레인 설정 overlay에는 30분 조용히 시작/해제 버튼과 현재 상태 문구(backup-quiet-enable, backup-quiet-clear, backup-quiet-status)가 표시된다."
     },
     {
       "id": "ui.engine.no_backup_import_controls",
@@ -223,6 +231,9 @@
         "backup-tab-text",
         "backup-tab-file",
         "backup-tab-sample",
+        "backup-quiet-status",
+        "backup-quiet-enable",
+        "backup-quiet-clear",
         "backup-panel-url",
         "backup-panel-text",
         "backup-panel-file",

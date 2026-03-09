@@ -43,6 +43,11 @@ async function openBackupAndPreviewFixture(page: Page, fixturePath: string) {
   await openBackupAndPreviewText(page, bundleText);
 }
 
+function buildSharedImportPath(bundleText: string) {
+  const encoded = Buffer.from(bundleText, 'utf8').toString('base64url');
+  return `/brain?import=${encoded}`;
+}
+
 async function openBackupAndImportFixture(page: Page, fixturePath: string) {
   await openBackupAndPreviewFixture(page, fixturePath);
   await page.getByTestId('backup-confirm').click();
@@ -180,7 +185,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-bubble is in control box 2',
       'home-bubble may overflow box 2 into adjacent zones',
       'home-robot-name shows 호미',
-      'home-status-text is absent without alert',
+      'home-status-text is absent without alert or quiet mode',
       'toast-root is absent on home face screen',
       'home-open-engines is in control box 8',
       'home-open-backup icon button is in control box 9 right bottom',
@@ -259,6 +264,9 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByRole('tab', { name: '텍스트로 가져오기' })).toBeVisible();
     await expect(page.getByRole('tab', { name: '파일로 가져오기' })).toBeVisible();
     await expect(page.getByRole('tab', { name: '샘플 가져오기' })).toBeVisible();
+    await expect(page.getByTestId('backup-quiet-status')).toContainText('현재 상태: 꺼짐');
+    await expect(page.getByTestId('backup-quiet-enable')).toBeVisible();
+    await expect(page.getByTestId('backup-quiet-clear')).toBeDisabled();
     await expect(page.getByTestId('backup-panel-url')).toBeVisible();
     await expect(page.getByTestId('backup-panel-text')).toBeHidden();
     await expect(page.getByTestId('backup-panel-file')).toBeHidden();
@@ -284,6 +292,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await captureState(page, 'backup.overlay', '미리보기', [
       'backup-tablist is visible',
       'backup-tab-url/text/file/sample are visible in order',
+      'backup quiet status and control buttons are visible',
       'backup panels switch with tab selection',
       'backup-panel-sample is visible when sample tab selected',
       'backup url/text/file/sample controls are available by tab switching',
@@ -487,6 +496,96 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       () => (window as Window & { __homiAlertCount?: number }).__homiAlertCount ?? 0,
     );
     expect(alertCount).toBe(0);
+  });
+
+  test('[test.p1.import.share_link_preview] 공유 링크 import는 /brain 진입 시 자동 preview를 만들어야 한다', async ({
+    page,
+  }) => {
+    await resetLocalData(page);
+    const bundleText = readFileSync(resolve('tests/fixtures/bundle.min.v1.json'), 'utf8');
+
+    await page.goto(buildSharedImportPath(bundleText));
+
+    await expect(page.getByTestId('overlay-root')).toHaveAttribute('data-overlay-kind', 'backup');
+    await expect(page.getByTestId('backup-preview')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByTestId('backup-confirm')).toBeVisible();
+    await expect(page).toHaveURL(/\/brain$/);
+  });
+
+  test('[test.p1.schedule.quiet_mode_suppresses_reminders] 30분 조용히 모드가 켜져 있으면 schedule 알림은 무시되어야 한다', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      const notificationStats = { count: 0 };
+      const NotificationMock = class NotificationMock {
+        static permission = 'granted';
+
+        constructor() {
+          notificationStats.count += 1;
+        }
+      };
+
+      const synth =
+        window.speechSynthesis ??
+        ({
+          speaking: false,
+          cancel() {},
+          getVoices() {
+            return [];
+          },
+        } as SpeechSynthesis);
+
+      let speakCount = 0;
+      synth.speak = () => {
+        speakCount += 1;
+      };
+      synth.speaking = false;
+
+      Object.defineProperty(window, '__homiNotificationCount', {
+        configurable: true,
+        get() {
+          return notificationStats.count;
+        },
+      });
+      Object.defineProperty(window, '__homiSpeechCount', {
+        configurable: true,
+        get() {
+          return speakCount;
+        },
+      });
+      Object.defineProperty(window, 'Notification', {
+        configurable: true,
+        writable: true,
+        value: NotificationMock,
+      });
+      Object.defineProperty(window, 'speechSynthesis', {
+        configurable: true,
+        writable: true,
+        value: synth,
+      });
+    });
+
+    await resetLocalData(page);
+    await openBackupAndImportFixture(page, 'tests/fixtures/bundle.min.v1.json');
+    await page.goto('/brain');
+
+    await expect(page.getByTestId('backup-quiet-status')).toContainText('현재 상태: 꺼짐');
+    await page.getByTestId('backup-quiet-enable').click();
+    await expect(page.getByTestId('backup-quiet-status')).toContainText('분 남음');
+    await expect(page.getByTestId('backup-quiet-clear')).toBeEnabled();
+
+    await page.goto('/');
+    await page.waitForTimeout(3_200);
+
+    await expect(page.getByTestId('home-status-text')).toContainText('알림 조용히 중');
+    await expect(page.getByTestId('home-status-text')).toContainText('분 남음');
+    await expect(page.getByTestId('home-status-text')).not.toContainText('Ping');
+    expect(
+      await page.evaluate(() => (window as Window & { __homiNotificationCount?: number }).__homiNotificationCount ?? 0),
+    ).toBe(0);
+    expect(
+      await page.evaluate(() => (window as Window & { __homiSpeechCount?: number }).__homiSpeechCount ?? 0),
+    ).toBe(0);
   });
 
   test('[test.p1.schedule.toggle_enabled] 스케줄 비활성 세트는 알림 대상에서 제외되어야 한다', async ({ page }) => {

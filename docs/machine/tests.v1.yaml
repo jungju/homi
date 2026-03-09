@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/tests.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-07",
+  "updated": "2026-03-09",
   "scenarios": [
     {
       "id": "test.p0.home.base_layout",
@@ -44,7 +44,7 @@
         "home-bubble is in control box 2",
         "home-bubble may extend beyond control box 2 into box 1/3 width",
         "home-robot-name contains 호미",
-        "home-status-text absent without alert",
+        "home-status-text absent without alert or quiet mode",
         "home-open-engines are in control box 8",
         "home-open-backup icon button is in control box 9 right bottom",
         "home-bubble visible",
@@ -153,6 +153,7 @@
         "ui.backup.no_full_export_action",
         "ui.backup.import_tabs",
         "ui.backup.single_active_panel",
+        "ui.backup.schedule_quiet_controls",
         "product.import.entry_route.backup_only"
       ],
       "preconditions": [
@@ -164,6 +165,7 @@
       "assertions": [
         "backup-tablist visible",
         "backup-tab-url/text/file/sample visible in order",
+        "backup quiet status and control buttons visible",
         "only selected backup panel is visible",
         "backup-url/text/file/sample control available by tab switching",
         "backup-export-btn absent",
@@ -467,6 +469,81 @@
         "framework": "playwright",
         "file": "tests/e2e/qa-homi.spec.ts",
         "scenarioTag": "test.p0.security.text_render_only"
+      }
+    },
+    {
+      "id": "test.p1.import.share_link_preview",
+      "title": "공유 링크 import는 /brain 진입 시 자동으로 preview를 만든다.",
+      "priority": "P1",
+      "type": "automated",
+      "contractRefs": [
+        "product.import.url_share_link_inline_bundle",
+        "product.import.preview_required",
+        "product.import.entry_route.backup_only"
+      ],
+      "preconditions": [
+        "share link encoded bundle 준비"
+      ],
+      "actions": [
+        "/brain?import=<payload> 로 접속"
+      ],
+      "assertions": [
+        "backup overlay visible",
+        "backup-preview visible",
+        "backup-confirm visible",
+        "URL import payload cleared from location bar"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/backup.overlay*.png"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p1.import.share_link_preview"
+      }
+    },
+    {
+      "id": "test.p1.schedule.quiet_mode_suppresses_reminders",
+      "title": "30분 조용히 모드가 켜져 있으면 schedule 알림은 무시된다.",
+      "priority": "P1",
+      "type": "automated",
+      "contractRefs": [
+        "product.schedule.quiet_mode_30m_suppresses_reminders",
+        "flow.schedule.quiet_mode_start",
+        "flow.invariant.schedule_quiet_mode_suppresses_effects",
+        "ui.backup.schedule_quiet_controls",
+        "ui.home.quiet_mode_text_visible"
+      ],
+      "preconditions": [
+        "schedule dataset repeatIntervalSec > 0",
+        "브레인 설정 overlay open"
+      ],
+      "actions": [
+        "backup-quiet-enable 클릭",
+        "reminder tick 대기"
+      ],
+      "assertions": [
+        "backup-quiet-status shows remaining time",
+        "home-status-text shows quiet mode state while quiet mode active",
+        "home-status-text does not show reminder title while quiet mode active",
+        "OS notification 미발생",
+        "speech output 미발생"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/backup.overlay*.png"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p1.schedule.quiet_mode_suppresses_reminders"
       }
     },
     {

@@ -6,6 +6,7 @@
     type DataSetPayloadV1,
     type EngineId,
     type HomiBundleV1,
+    type HomiStoreUI,
     type HomiStoreV1,
     buildBundleFromDatasetIds,
     createEmptyStore,
@@ -64,6 +65,7 @@
   type BackupTabId = 'url' | 'text' | 'file' | 'sample';
   const BRAIN_ROUTE_PATH = '/brain';
   const LEGACY_BACKUP_ROUTE_PATH = '/backup';
+  const SHARED_IMPORT_PARAM = 'import';
   const BACKUP_TABS: { id: BackupTabId; label: string }[] = [
     { id: 'url', label: 'URL 가져오기' },
     { id: 'text', label: '텍스트로 가져오기' },
@@ -93,6 +95,7 @@
   let importJsonText = '';
   let scheduleReminderTimer: number | null = null;
   let scheduleReminderLastFired = new Map<string, number>();
+  let scheduleTickNow = Date.now();
   let reminderPermissionWarned = false;
   let dictationDatasetId: string | null = null;
   let dictationMode: DictationWriteMode = 'korean';
@@ -107,12 +110,16 @@
   let homeModeText = '';
   let homeStatusText = '';
   let homeStatusTone: 'default' | 'alert' | 'error' | 'running' = 'default';
+  let scheduleQuietModeActive = false;
+  let scheduleQuietStatusText = '현재 상태: 꺼짐';
+  let homeQuietStatusText = '';
   const LIMIT_BYTES = MAX_BUNDLE_JSON_BYTES;
   const LIMIT_DATASETS = MAX_DATASET_COUNT_PER_BUNDLE;
   const LIMIT_ITEMS = MAX_ITEMS_PER_DATASET;
   const SCHEDULE_REMINDER_TICK_MS = 1000;
   const DICTATION_INTERVAL_MS = 10_000;
   const HOME_ALERT_VISIBILITY_MS = 8_000;
+  const SCHEDULE_QUIET_MODE_MS = 30 * 60 * 1000;
 
   const ENGINE_VISUALS: Record<EngineId, { icon: string; accent: string; bg: string }> = {
     schedule: {
@@ -225,6 +232,7 @@
   function tickScheduleReminder() {
     const reminders = getDatasetsByEngine(store, 'schedule').filter((dataset) => isDatasetEnabled(dataset));
     const now = Date.now();
+    scheduleTickNow = now;
     const validKeys = new Set<string>();
     const intervalCandidates: Array<{ datasetTitle: string; item: Record<string, unknown> }> = [];
 
@@ -259,6 +267,10 @@
 
     cleanupReminderState(validKeys);
     if (intervalCandidates.length === 0) {
+      return;
+    }
+
+    if (scheduleQuietModeActive) {
       return;
     }
 
@@ -306,11 +318,23 @@
             : 'proud';
   $: displayMood = blink ? 'wink' : homeMood;
   $: homeModeText = dictationGameMode ? '현재 모드: 받아쓰기 실행모드' : '';
+  $: {
+    const quietUntilMs = getScheduleQuietUntilMs();
+    scheduleQuietModeActive = quietUntilMs !== null && quietUntilMs > scheduleTickNow;
+    scheduleQuietStatusText = scheduleQuietModeActive
+      ? `현재 상태: ${Math.ceil((quietUntilMs! - scheduleTickNow) / 60_000)}분 남음`
+      : '현재 상태: 꺼짐';
+    homeQuietStatusText = scheduleQuietModeActive
+      ? `알림 조용히 중 · ${Math.ceil((quietUntilMs! - scheduleTickNow) / 60_000)}분 남음`
+      : '';
+  }
   $:
     homeStatusText = dictationGameMode
       ? '받아쓰기를 진행하고 있어요'
       : homeAlertText
         ? homeAlertText
+        : route.kind === 'home' && scheduleQuietModeActive
+          ? homeQuietStatusText
         : message && route.kind === 'home'
           ? message.text
           : '';
@@ -602,6 +626,48 @@
     }
     route = parseRoute(canonicalPath);
     applyRouteSideEffects();
+    maybeLoadSharedImportFromLocation();
+  }
+
+  function getScheduleQuietUntilMs() {
+    const rawValue = store.ui?.scheduleQuietUntil;
+    if (!rawValue) {
+      return null;
+    }
+
+    const parsed = Date.parse(rawValue);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function updateStoreUi(patch: Partial<HomiStoreUI>) {
+    const nextUi: Record<string, string | undefined> = {
+      ...(store.ui ?? {}),
+      ...patch,
+    };
+
+    Object.keys(nextUi).forEach((key) => {
+      if (nextUi[key] === undefined) {
+        delete nextUi[key];
+      }
+    });
+
+    persist({
+      ...store,
+      ui: nextUi,
+    });
+  }
+
+  function startScheduleQuietMode() {
+    const quietUntil = new Date(Date.now() + SCHEDULE_QUIET_MODE_MS).toISOString();
+    scheduleTickNow = Date.now();
+    updateStoreUi({ scheduleQuietUntil: quietUntil });
+    setMessage('30분 동안 스케줄 알림을 무시합니다.', 'ok');
+  }
+
+  function clearScheduleQuietMode() {
+    scheduleTickNow = Date.now();
+    updateStoreUi({ scheduleQuietUntil: undefined });
+    setMessage('조용히 모드를 해제했습니다.', 'ok');
   }
 
   function applyRouteSideEffects() {
@@ -855,6 +921,22 @@
       return;
     }
 
+    const sharedImport = resolveSharedImportPayload(normalized.url);
+    if (sharedImport) {
+      if (!sharedImport.ok) {
+        setMessage(sharedImport.error, 'error');
+        return;
+      }
+      if (new TextEncoder().encode(sharedImport.text).byteLength > LIMIT_BYTES) {
+        setMessage(`공유 링크 JSON 크기가 제한(${prettyBytes(LIMIT_BYTES)})을 초과했습니다.`, 'error');
+        return;
+      }
+      if (applyPreview(sharedImport.text, 'text', sharedImport.sourceText)) {
+        importUrl = '';
+      }
+      return;
+    }
+
     try {
       const response = await fetch(normalized.url);
       if (!response.ok) {
@@ -955,6 +1037,112 @@
       candidates,
     };
     return true;
+  }
+
+  function extractSharedImportToken(url: URL) {
+    const queryValue = url.searchParams.get(SHARED_IMPORT_PARAM);
+    if (queryValue) {
+      return queryValue;
+    }
+
+    const hashText = url.hash.startsWith('#') ? url.hash.slice(1) : url.hash;
+    if (!hashText) {
+      return null;
+    }
+
+    const hashParams = new URLSearchParams(hashText);
+    return hashParams.get(SHARED_IMPORT_PARAM);
+  }
+
+  function decodeBase64UrlUtf8(raw: string) {
+    const normalized = raw.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=');
+    const binary = atob(padded);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    return new TextDecoder().decode(bytes);
+  }
+
+  function resolveSharedImportPayload(rawUrl: string):
+    | { ok: true; text: string; sourceText: string }
+    | { ok: false; error: string }
+    | null {
+    try {
+      const parsedUrl = new URL(rawUrl, window.location.origin);
+      const token = extractSharedImportToken(parsedUrl);
+      if (!token) {
+        return null;
+      }
+
+      const text = decodeBase64UrlUtf8(token.trim());
+      return {
+        ok: true,
+        text,
+        sourceText: '공유 링크',
+      };
+    } catch {
+      return {
+        ok: false,
+        error: '공유 링크를 해석할 수 없습니다.',
+      };
+    }
+  }
+
+  function removeSharedImportParam(rawUrl: string) {
+    const parsedUrl = new URL(rawUrl, window.location.origin);
+    let changed = false;
+
+    if (parsedUrl.searchParams.has(SHARED_IMPORT_PARAM)) {
+      parsedUrl.searchParams.delete(SHARED_IMPORT_PARAM);
+      changed = true;
+    }
+
+    const hashText = parsedUrl.hash.startsWith('#') ? parsedUrl.hash.slice(1) : parsedUrl.hash;
+    if (hashText) {
+      const hashParams = new URLSearchParams(hashText);
+      if (hashParams.has(SHARED_IMPORT_PARAM)) {
+        hashParams.delete(SHARED_IMPORT_PARAM);
+        parsedUrl.hash = hashParams.toString() ? `#${hashParams.toString()}` : '';
+        changed = true;
+      }
+    }
+
+    if (!changed) {
+      return null;
+    }
+
+    return `${canonicalizeRoutePath(parsedUrl.pathname)}${parsedUrl.search}${parsedUrl.hash}`;
+  }
+
+  function maybeLoadSharedImportFromLocation() {
+    if (route.kind !== 'backup') {
+      return;
+    }
+
+    const sharedImport = resolveSharedImportPayload(window.location.href);
+    if (!sharedImport) {
+      return;
+    }
+
+    const cleanedPath = removeSharedImportParam(window.location.href);
+    if (cleanedPath) {
+      history.replaceState({}, '', cleanedPath);
+    }
+
+    if (!sharedImport.ok) {
+      preview = null;
+      setMessage(sharedImport.error, 'error');
+      return;
+    }
+
+    if (new TextEncoder().encode(sharedImport.text).byteLength > LIMIT_BYTES) {
+      setMessage(`공유 링크 JSON 크기가 제한(${prettyBytes(LIMIT_BYTES)})을 초과했습니다.`, 'error');
+      return;
+    }
+
+    applyPreview(sharedImport.text, 'text', sharedImport.sourceText);
   }
 
   async function importFromFile(event: Event) {
@@ -1411,6 +1599,25 @@
           </section>
 
           <section class="card">
+            <h2>알림 관리</h2>
+            <p data-testid="backup-quiet-status" class="muted">{scheduleQuietStatusText}</p>
+            <div class="inline">
+              <button type="button" data-testid="backup-quiet-enable" on:click={startScheduleQuietMode}>
+                {scheduleQuietModeActive ? '30분 더 조용히' : '30분간 조용히'}
+              </button>
+              <button
+                type="button"
+                data-testid="backup-quiet-clear"
+                on:click={clearScheduleQuietMode}
+                disabled={!scheduleQuietModeActive}
+              >
+                지금 해제
+              </button>
+            </div>
+            <p class="muted">조용히 모드 동안 schedule 알림은 홈 문구, 브라우저 알림, 음성 출력 없이 무시됩니다.</p>
+          </section>
+
+          <section class="card">
             <h2>브레인 입력</h2>
             <p class="muted">가져오기 방식은 탭으로 전환합니다.</p>
             <div
@@ -1448,6 +1655,7 @@
               hidden={backupTab !== 'url'}
             >
               <h3>URL 가져오기</h3>
+              <p class="muted">HTTPS JSON URL 또는 공유 링크를 붙여넣거나 바로 열 수 있습니다.</p>
               <div class="inline">
                 <input
                   data-testid="backup-url-input"
@@ -1788,6 +1996,11 @@
 
   button:hover {
     background: var(--button-hover-bg);
+  }
+
+  button:disabled {
+    opacity: 0.55;
+    cursor: default;
   }
 
   .active {

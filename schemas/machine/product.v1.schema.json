@@ -306,6 +306,27 @@
             }
           }
         },
+        "quietMode": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "durationMinutes",
+            "suppressChannels"
+          ],
+          "properties": {
+            "durationMinutes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "suppressChannels": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "default": {
           "type": "object",
           "additionalProperties": false,

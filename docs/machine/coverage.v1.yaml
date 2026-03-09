@@ -5,17 +5,17 @@
   "schemaRef": "schemas/machine/coverage.v1.schema.json",
   "authoritative": false,
   "generated": true,
-  "generatedAt": "2026-03-07T17:54:42.307Z",
+  "generatedAt": "2026-03-08T16:06:43.166Z",
   "generatedFrom": {
     "testsContract": "docs/machine/tests.v1.yaml",
     "testCode": [
       "tests/e2e/qa-homi.spec.ts"
     ],
-    "testResults": "test-results/.last-run.json#status=missing"
+    "testResults": "test-results/.last-run.json#status=passed"
   },
   "summary": {
-    "totalScenarios": 16,
-    "coveredScenarios": 13,
+    "totalScenarios": 18,
+    "coveredScenarios": 15,
     "partialScenarios": 1,
     "gapScenarios": 2
   },
@@ -122,6 +122,24 @@
     {
       "scenarioId": "test.p0.security.text_render_only",
       "priority": "P0",
+      "type": "automated",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p1.import.share_link_preview",
+      "priority": "P1",
+      "type": "automated",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p1.schedule.quiet_mode_suppresses_reminders",
+      "priority": "P1",
       "type": "automated",
       "coverageStatus": "covered",
       "evidence": [
