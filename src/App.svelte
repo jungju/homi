@@ -222,9 +222,15 @@
 
   $: homeClockDateText = formatHomeClockDate(homeClockNow);
   $: homeClockTimeText = formatHomeClockTime(homeClockNow);
-  $: backupUrlSyncStatusText = store.ui?.linkedImport
-    ? `URL 자동 업데이트 연결됨: ${store.ui.linkedImport.url}`
-    : '현재 URL 자동 업데이트 연결 없음';
+  $: {
+    const linkedImport =
+      store.ui?.linkedImport?.sourceType === 'url' ? store.ui.linkedImport : null;
+    backupUrlSyncStatusText = !linkedImport
+      ? '현재 URL 자동 업데이트 연결 없음'
+      : linkedImport.signature
+        ? `URL 자동 업데이트 연결됨: ${linkedImport.url}`
+        : `저장된 URL 유지 중(자동 업데이트 연결 안 됨): ${linkedImport.url}`;
+  }
 
   function getReminderKey(datasetId: string, itemIndex: number) {
     return `${datasetId}:${itemIndex}`;
@@ -505,7 +511,7 @@
       meta: nextMeta,
       updatedAt: now,
     };
-    persist(withLinkedImport(upsertDataset(store, nextDataset)));
+    persist(preserveRememberedLinkedImport(upsertDataset(store, nextDataset)));
     setMessage(
       `${dataset.title}를 ${nextEnabled ? '사용' : '사용안함'} 상태로 바꿨습니다.`,
       'ok',
@@ -715,11 +721,19 @@
     });
   }
 
-  function currentLinkedImport(): LinkedUrlImportV1 | null {
+  function rememberedLinkedImport(): LinkedUrlImportV1 | null {
     return store.ui?.linkedImport?.sourceType === 'url' ? store.ui.linkedImport : null;
   }
 
-  function withLinkedImport(baseStore: HomiStoreV1, linkedImport?: LinkedUrlImportV1): HomiStoreV1 {
+  function currentLinkedImport(): LinkedUrlImportV1 | null {
+    const linkedImport = rememberedLinkedImport();
+    if (!linkedImport?.signature) {
+      return null;
+    }
+    return linkedImport;
+  }
+
+  function withLinkedImport(baseStore: HomiStoreV1, linkedImport?: LinkedUrlImportV1 | null): HomiStoreV1 {
     const nextUi: HomiStoreUI = {
       ...(baseStore.ui ?? {}),
     };
@@ -734,6 +748,17 @@
       ...baseStore,
       ui: nextUi,
     };
+  }
+
+  function preserveRememberedLinkedImport(baseStore: HomiStoreV1): HomiStoreV1 {
+    const linkedImport = rememberedLinkedImport();
+    if (!linkedImport) {
+      return withLinkedImport(baseStore, null);
+    }
+    return withLinkedImport(baseStore, {
+      sourceType: 'url',
+      url: linkedImport.url,
+    });
   }
 
   function getLinkedImportSyncIntervalMs() {
@@ -860,6 +885,9 @@
     } else if (route.kind === 'backup') {
       // 브레인 설정에서는 전체 export만 사용한다.
       backupTab = 'url';
+      if (!importUrl) {
+        importUrl = rememberedLinkedImport()?.url ?? '';
+      }
       stopDictationSession();
     } else if (route.kind === 'home') {
       exportSelection = new Set();
@@ -1023,7 +1051,7 @@
       source: origin?.source ?? { type: 'manual' },
     };
 
-    persist(withLinkedImport(upsertDataset(store, nextDataset)));
+    persist(preserveRememberedLinkedImport(upsertDataset(store, nextDataset)));
     if (route.kind === 'engine' && editor.engineId === 'dictation') {
       ensureDictationUiStopsIfNeeded();
     }
@@ -1033,7 +1061,7 @@
 
   function onDeleteDataset(dataset: DataSetV1) {
     if (!confirm(`"${dataset.title}"를 삭제할까요?`)) return;
-    persist(withLinkedImport(removeDataset(store, dataset.engineId, dataset.id)));
+    persist(preserveRememberedLinkedImport(removeDataset(store, dataset.engineId, dataset.id)));
     if (dataset.engineId === 'dictation' && dictationDatasetId === dataset.id) {
       stopDictationSession();
       dictationDatasetId = null;
@@ -1376,15 +1404,21 @@
             : 'url';
 
     const replaceStore: HomiStoreV1 = createEmptyStore();
+    const rememberedBefore = rememberedLinkedImport();
     const linkEligible = preview.sourceKind === 'url' && selected.length === preview.candidates.length;
     const linkedImport =
-      linkEligible && preview.sourceKind === 'url'
+      preview.sourceKind === 'url'
         ? {
             sourceType: 'url' as const,
             url: preview.sourceText,
-            signature: computeImportSelectionSignature(selected),
+            ...(linkEligible ? { signature: computeImportSelectionSignature(selected) } : {}),
           }
-        : undefined;
+        : rememberedBefore
+          ? {
+              sourceType: 'url' as const,
+              url: rememberedBefore.url,
+            }
+          : undefined;
     replaceStore.ui = {
       ...(store.ui ?? {}),
     };
@@ -1399,8 +1433,10 @@
       preview.sourceKind !== 'url'
         ? ''
         : linkedImport
-          ? ' URL 연결이 저장되어 이후 변경을 자동으로 확인합니다.'
-          : ' 일부만 가져온 URL은 자동 업데이트에 연결되지 않습니다.';
+          ? linkEligible
+            ? ' URL 연결이 저장되어 이후 변경을 자동으로 확인합니다.'
+            : ' URL은 저장되지만 일부만 가져와 자동 업데이트 연결은 켜지지 않습니다.'
+          : '';
     setMessage(`기존 자료를 교체하고 총 ${imported.imported.length}개 자료 세트를 가져왔습니다.${linkedMessage}`, 'ok');
     preview = null;
   }
@@ -2301,8 +2337,9 @@
   }
 
   .home-control-box[data-box='6'] {
-    justify-content: flex-end;
-    padding-right: clamp(10px, 2.2vw, 26px);
+    align-items: stretch;
+    justify-content: center;
+    padding: clamp(6px, 1.2vw, 14px);
     z-index: 4;
   }
 
@@ -2399,22 +2436,31 @@
   }
 
   .home-clock {
-    display: grid;
-    gap: 0.2rem;
-    justify-items: end;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
     text-align: right;
-    padding: 0.9rem 1rem;
-    border-radius: 24px;
-    border: 1px solid rgba(84, 117, 153, 0.24);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(233, 243, 255, 0.92) 100%);
-    box-shadow: 0 14px 32px rgba(23, 53, 93, 0.12);
+    padding: clamp(0.8rem, 1.8vw, 1.45rem);
+    border-radius: clamp(24px, 3vw, 34px);
+    border: 1px solid rgba(84, 117, 153, 0.2);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.86) 0%, rgba(222, 236, 255, 0.96) 100%),
+      radial-gradient(circle at top right, rgba(255, 255, 255, 0.9), transparent 42%);
+    box-shadow: 0 18px 36px rgba(23, 53, 93, 0.16);
     backdrop-filter: blur(14px);
     pointer-events: none;
   }
 
   .home-clock-date {
-    font-size: clamp(1.05rem, 1.85vw, 1.55rem);
-    font-weight: 700;
+    margin: 0;
+    width: 100%;
+    font-size: clamp(0.95rem, 3.8vmin, 2rem);
+    line-height: 1.05;
+    font-weight: 800;
     letter-spacing: -0.02em;
     color: #436180;
     white-space: nowrap;
@@ -2422,10 +2468,12 @@
   }
 
   .home-clock-time {
-    font-size: clamp(2.85rem, 5.8vw, 5rem);
-    line-height: 0.92;
+    margin: 0;
+    width: 100%;
+    font-size: clamp(2.6rem, 14vmin, 7rem);
+    line-height: 0.84;
     font-weight: 900;
-    letter-spacing: -0.06em;
+    letter-spacing: -0.08em;
     color: #133b66;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;

@@ -37,7 +37,7 @@
     },
     {
       "id": "ui.home.control_box_6.clock",
-      "statement": "홈(/)의 control box 6(중앙 오른쪽)에는 home-clock이 표시되고, home-clock-date/home-clock-time으로 날짜·요일·시:분을 큰 글자로 보여준다."
+      "statement": "홈(/)의 control box 6(중앙 오른쪽)에는 home-clock이 구역 대부분을 채우도록 표시되고, home-clock-date/home-clock-time으로 날짜·요일·시:분을 매우 큰 글자로 보여준다."
     },
     {
       "id": "ui.home.zone_bounds_soft",
@@ -117,7 +117,7 @@
     },
     {
       "id": "ui.backup.url_sync_status",
-      "statement": "브레인 설정 overlay의 URL 가져오기 패널에는 backup-url-sync-status가 표시되어 현재 URL 자동 업데이트 연결 여부를 보여준다."
+      "statement": "브레인 설정 overlay의 URL 가져오기 패널에는 backup-url-sync-status가 표시되어 현재 URL 자동 업데이트 연결 여부와 마지막 저장 URL 유지 상태를 보여준다."
     },
     {
       "id": "ui.engine.no_backup_import_controls",

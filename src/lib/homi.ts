@@ -15,7 +15,7 @@ export interface SourceV1 {
 export interface LinkedUrlImportV1 {
   sourceType: 'url';
   url: string;
-  signature: string;
+  signature?: string;
 }
 
 export interface DataSetPayloadV1 {
@@ -155,7 +155,7 @@ const SourceSchema = z
 const LinkedUrlImportSchema = z.strictObject({
   sourceType: z.literal('url'),
   url: z.string().trim().min(1).max(2000),
-  signature: z.string().trim().min(1).max(128),
+  signature: z.string().trim().min(1).max(128).optional(),
 });
 
 const ScheduleItemSchema = z

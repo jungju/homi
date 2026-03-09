@@ -46,8 +46,7 @@
           "additionalProperties": false,
           "required": [
             "sourceType",
-            "url",
-            "signature"
+            "url"
           ],
           "properties": {
             "sourceType": {

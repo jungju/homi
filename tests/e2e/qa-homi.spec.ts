@@ -143,12 +143,19 @@ async function expectSettingsIconButtonInBox9(page: Page) {
 }
 
 async function expectHomeClockInBox6(page: Page) {
-  const clock = page.getByTestId('home-control-box-6').getByTestId('home-clock');
+  const zone = page.getByTestId('home-control-box-6');
+  const clock = zone.getByTestId('home-clock');
   await expect(clock).toBeVisible();
   await expect(page.getByTestId('home-clock-date')).toHaveText(
     /^\d{4}\.\d{2}\.\d{2} (일|월|화|수|목|금|토)요일$/,
   );
   await expect(page.getByTestId('home-clock-time')).toHaveText(/^\d{2}:\d{2}$/);
+  const zoneBox = await zone.boundingBox();
+  const clockBox = await clock.boundingBox();
+  expect(zoneBox).not.toBeNull();
+  expect(clockBox).not.toBeNull();
+  expect(clockBox!.width).toBeGreaterThan(zoneBox!.width - 36);
+  expect(clockBox!.height).toBeGreaterThan(zoneBox!.height - 36);
 }
 
 async function selectFirstDictationDataset(page: Page) {
@@ -195,7 +202,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     expect(faceRect.width).toBeGreaterThanOrEqual(620);
     expect(await getSelectorSizePx(page, '.home-face__eye', 'width')).toBeGreaterThanOrEqual(100);
     expect(await getFontSizePx(page, 'home-robot-name')).toBeGreaterThanOrEqual(60);
-    expect(await getFontSizePx(page, 'home-clock-time')).toBeGreaterThanOrEqual(56);
+    expect(await getFontSizePx(page, 'home-clock-time')).toBeGreaterThanOrEqual(88);
     expect(await getFontSizePx(page, 'home-open-backup')).toBeGreaterThanOrEqual(22);
     await expectBubbleCanOverflowZone(page);
     await expectSettingsIconButtonInBox9(page);
@@ -210,8 +217,9 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-bubble is in control box 2',
       'home-bubble may overflow box 2 into adjacent zones',
       'home-clock is visible in control box 6',
+      'home-clock fills most of control box 6',
       'home-clock shows date, weekday, and HH:MM',
-      'home-clock time uses large tablet font size',
+      'home-clock time uses extra-large tablet font size',
       'home-robot-name shows 호미',
       'home-status-text is absent without alert or quiet mode',
       'toast-root is absent on home face screen',
@@ -598,6 +606,52 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
 
     await expect(page.getByRole('heading', { name: '원격 일정 B' })).toBeVisible({ timeout: 5_000 });
     await expect(page).toHaveURL(/\/engines\/schedule$/);
+  });
+
+  test('[test.p1.import.url_saved_persists] 저장된 brain JSON URL은 자동 동기화 해제 후에도 유지되어야 한다', async ({
+    page,
+  }) => {
+    const remoteUrl = 'https://sync.example.com/homi-persist.json';
+    const remoteBundleText = buildBundleText([
+      {
+        id: 'schedule_persist_1',
+        engineId: 'schedule',
+        engineSchemaVersion: 1,
+        title: '기억할 URL 일정',
+        items: [{ date: '2026-03-09', title: '기억할 URL 일정', timeStart: '09:00' }],
+      },
+    ]);
+
+    await page.route(remoteUrl, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: {
+          'access-control-allow-origin': '*',
+        },
+        body: remoteBundleText,
+      });
+    });
+
+    await resetLocalData(page);
+    await page.goto('/brain');
+    await selectBackupTab(page, 'URL 가져오기');
+    await page.getByTestId('backup-url-input').fill(remoteUrl);
+    await page.getByTestId('backup-url-preview-btn').click();
+    await expect(page.getByTestId('backup-preview')).toBeVisible({ timeout: 8_000 });
+    await page.getByTestId('backup-confirm').click();
+    await expect(page.getByTestId('backup-url-sync-status')).toContainText(remoteUrl);
+
+    await page.goto('/engines/schedule');
+    await page.getByRole('button', { name: '편집' }).first().click();
+    await page.getByLabel('제목').fill('로컬 수정 일정');
+    await page.getByRole('button', { name: '저장' }).click();
+
+    await page.reload();
+    await page.goto('/brain');
+    await expect(page.getByTestId('backup-url-sync-status')).toContainText(remoteUrl);
+    await expect(page.getByTestId('backup-url-sync-status')).toContainText('자동 업데이트 연결 안 됨');
+    await expect(page.getByTestId('backup-url-input')).toHaveValue(remoteUrl);
   });
 
   test('[test.p1.schedule.quiet_mode_suppresses_reminders] 30분 조용히 모드가 켜져 있으면 schedule 알림은 무시되어야 한다', async ({

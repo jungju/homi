@@ -221,9 +221,10 @@
     },
     {
       "id": "flow.invariant.url_sync_disconnect_on_local_change",
-      "statement": "자료 세트의 로컬 변경이나 비-URL import가 발생하면 이후 url_sync_tick은 더 이상 자동 replace를 수행하지 않는다.",
+      "statement": "자료 세트의 로컬 변경이나 비-URL import가 발생하면 이후 url_sync_tick은 더 이상 자동 replace를 수행하지 않지만, 마지막 저장 URL 메타데이터는 유지된다.",
       "contractRefs": [
-        "product.import.url_sync_disconnect_on_local_change"
+        "product.import.url_sync_disconnect_on_local_change",
+        "product.import.url_saved_persist"
       ]
     },
     {
