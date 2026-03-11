@@ -424,6 +424,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByTestId('backup-quiet-status')).toContainText('현재 상태: 꺼짐');
     await expect(page.getByTestId('backup-quiet-enable')).toBeVisible();
     await expect(page.getByTestId('backup-quiet-clear')).toBeDisabled();
+    await expect(page.getByTestId('backup-version')).toHaveText(/^버전: \d{4}-\d{2}-\d{2}$/);
     await expect(page.getByTestId('backup-url-sync-status')).toContainText('현재 URL 자동 업데이트 연결 없음');
     await expect(page.getByTestId('backup-panel-url')).toBeVisible();
     await expect(page.getByTestId('backup-panel-text')).toBeHidden();
@@ -451,6 +452,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'backup-tablist is visible',
       'backup-tab-url/text/file/sample are visible in order',
       'backup quiet status and control buttons are visible',
+      'backup version date is visible',
       'backup url sync status is visible',
       'backup panels switch with tab selection',
       'backup-panel-sample is visible when sample tab selected',

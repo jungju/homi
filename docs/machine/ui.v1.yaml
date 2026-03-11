@@ -120,6 +120,10 @@
       "statement": "브레인 설정 overlay의 URL 가져오기 패널에는 backup-url-sync-status가 표시되어 현재 URL 자동 업데이트 연결 여부와 마지막 저장 URL 유지 상태를 보여준다."
     },
     {
+      "id": "ui.backup.version_date_visible",
+      "statement": "브레인 설정 overlay에는 backup-version이 표시되고, 배포 버전을 YYYY-MM-DD 날짜 형식으로 보여준다."
+    },
+    {
       "id": "ui.engine.no_backup_import_controls",
       "statement": "engine overlay에서 브레인 설정 import 입력 testid는 존재하면 안 된다."
     },
@@ -253,6 +257,7 @@
         "backup-quiet-status",
         "backup-quiet-enable",
         "backup-quiet-clear",
+        "backup-version",
         "backup-panel-url",
         "backup-panel-text",
         "backup-panel-file",

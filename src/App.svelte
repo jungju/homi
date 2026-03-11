@@ -127,6 +127,7 @@
   let linkedImportSyncTimer: number | null = null;
   let linkedImportSyncInFlight = false;
   let backupUrlSyncStatusText = '현재 URL 자동 업데이트 연결 없음';
+  let backupVersionDateText = '버전: 확인 중';
   let homeModeText = '';
   let homeStatusText = '';
   let homeStatusTone: 'default' | 'alert' | 'error' | 'running' = 'default';
@@ -204,6 +205,37 @@
   function formatHomeClockTime(timestamp: number) {
     const now = new Date(timestamp);
     return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  }
+
+  function formatVersionDate(value: string) {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return null;
+    }
+    return `${parsed.getUTCFullYear()}-${String(parsed.getUTCMonth() + 1).padStart(2, '0')}-${String(
+      parsed.getUTCDate(),
+    ).padStart(2, '0')}`;
+  }
+
+  async function loadBackupVersionDate() {
+    try {
+      const response = await fetch('/version.json', { cache: 'no-store' });
+      if (!response.ok) {
+        backupVersionDateText = '버전: 알 수 없음';
+        return;
+      }
+
+      const parsed = (await response.json()) as { buildTime?: unknown };
+      if (typeof parsed.buildTime !== 'string') {
+        backupVersionDateText = '버전: 알 수 없음';
+        return;
+      }
+
+      const formatted = formatVersionDate(parsed.buildTime);
+      backupVersionDateText = formatted ? `버전: ${formatted}` : '버전: 알 수 없음';
+    } catch {
+      backupVersionDateText = '버전: 알 수 없음';
+    }
   }
 
   function refreshHomeClock() {
@@ -1657,6 +1689,7 @@
     if (!store?.datasetsByEngine) {
       store = createEmptyStore();
     }
+    void loadBackupVersionDate();
     startHomeClock();
     startLinkedImportSync();
     startScheduleReminder();
@@ -2064,6 +2097,7 @@
           <section class="card">
             <h2>브레인 설정</h2>
             <p class="muted">현재 저장 데이터: {datasetCount}개</p>
+            <p class="muted" data-testid="backup-version">{backupVersionDateText}</p>
           </section>
 
           <section class="card">
