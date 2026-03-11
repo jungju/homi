@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/ui.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-09",
+  "updated": "2026-03-12",
   "rules": [
     {
       "id": "ui.home.face_visible",
@@ -126,6 +126,14 @@
     {
       "id": "ui.engine.no_top_dataset_add_action",
       "statement": "모든 engine 설정 overlay 상단에 전역 '새 자료 세트' 버튼을 두지 않는다."
+    },
+    {
+      "id": "ui.schedule.preview_list_in_engine",
+      "statement": "schedule engine overlay에는 schedule-preview-list와 schedule-preview-status가 표시되고, 각 schedule-preview-item을 눌러 등록된 schedule 항목 음성을 미리 들을 수 있다."
+    },
+    {
+      "id": "ui.schedule.preview_meta_shows_recurrence",
+      "statement": "schedule-preview-item의 보조 문구는 raw date가 아니라 매일/매년 반복 의미와 시간 정보를 사람이 읽을 수 있는 형식으로 보여준다."
     },
     {
       "id": "ui.dataset_row.required",

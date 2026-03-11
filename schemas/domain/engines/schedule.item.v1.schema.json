@@ -4,19 +4,29 @@
   "title": "Homi v1 ScheduleItemV1",
   "type": "object",
   "required": [
-    "date",
     "title"
   ],
   "additionalProperties": true,
   "properties": {
-    "date": {
-      "type": "string",
-      "format": "date"
-    },
     "title": {
       "type": "string",
       "minLength": 1,
       "maxLength": 10000
+    },
+    "repeat": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "yearly"
+      ]
+    },
+    "monthDay": {
+      "type": "string",
+      "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
     },
     "timeStart": {
       "type": "string",
@@ -42,5 +52,42 @@
       "type": "integer",
       "minimum": 1
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "repeat": {
+            "const": "daily"
+          }
+        },
+        "required": [
+          "repeat"
+        ]
+      },
+      "then": {
+        "required": [
+          "timeStart"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "repeat": {
+            "const": "yearly"
+          }
+        },
+        "required": [
+          "repeat"
+        ]
+      },
+      "then": {
+        "required": [
+          "monthDay",
+          "timeStart"
+        ]
+      }
+    }
+  ]
 }

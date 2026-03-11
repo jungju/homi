@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/product.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-09",
+  "updated": "2026-03-12",
   "rules": [
     {
       "id": "product.storage.localstorage.single_key",
@@ -86,6 +86,14 @@
     {
       "id": "product.schedule.quiet_mode_30m_suppresses_reminders",
       "statement": "브레인 설정의 30분 조용히 모드가 켜져 있으면 schedule due reminder는 알림 제목, OS notification, 음성 출력 없이 무시되며 홈 화면에는 quiet mode 상태 문구만 표시할 수 있다."
+    },
+    {
+      "id": "product.schedule.recurrence_daily_yearly_only",
+      "statement": "schedule 항목은 현재 매일(daily) 또는 매년(yearly) 반복 알림만 지원한다. daily는 timeStart 기준, yearly는 monthDay(MM-DD)와 timeStart 기준으로 동작하며 특정일 1회성 알림은 아직 지원하지 않는다."
+    },
+    {
+      "id": "product.schedule.preview_speech_in_engine",
+      "statement": "schedule engine overlay에서는 등록된 schedule 항목을 리스트로 보여주고, 사용자가 각 항목을 눌러 audioUrl 또는 브라우저 음성으로 미리 듣기 테스트를 수행할 수 있다."
     },
     {
       "id": "product.security.block_javascript_scheme",

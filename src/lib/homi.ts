@@ -124,6 +124,7 @@ const ENGINE_ID_PATTERN = /^[a-z][a-z0-9-]{0,39}$/;
 const ISO_DATE_RE = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])-([0-2]\d|3[01])$/;
+const MONTH_DAY_RE = /^(0[1-9]|1[0-2])-([0-2]\d|3[01])$/;
 
 export const ENGINE_REGISTRY: EngineDefinition[] = [
   {
@@ -160,16 +161,81 @@ const LinkedUrlImportSchema = z.strictObject({
 
 const ScheduleItemSchema = z
   .object({
-    date: z.string().regex(DATE_RE),
     title: z.string().trim().min(1).max(MAX_TEXT_LENGTH),
+    repeat: z.enum(['daily', 'yearly']).optional(),
+    monthDay: z.string().trim().regex(MONTH_DAY_RE).optional(),
+    date: z.string().regex(DATE_RE).optional(),
     timeStart: z.string().trim().regex(TIME_RE).optional(),
     timeEnd: z.string().trim().regex(TIME_RE).optional(),
     notes: z.string().trim().max(MAX_TEXT_LENGTH).optional(),
     tags: z.array(z.string().trim().max(MAX_TEXT_LENGTH)).optional(),
     repeatIntervalSec: z.number().int().min(1).optional(),
     timezone: z.string().trim().max(MAX_TEXT_LENGTH).optional(),
+    audioUrl: z
+      .string()
+      .trim()
+      .max(MAX_TEXT_LENGTH)
+      .url()
+      .refine((value) => value.startsWith('https://'), {
+        message: 'audioUrl은 https URL이어야 합니다.',
+      })
+      .optional(),
   })
-  .passthrough();
+  .passthrough()
+  .superRefine((value, ctx) => {
+    if (value.repeatIntervalSec) {
+      return;
+    }
+
+    if (value.repeat === 'daily') {
+      if (!value.timeStart) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'repeat=daily 항목은 timeStart가 필요합니다.',
+          path: ['timeStart'],
+        });
+      }
+      return;
+    }
+
+    if (value.repeat === 'yearly') {
+      if (!value.monthDay) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'repeat=yearly 항목은 monthDay가 필요합니다.',
+          path: ['monthDay'],
+        });
+      }
+      if (!value.timeStart) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'repeat=yearly 항목은 timeStart가 필요합니다.',
+          path: ['timeStart'],
+        });
+      }
+      return;
+    }
+
+    // Legacy v1 payloads used date + timeStart for what was effectively a daily schedule.
+    if (value.date && value.timeStart) {
+      return;
+    }
+
+    // Allow new payloads to omit repeat for daily schedules if timeStart alone is provided.
+    if (value.timeStart && !value.monthDay) {
+      return;
+    }
+
+    if (value.monthDay && value.timeStart) {
+      return;
+    }
+
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'schedule 항목은 daily 또는 yearly 반복 규칙이 필요합니다.',
+      path: ['repeat'],
+    });
+  });
 
 const DictationItemSchema = z
   .object({

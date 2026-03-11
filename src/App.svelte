@@ -62,6 +62,16 @@
     type: 'ok' | 'error';
   }
 
+  interface SchedulePreviewEntry {
+    key: string;
+    datasetId: string;
+    datasetTitle: string;
+    itemIndex: number;
+    title: string;
+    meta: string;
+    item: Record<string, unknown>;
+  }
+
   type HomeMood = 'smile' | 'curious' | 'proud' | 'calm' | 'concern' | 'wink';
   type DictationWriteMode = 'korean' | 'english';
   type BackupTabId = 'url' | 'text' | 'file' | 'sample';
@@ -97,7 +107,7 @@
   let homeAlertTimeout: number | null = null;
   let importJsonText = '';
   let scheduleReminderTimer: number | null = null;
-  let scheduleReminderLastFired = new Map<string, number>();
+  let scheduleReminderLastSlot = new Map<string, string>();
   let scheduleTickNow = Date.now();
   let reminderPermissionWarned = false;
   let dictationDatasetId: string | null = null;
@@ -123,6 +133,10 @@
   let scheduleQuietModeActive = false;
   let scheduleQuietStatusText = '현재 상태: 꺼짐';
   let homeQuietStatusText = '';
+  let schedulePreviewEntries: SchedulePreviewEntry[] = [];
+  let schedulePreviewPlayedKey: string | null = null;
+  let schedulePreviewPlayedMode: 'speech' | 'audio' | 'unavailable' | null = null;
+  let schedulePreviewStatusText = '';
   const LIMIT_BYTES = MAX_BUNDLE_JSON_BYTES;
   const LIMIT_DATASETS = MAX_DATASET_COUNT_PER_BUNDLE;
   const LIMIT_ITEMS = MAX_ITEMS_PER_DATASET;
@@ -222,6 +236,7 @@
 
   $: homeClockDateText = formatHomeClockDate(homeClockNow);
   $: homeClockTimeText = formatHomeClockTime(homeClockNow);
+  $: schedulePreviewEntries = buildSchedulePreviewEntries();
   $: {
     const linkedImport =
       store.ui?.linkedImport?.sourceType === 'url' ? store.ui.linkedImport : null;
@@ -231,27 +246,233 @@
         ? `URL 자동 업데이트 연결됨: ${linkedImport.url}`
         : `저장된 URL 유지 중(자동 업데이트 연결 안 됨): ${linkedImport.url}`;
   }
+  $: {
+    const lastEntry = schedulePreviewPlayedKey
+      ? schedulePreviewEntries.find((entry) => entry.key === schedulePreviewPlayedKey) ?? null
+      : null;
+    if (schedulePreviewEntries.length === 0) {
+      schedulePreviewStatusText = '등록된 스케줄 항목이 없습니다.';
+    } else if (lastEntry && schedulePreviewPlayedMode) {
+      schedulePreviewStatusText =
+        schedulePreviewPlayedMode === 'audio'
+          ? `최근 오디오 미리 듣기: ${lastEntry.title}`
+          : schedulePreviewPlayedMode === 'speech'
+            ? `최근 음성 미리 듣기: ${lastEntry.title}`
+            : `이 브라우저에서는 "${lastEntry.title}" 음성 미리 듣기를 사용할 수 없습니다.`;
+    } else {
+      schedulePreviewStatusText = '등록된 스케줄 항목을 눌러 음성을 미리 들어보세요.';
+    }
+  }
 
   function getReminderKey(datasetId: string, itemIndex: number) {
     return `${datasetId}:${itemIndex}`;
   }
 
+  function getMonthDayFromDate(value: string | undefined) {
+    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return undefined;
+    }
+    return value.slice(5);
+  }
+
+  function getScheduleRepeatMode(item: Record<string, unknown>): 'daily' | 'yearly' | 'interval' | null {
+    const repeat = asString(item.repeat);
+    if (repeat === 'daily' || repeat === 'yearly') {
+      return repeat;
+    }
+    if (asPositiveInt(item.repeatIntervalSec)) {
+      return 'interval';
+    }
+    if (asString(item.monthDay)) {
+      return 'yearly';
+    }
+    if (asString(item.timeStart) || asString(item.date)) {
+      return 'daily';
+    }
+    return null;
+  }
+
+  function getScheduleTimingText(item: Record<string, unknown>) {
+    const repeatMode = getScheduleRepeatMode(item);
+    const timeStart = asString(item.timeStart);
+    const monthDay = asString(item.monthDay) ?? getMonthDayFromDate(asString(item.date));
+
+    if (repeatMode === 'interval') {
+      const intervalSec = asPositiveInt(item.repeatIntervalSec);
+      return intervalSec ? `테스트용 매 ${intervalSec}초` : '테스트용 반복';
+    }
+
+    if (repeatMode === 'yearly' && monthDay && timeStart) {
+      return `매년 ${monthDay} ${timeStart}`;
+    }
+
+    if (timeStart) {
+      return `매일 ${timeStart}`;
+    }
+
+    return '';
+  }
+
+  function getScheduleReminderSlot(item: Record<string, unknown>, now: number) {
+    const repeatMode = getScheduleRepeatMode(item);
+    if (!repeatMode) {
+      return null;
+    }
+
+    if (repeatMode === 'interval') {
+      const intervalSec = asPositiveInt(item.repeatIntervalSec);
+      if (!intervalSec) {
+        return null;
+      }
+      const intervalMs = intervalSec * 1000;
+      return {
+        slotKey: `interval:${Math.floor(now / intervalMs)}`,
+        fireOnFirstSeen: false,
+      };
+    }
+
+    const timeStart = asString(item.timeStart);
+    if (!timeStart) {
+      return null;
+    }
+
+    const [targetHourText, targetMinuteText] = timeStart.split(':');
+    const targetHour = Number(targetHourText);
+    const targetMinute = Number(targetMinuteText);
+    if (!Number.isInteger(targetHour) || !Number.isInteger(targetMinute)) {
+      return null;
+    }
+
+    const current = new Date(now);
+    if (current.getHours() !== targetHour || current.getMinutes() !== targetMinute) {
+      return {
+        slotKey: null,
+        fireOnFirstSeen: true,
+      };
+    }
+
+    const currentMonthDay = `${String(current.getMonth() + 1).padStart(2, '0')}-${String(
+      current.getDate(),
+    ).padStart(2, '0')}`;
+
+    if (repeatMode === 'yearly') {
+      const monthDay = asString(item.monthDay) ?? getMonthDayFromDate(asString(item.date));
+      if (!monthDay || monthDay !== currentMonthDay) {
+        return {
+          slotKey: null,
+          fireOnFirstSeen: true,
+        };
+      }
+      return {
+        slotKey: `yearly:${current.getFullYear()}-${monthDay}T${timeStart}`,
+        fireOnFirstSeen: true,
+      };
+    }
+
+    return {
+      slotKey: `daily:${current.getFullYear()}-${currentMonthDay}T${timeStart}`,
+      fireOnFirstSeen: true,
+    };
+  }
+
+  function getScheduleSpeechPayload(datasetTitle: string, item: Record<string, unknown>) {
+    const title = asString(item.title) ?? datasetTitle ?? 'Homi 알림';
+    const bodyParts = [
+      getScheduleTimingText(item),
+      asString(item.notes) ?? '',
+    ].filter(Boolean);
+    return {
+      title,
+      notificationBody: `${title}${bodyParts.length > 0 ? ` - ${bodyParts.join(' ')}` : ''}`,
+      audioUrl: asString(item.audioUrl),
+    };
+  }
+
+  function playSpeechText(text: string, lang = 'ko-KR') {
+    if (
+      typeof window === 'undefined' ||
+      typeof SpeechSynthesisUtterance === 'undefined' ||
+      !window.speechSynthesis
+    ) {
+      return false;
+    }
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = lang;
+    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      window.speechSynthesis.cancel();
+    }
+    window.speechSynthesis.speak(utter);
+    return true;
+  }
+
+  function playScheduleSpeech(payload: { title: string; audioUrl?: string }) {
+    if (typeof window === 'undefined') {
+      return 'unavailable' as const;
+    }
+
+    if (payload.audioUrl) {
+      const audio = new Audio(payload.audioUrl);
+      void audio.play().catch(() => {
+        playSpeechText(payload.title);
+      });
+      return 'audio' as const;
+    }
+
+    return playSpeechText(payload.title) ? ('speech' as const) : ('unavailable' as const);
+  }
+
+  function formatSchedulePreviewMeta(dataset: DataSetV1, item: Record<string, unknown>) {
+    const parts = [
+      dataset.title,
+      isDatasetEnabled(dataset) ? '사용중' : '사용안함',
+      getScheduleTimingText(item),
+      asString(item.notes) ?? '',
+    ].filter(Boolean);
+    return parts.join(' · ');
+  }
+
+  function buildSchedulePreviewEntries() {
+    return getDatasetsByEngine(store, 'schedule').flatMap((dataset) =>
+      dataset.items.flatMap((rawItem, itemIndex) => {
+        if (!isPlainRecord(rawItem)) {
+          return [];
+        }
+        return [
+          {
+            key: getReminderKey(dataset.id, itemIndex),
+            datasetId: dataset.id,
+            datasetTitle: dataset.title,
+            itemIndex,
+            title: asString(rawItem.title) ?? `${dataset.title} 항목 ${itemIndex + 1}`,
+            meta: formatSchedulePreviewMeta(dataset, rawItem),
+            item: rawItem,
+          } satisfies SchedulePreviewEntry,
+        ];
+      }),
+    );
+  }
+
+  function previewScheduleEntry(entry: SchedulePreviewEntry) {
+    const payload = getScheduleSpeechPayload(entry.datasetTitle, entry.item);
+    const mode = playScheduleSpeech(payload);
+    schedulePreviewPlayedKey = entry.key;
+    schedulePreviewPlayedMode = mode;
+    if (mode !== 'unavailable') {
+      triggerHomeWink();
+    }
+  }
+
   function cleanupReminderState(validKeys: Set<string>) {
-    for (const key of scheduleReminderLastFired.keys()) {
+    for (const key of scheduleReminderLastSlot.keys()) {
       if (!validKeys.has(key)) {
-        scheduleReminderLastFired.delete(key);
+        scheduleReminderLastSlot.delete(key);
       }
     }
   }
 
   function announceReminder(datasetTitle: string, item: Record<string, unknown>) {
-    const title = asString(item.title) ?? 'Homi 알림';
-    const bodyParts = [
-      asString(item.timeStart) ?? '',
-      asString(item.notes) ?? '',
-      asString(item.date) ?? '',
-    ].filter(Boolean);
-    const notificationBody = `${title}${bodyParts.length > 0 ? ` - ${bodyParts.join(' ')}` : ''}`;
+    const payload = getScheduleSpeechPayload(datasetTitle, item);
 
     const isDictationGameActive = dictationRunning && dictationGameMode;
     if (isDictationGameActive) {
@@ -259,12 +480,12 @@
       return;
     }
 
-    showHomeAlert(title);
+    showHomeAlert(payload.title);
 
     if (typeof Notification !== 'undefined') {
       if (Notification.permission === 'granted') {
         new Notification(`Homi / ${datasetTitle}`, {
-          body: notificationBody,
+          body: payload.notificationBody,
         });
       } else if (!reminderPermissionWarned && Notification.permission !== 'denied') {
         setMessage('브라우저 알림이 차단되어 있어 표시되지 않을 수 있어요. 알림 허용 시 스케줄 알림이 뜹니다.', 'error');
@@ -272,25 +493,7 @@
       }
     }
 
-    const audioUrl = asString(item.audioUrl);
-    if (audioUrl) {
-      const audio = new Audio(audioUrl);
-      void audio.play().catch(() => {
-        // 오디오 URL이 차단/실패하면 텍스트 음성으로 대체
-        const utter = new SpeechSynthesisUtterance(title);
-        utter.lang = 'ko-KR';
-        if (window.speechSynthesis && !window.speechSynthesis.speaking) {
-          window.speechSynthesis.speak(utter);
-        }
-      });
-      return;
-    }
-
-    const utter = new SpeechSynthesisUtterance(title);
-    utter.lang = 'ko-KR';
-    if (window.speechSynthesis && !window.speechSynthesis.speaking) {
-      window.speechSynthesis.speak(utter);
-    }
+    playScheduleSpeech(payload);
   }
 
   function tickScheduleReminder() {
@@ -298,39 +501,44 @@
     const now = Date.now();
     scheduleTickNow = now;
     const validKeys = new Set<string>();
-    const intervalCandidates: Array<{ datasetTitle: string; item: Record<string, unknown> }> = [];
+    const dueCandidates: Array<{ datasetTitle: string; item: Record<string, unknown> }> = [];
 
     reminders.forEach((dataset) => {
       dataset.items.forEach((rawItem, index) => {
         if (!isPlainRecord(rawItem)) {
           return;
         }
-        const intervalSec = asPositiveInt(rawItem.repeatIntervalSec);
-        if (!intervalSec || intervalSec <= 0) {
-          return;
-        }
         const key = getReminderKey(dataset.id, index);
+        const reminderSlot = getScheduleReminderSlot(rawItem, now);
+        if (!reminderSlot) {
+          return;
+        }
         validKeys.add(key);
+        const lastSlot = scheduleReminderLastSlot.get(key);
 
-        const lastFiredAt = scheduleReminderLastFired.get(key);
-        if (lastFiredAt === undefined) {
-          scheduleReminderLastFired.set(key, now);
+        if (!reminderSlot.slotKey) {
           return;
         }
 
-        const intervalMs = intervalSec * 1000;
-        if (now - lastFiredAt >= intervalMs) {
-          intervalCandidates.push({
-            datasetTitle: dataset.title,
-            item: rawItem,
-          });
-          scheduleReminderLastFired.set(key, now);
+        if (lastSlot === undefined && !reminderSlot.fireOnFirstSeen) {
+          scheduleReminderLastSlot.set(key, reminderSlot.slotKey);
+          return;
         }
+
+        if (lastSlot === reminderSlot.slotKey) {
+          return;
+        }
+
+        dueCandidates.push({
+          datasetTitle: dataset.title,
+          item: rawItem,
+        });
+        scheduleReminderLastSlot.set(key, reminderSlot.slotKey);
       });
     });
 
     cleanupReminderState(validKeys);
-    if (intervalCandidates.length === 0) {
+    if (dueCandidates.length === 0) {
       return;
     }
 
@@ -339,7 +547,7 @@
     }
 
     triggerHomeWink();
-    intervalCandidates.forEach((candidate) => {
+    dueCandidates.forEach((candidate) => {
       announceReminder(candidate.datasetTitle, candidate.item);
     });
   }
@@ -1441,10 +1649,6 @@
     preview = null;
   }
 
-  function totalDatasetCount() {
-    return Object.values(store.datasetsByEngine).reduce((sum, list) => sum + list.length, 0);
-  }
-
   function onPopState() {
     parsePath();
   }
@@ -1699,6 +1903,34 @@
               </section>
             {/if}
 
+            {#if currentEngineId === 'schedule'}
+              <section class="card" data-testid="schedule-preview-list">
+                <h3>등록된 스케줄 미리 듣기</h3>
+                <p class="muted">
+                  항목을 누르면 현재 브라우저에서 즉시 음성을 시험 재생합니다. audioUrl이 있으면 오디오를
+                  우선 사용하고, 없으면 브라우저 음성으로 읽습니다.
+                </p>
+                <p class="muted" data-testid="schedule-preview-status">{schedulePreviewStatusText}</p>
+                {#if schedulePreviewEntries.length > 0}
+                  <div class="schedule-preview-list">
+                    {#each schedulePreviewEntries as entry}
+                      <button
+                        type="button"
+                        class="schedule-preview-item"
+                        data-testid="schedule-preview-item"
+                        data-preview-key={entry.key}
+                        data-preview-title={entry.title}
+                        on:click={() => previewScheduleEntry(entry)}
+                      >
+                        <strong>{entry.title}</strong>
+                        <span class="schedule-preview-meta">{entry.meta}</span>
+                      </button>
+                    {/each}
+                  </div>
+                {/if}
+              </section>
+            {/if}
+
             <section class="card" data-testid="engine-datasets-list">
               <div class="inline header-row">
                 <h3>자료 세트</h3>
@@ -1794,7 +2026,7 @@
               <p class="muted">
                 예시:
                 {#if currentEngineId === 'schedule'}
-                  {"[{ \"date\": \"2026-03-06\", \"title\": \"병원\", \"timeStart\": \"10:30\" }]"}
+                  {"[{ \"repeat\": \"daily\", \"title\": \"약 먹기\", \"timeStart\": \"08:00\" }, { \"repeat\": \"yearly\", \"monthDay\": \"03-12\", \"title\": \"생일 축하\", \"timeStart\": \"09:00\" }]"}
                 {:else}
                   {"[{ \"word\": \"apple\", \"meaning\": \"사과\", \"example\": \"I ate an apple.\" }]"}
                 {/if}
@@ -1831,7 +2063,7 @@
         <div class="popup-content">
           <section class="card">
             <h2>브레인 설정</h2>
-            <p class="muted">현재 저장 데이터: {totalDatasetCount()}개</p>
+            <p class="muted">현재 저장 데이터: {datasetCount}개</p>
           </section>
 
           <section class="card">
@@ -2818,6 +3050,35 @@
   .dataset-actions {
     display: flex;
     gap: 0.6rem;
+  }
+
+  .schedule-preview-list {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 0.85rem;
+  }
+
+  .schedule-preview-item {
+    width: 100%;
+    display: grid;
+    justify-items: start;
+    gap: 0.34rem;
+    text-align: left;
+    border-radius: 12px;
+    padding: 1rem 1.05rem;
+    background: linear-gradient(180deg, rgba(247, 251, 255, 0.96) 0%, rgba(233, 241, 255, 0.98) 100%);
+  }
+
+  .schedule-preview-item strong {
+    font-size: 1.05rem;
+    color: var(--text-strong);
+  }
+
+  .schedule-preview-meta {
+    color: var(--text-muted);
+    font-size: 0.98rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .item-check {

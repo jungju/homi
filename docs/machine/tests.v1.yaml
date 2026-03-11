@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/tests.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-09",
+  "updated": "2026-03-12",
   "scenarios": [
     {
       "id": "test.p0.home.base_layout",
@@ -627,6 +627,82 @@
         "framework": "playwright",
         "file": "tests/e2e/qa-homi.spec.ts",
         "scenarioTag": "test.p1.schedule.quiet_mode_suppresses_reminders"
+      }
+    },
+    {
+      "id": "test.p1.schedule.recurring_daily_yearly",
+      "title": "schedule은 매일/매년 반복 시각에 맞춰 한 번씩 알림을 발생시킨다.",
+      "priority": "P1",
+      "type": "automated",
+      "contractRefs": [
+        "product.schedule.recurrence_daily_yearly_only",
+        "ui.schedule.preview_list_in_engine",
+        "ui.schedule.preview_meta_shows_recurrence"
+      ],
+      "preconditions": [
+        "schedule dataset 존재",
+        "clock mock 가능",
+        "speechSynthesis mock 가능"
+      ],
+      "actions": [
+        "daily/yearly schedule dataset import",
+        "route=/engines/schedule 접속",
+        "mock clock을 각 due 시각으로 이동"
+      ],
+      "assertions": [
+        "schedule-preview-item meta shows daily/yearly recurrence text",
+        "daily item fires once at matching HH:MM",
+        "same minute does not duplicate-fire",
+        "yearly item fires once when monthDay and HH:MM both match"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/schedule.overlay*.png"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p1.schedule.recurring_daily_yearly"
+      }
+    },
+    {
+      "id": "test.p1.schedule.preview_speech",
+      "title": "schedule 엔진에서 등록된 항목을 눌러 음성 미리 듣기를 테스트할 수 있다.",
+      "priority": "P1",
+      "type": "automated",
+      "contractRefs": [
+        "product.schedule.preview_speech_in_engine",
+        "ui.schedule.preview_list_in_engine",
+        "flow.schedule.preview_speech_in_engine"
+      ],
+      "preconditions": [
+        "schedule dataset 존재",
+        "speechSynthesis mock 가능"
+      ],
+      "actions": [
+        "route=/engines/schedule 접속",
+        "schedule-preview-item 클릭"
+      ],
+      "assertions": [
+        "schedule-preview-list visible",
+        "registered schedule item titles are listed",
+        "clicking schedule-preview-item triggers speech playback",
+        "schedule-preview-status reflects the clicked item title"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/schedule.overlay*.png"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p1.schedule.preview_speech"
       }
     },
     {

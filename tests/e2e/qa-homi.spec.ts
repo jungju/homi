@@ -68,6 +68,87 @@ async function openBackupAndImportFixture(page: Page, fixturePath: string) {
   await expect(page.getByText(/기존 자료를 교체하고 총/)).toBeVisible();
 }
 
+async function installSpeechSynthesisMock(page: Page) {
+  await page.addInitScript(() => {
+    const synth =
+      window.speechSynthesis ??
+      ({
+        speaking: false,
+        pending: false,
+        cancel() {},
+        getVoices() {
+          return [];
+        },
+      } as SpeechSynthesis & { pending: boolean });
+
+    let speakCount = 0;
+    let lastText = '';
+    synth.speak = (utter: SpeechSynthesisUtterance) => {
+      speakCount += 1;
+      lastText = utter.text;
+    };
+    synth.speaking = false;
+
+    Object.defineProperty(window, '__homiSpeechCount', {
+      configurable: true,
+      get() {
+        return speakCount;
+      },
+    });
+    Object.defineProperty(window, '__homiLastSpeechText', {
+      configurable: true,
+      get() {
+        return lastText;
+      },
+    });
+    Object.defineProperty(window, 'speechSynthesis', {
+      configurable: true,
+      writable: true,
+      value: synth,
+    });
+  });
+}
+
+async function installMockClock(page: Page, initialIso: string) {
+  await page.addInitScript((seedIso) => {
+    const RealDate = Date;
+    let currentTime = RealDate.parse(seedIso);
+
+    class MockDate extends RealDate {
+      constructor(...args: ConstructorParameters<typeof Date>) {
+        if (args.length === 0) {
+          super(currentTime);
+          return;
+        }
+        super(...args);
+      }
+
+      static now() {
+        return currentTime;
+      }
+    }
+
+    Object.defineProperty(window, 'Date', {
+      configurable: true,
+      writable: true,
+      value: MockDate,
+    });
+
+    Object.defineProperty(window, '__setHomiMockNow', {
+      configurable: true,
+      value: (nextIso: string) => {
+        currentTime = RealDate.parse(nextIso);
+      },
+    });
+  }, initialIso);
+}
+
+async function setMockClock(page: Page, nextIso: string) {
+  await page.evaluate((iso) => {
+    (window as Window & { __setHomiMockNow?: (value: string) => void }).__setHomiMockNow?.(iso);
+  }, nextIso);
+}
+
 async function captureState(
   page: Page,
   screenId: string,
@@ -285,9 +366,49 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
   });
 
   test('[test.p0.backup.overlay_contract][test.p0.import.preview_before_confirm][test.p0.import.replace_only] 브레인 설정에서 샘플 임포트가 미리보기→확정으로 동작해야 한다', async ({ page }) => {
-    await resetLocalData(page);
+    const sampleBundle = JSON.parse(
+      readFileSync(resolve('public/samples/homi.sample.homi.json'), 'utf8'),
+    ) as {
+      datasets: Array<{ engineId: string; title: string }>;
+    };
+    const expectedScheduleTitles = sampleBundle.datasets
+      .filter((dataset) => dataset.engineId === 'schedule')
+      .map((dataset) => dataset.title)
+      .sort();
+    const expectedDictationTitles = sampleBundle.datasets
+      .filter((dataset) => dataset.engineId === 'dictation')
+      .map((dataset) => dataset.title)
+      .sort();
+
+    await page.goto('/');
+    await page.evaluate(() => window.localStorage.clear());
+    await page.evaluate(() => {
+      window.localStorage.setItem(
+        'homi.store.v1',
+        JSON.stringify({
+          storeVersion: 1,
+          updatedAt: '2026-03-12T00:00:00.000Z',
+          datasetsByEngine: {
+            schedule: [
+              {
+                id: 'legacy_schedule_1',
+                engineId: 'schedule',
+                engineSchemaVersion: 1,
+                title: '기존 일정',
+                items: [{ date: '2026-03-12', title: '남아 있으면 안 되는 일정', timeStart: '07:00' }],
+                createdAt: '2026-03-12T00:00:00.000Z',
+                updatedAt: '2026-03-12T00:00:00.000Z',
+              },
+            ],
+          },
+          ui: {},
+        }),
+      );
+    });
+
     await page.goto('/brain');
     await expect(page.getByTestId('overlay-root')).toHaveAttribute('data-overlay-kind', 'backup');
+    await expect(page.getByText('현재 저장 데이터: 1개')).toBeVisible();
     await expect(page.getByTestId('backup-tablist')).toBeVisible();
     const tabLabels = await page.getByTestId('backup-tablist').getByRole('tab').allTextContents();
     expect(tabLabels.map((text) => text.trim())).toEqual([
@@ -341,11 +462,29 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
 
     await page.getByRole('button', { name: '가져오기 확정' }).click();
     await expect(page.getByText(/기존 자료를 교체하고 총/)).toBeVisible();
+    await expect(page.getByText('현재 저장 데이터: 3개')).toBeVisible();
+    const storedTitles = await page.evaluate(() => {
+      const raw = window.localStorage.getItem('homi.store.v1');
+      const parsed = raw ? JSON.parse(raw) : null;
+      const datasetsByEngine = parsed?.datasetsByEngine ?? {};
+      return {
+        schedule: ((datasetsByEngine.schedule ?? []) as Array<{ title: string }>).map((dataset) => dataset.title).sort(),
+        dictation: ((datasetsByEngine.dictation ?? []) as Array<{ title: string }>).map((dataset) => dataset.title).sort(),
+      };
+    });
+    expect(storedTitles.schedule).toEqual(expectedScheduleTitles);
+    expect(storedTitles.dictation).toEqual(expectedDictationTitles);
     await captureState(page, 'backup.overlay', '확정 완료', [
       'backup-confirm clicked',
       'import replaced datasets',
       'replace warning text visible',
     ]);
+
+    await page.goto('/engines/schedule');
+    await expect(page.getByRole('heading', { name: '기존 일정' })).toHaveCount(0);
+    for (const title of expectedScheduleTitles) {
+      await expect(page.getByRole('heading', { name: title })).toBeVisible();
+    }
   });
 
   test('[test.p0.import.entry_backup_only] import 입력 UI는 브레인 설정 route(/brain)에만 존재해야 한다', async ({ page }) => {
@@ -728,6 +867,102 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     expect(
       await page.evaluate(() => (window as Window & { __homiSpeechCount?: number }).__homiSpeechCount ?? 0),
     ).toBe(0);
+  });
+
+  test('[test.p1.schedule.recurring_daily_yearly] schedule은 매일/매년 반복 시각에 한 번씩만 울려야 한다', async ({
+    page,
+  }) => {
+    await installMockClock(page, '2026-03-12T07:29:50');
+    await installSpeechSynthesisMock(page);
+    await resetLocalData(page);
+
+    await openBackupAndPreviewText(
+      page,
+      buildBundleText([
+        {
+          id: 'schedule_recur_1',
+          engineId: 'schedule',
+          engineSchemaVersion: 1,
+          title: '생활 반복 일정',
+          items: [
+            { repeat: 'daily', title: '아침 약 먹기', timeStart: '07:30' },
+            { repeat: 'yearly', monthDay: '03-12', title: '생일 축하', timeStart: '07:31' },
+          ],
+        },
+      ]),
+    );
+    await page.getByTestId('backup-confirm').click();
+    await expect(page.getByText(/기존 자료를 교체하고 총/)).toBeVisible();
+
+    await page.goto('/engines/schedule');
+    const previewItems = page.getByTestId('schedule-preview-item');
+    await expect(previewItems.nth(0)).toContainText('매일 07:30');
+    await expect(previewItems.nth(1)).toContainText('매년 03-12 07:31');
+
+    await page.goto('/');
+    await setMockClock(page, '2026-03-12T07:30:01');
+    await page.waitForTimeout(1_200);
+    await expect(page.getByTestId('home-status-text')).toHaveText('아침 약 먹기');
+    expect(
+      await page.evaluate(() => (window as Window & { __homiSpeechCount?: number }).__homiSpeechCount ?? 0),
+    ).toBe(1);
+
+    await page.waitForTimeout(1_200);
+    expect(
+      await page.evaluate(() => (window as Window & { __homiSpeechCount?: number }).__homiSpeechCount ?? 0),
+    ).toBe(1);
+
+    await setMockClock(page, '2026-03-12T07:31:01');
+    await page.waitForTimeout(1_200);
+    await expect(page.getByTestId('home-status-text')).toHaveText('생일 축하');
+    expect(
+      await page.evaluate(() => (window as Window & { __homiSpeechCount?: number }).__homiSpeechCount ?? 0),
+    ).toBe(2);
+  });
+
+  test('[test.p1.schedule.preview_speech] schedule 엔진에서 등록된 항목을 눌러 음성 미리 듣기를 테스트할 수 있어야 한다', async ({
+    page,
+  }) => {
+    await installSpeechSynthesisMock(page);
+    await resetLocalData(page);
+
+    const previewTitle = '이제는 슬슬 나갈 준비해야지';
+    await openBackupAndPreviewText(
+      page,
+      buildBundleText([
+        {
+          id: 'schedule_preview_1',
+          engineId: 'schedule',
+          engineSchemaVersion: 1,
+          title: '생활 알림',
+          items: [{ date: '2026-03-10', timeStart: '07:30', title: previewTitle }],
+        },
+      ]),
+    );
+    await page.getByTestId('backup-confirm').click();
+    await expect(page.getByText(/기존 자료를 교체하고 총/)).toBeVisible();
+
+    await page.goto('/engines/schedule');
+    await expect(page.getByTestId('schedule-preview-list')).toBeVisible();
+    const firstPreview = page.getByTestId('schedule-preview-item').first();
+    await expect(firstPreview).toContainText(previewTitle);
+
+    await firstPreview.click();
+
+    await expect(page.getByTestId('schedule-preview-status')).toContainText(previewTitle);
+    expect(
+      await page.evaluate(() => (window as Window & { __homiSpeechCount?: number }).__homiSpeechCount ?? 0),
+    ).toBe(1);
+    expect(
+      await page.evaluate(() => (window as Window & { __homiLastSpeechText?: string }).__homiLastSpeechText ?? ''),
+    ).toBe(previewTitle);
+
+    await captureState(page, 'schedule.overlay', '스케줄 음성 미리 듣기', [
+      'schedule-preview-list visible',
+      'registered schedule item titles are listed',
+      'clicking schedule-preview-item triggers speech playback',
+      'schedule-preview-status reflects the clicked item title',
+    ]);
   });
 
   test('[test.p1.schedule.toggle_enabled] 스케줄 비활성 세트는 알림 대상에서 제외되어야 한다', async ({ page }) => {
