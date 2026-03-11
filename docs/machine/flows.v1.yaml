@@ -78,6 +78,9 @@
     },
     {
       "id": "flow.event.schedule.quiet_mode_start"
+    },
+    {
+      "id": "flow.event.schedule.preview_speech"
     }
   ],
   "transitions": [
@@ -184,6 +187,16 @@
       "contractRefs": [
         "product.schedule.quiet_mode_30m_suppresses_reminders",
         "ui.backup.schedule_quiet_controls"
+      ]
+    },
+    {
+      "id": "flow.schedule.preview_speech_in_engine",
+      "from": "flow.state.engine.schedule",
+      "event": "flow.event.schedule.preview_speech",
+      "to": "flow.state.engine.schedule",
+      "contractRefs": [
+        "product.schedule.preview_speech_in_engine",
+        "ui.schedule.preview_list_in_engine"
       ]
     },
     {
