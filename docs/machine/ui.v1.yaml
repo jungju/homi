@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/ui.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-12",
+  "updated": "2026-03-13",
   "rules": [
     {
       "id": "ui.home.face_visible",
@@ -138,6 +138,10 @@
     {
       "id": "ui.schedule.preview_meta_shows_recurrence",
       "statement": "schedule-preview-item의 보조 문구는 raw date가 아니라 매일/매년 반복 의미와 시간 정보를 사람이 읽을 수 있는 형식으로 보여준다."
+    },
+    {
+      "id": "ui.schedule.hourly_chime_controls",
+      "statement": "schedule engine overlay에는 정시 차임 On/Off 버튼(schedule-hourly-chime-toggle)과 현재 상태 문구(schedule-hourly-chime-status)가 표시된다."
     },
     {
       "id": "ui.dataset_row.required",
@@ -316,7 +320,9 @@
     ]
   },
   "scheduleContract": {
-    "enabledToggleTestId": "schedule-enabled-toggle"
+    "enabledToggleTestId": "schedule-enabled-toggle",
+    "hourlyChimeToggleTestId": "schedule-hourly-chime-toggle",
+    "hourlyChimeStatusTestId": "schedule-hourly-chime-status"
   },
   "toastContract": {
     "rootTestId": "toast-root",

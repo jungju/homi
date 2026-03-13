@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/tests.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-12",
+  "updated": "2026-03-13",
   "scenarios": [
     {
       "id": "test.p0.home.base_layout",
@@ -735,6 +735,47 @@
         "framework": "playwright",
         "file": "tests/e2e/qa-homi.spec.ts",
         "scenarioTag": "test.p1.schedule.toggle_enabled"
+      }
+    },
+    {
+      "id": "test.p1.schedule.hourly_chime_toggle",
+      "title": "schedule 설정의 정시 차임 On/Off가 저장되고 매시 정각에 한 번 재생된다.",
+      "priority": "P1",
+      "type": "automated",
+      "contractRefs": [
+        "product.schedule.hourly_chime_top_of_hour",
+        "product.schedule.hourly_chime_toggle_persisted",
+        "ui.schedule.hourly_chime_controls",
+        "flow.schedule.hourly_chime_toggle"
+      ],
+      "preconditions": [
+        "clock mock 가능",
+        "audio playback mock 가능"
+      ],
+      "actions": [
+        "route=/engines/schedule 접속",
+        "정시 차임 켜기",
+        "reload",
+        "mock clock을 다음 정각으로 이동",
+        "정시 차임 끄기",
+        "다음 정각으로 다시 이동"
+      ],
+      "assertions": [
+        "schedule-hourly-chime-status shows enabled after toggle and reload",
+        "next top-of-hour plays /sounds/chime.mp3 exactly once",
+        "after turning off, the following top-of-hour does not play again"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/schedule.overlay*.png"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "deterministic"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p1.schedule.hourly_chime_toggle"
       }
     },
     {

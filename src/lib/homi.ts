@@ -38,6 +38,7 @@ export interface DataSetV1 extends DataSetPayloadV1 {
 export interface HomiStoreUI {
   lastOpenedEngineId?: string;
   scheduleQuietUntil?: string;
+  scheduleHourlyChimeEnabled?: boolean;
   linkedImport?: LinkedUrlImportV1;
 }
 
@@ -302,6 +303,7 @@ const StoreSchema = z
       .object({
         lastOpenedEngineId: z.string().optional(),
         scheduleQuietUntil: z.string().optional(),
+        scheduleHourlyChimeEnabled: z.boolean().optional(),
         linkedImport: LinkedUrlImportSchema.optional(),
       })
       .passthrough()

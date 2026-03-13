@@ -133,11 +133,14 @@
   let homeStatusTone: 'default' | 'alert' | 'error' | 'running' = 'default';
   let scheduleQuietModeActive = false;
   let scheduleQuietStatusText = '현재 상태: 꺼짐';
+  let scheduleHourlyChimeStatusText = '현재 상태: 꺼짐';
   let homeQuietStatusText = '';
   let schedulePreviewEntries: SchedulePreviewEntry[] = [];
   let schedulePreviewPlayedKey: string | null = null;
   let schedulePreviewPlayedMode: 'speech' | 'audio' | 'unavailable' | null = null;
   let schedulePreviewStatusText = '';
+  let scheduleHourlyChimeLastSlot: string | null = null;
+  let scheduleHourlyChimePrimed = false;
   const LIMIT_BYTES = MAX_BUNDLE_JSON_BYTES;
   const LIMIT_DATASETS = MAX_DATASET_COUNT_PER_BUNDLE;
   const LIMIT_ITEMS = MAX_ITEMS_PER_DATASET;
@@ -145,6 +148,7 @@
   const DICTATION_INTERVAL_MS = 10_000;
   const HOME_ALERT_VISIBILITY_MS = 8_000;
   const SCHEDULE_QUIET_MODE_MS = 30 * 60 * 1000;
+  const SCHEDULE_HOURLY_CHIME_AUDIO_URL = '/sounds/chime.mp3';
   const LINKED_URL_SYNC_INTERVAL_MS = 5 * 60 * 1000;
   const HOME_CLOCK_WEEKDAYS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
@@ -420,6 +424,13 @@
     };
   }
 
+  function getScheduleHourlyChimeHourKey(now: number) {
+    const current = new Date(now);
+    return `hourly:${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(
+      current.getDate(),
+    ).padStart(2, '0')}T${String(current.getHours()).padStart(2, '0')}`;
+  }
+
   function playSpeechText(text: string, lang = 'ko-KR') {
     if (
       typeof window === 'undefined' ||
@@ -452,6 +463,16 @@
     }
 
     return playSpeechText(payload.title) ? ('speech' as const) : ('unavailable' as const);
+  }
+
+  function playScheduleHourlyChime() {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    const audio = new Audio(SCHEDULE_HOURLY_CHIME_AUDIO_URL);
+    void audio.play().catch(() => undefined);
+    return true;
   }
 
   function formatSchedulePreviewMeta(dataset: DataSetV1, item: Record<string, unknown>) {
@@ -531,9 +552,21 @@
   function tickScheduleReminder() {
     const reminders = getDatasetsByEngine(store, 'schedule').filter((dataset) => isDatasetEnabled(dataset));
     const now = Date.now();
+    const quietUntilMs = getScheduleQuietUntilMs();
+    const quietModeActiveNow = quietUntilMs !== null && quietUntilMs > now;
     scheduleTickNow = now;
     const validKeys = new Set<string>();
     const dueCandidates: Array<{ datasetTitle: string; item: Record<string, unknown> }> = [];
+
+    if (store.ui?.scheduleHourlyChimeEnabled) {
+      const currentHourKey = getScheduleHourlyChimeHourKey(now);
+      if (new Date(now).getMinutes() === 0 && scheduleHourlyChimeLastSlot !== currentHourKey) {
+        scheduleHourlyChimeLastSlot = currentHourKey;
+        if (!quietModeActiveNow && !dictationGameMode) {
+          playScheduleHourlyChime();
+        }
+      }
+    }
 
     reminders.forEach((dataset) => {
       dataset.items.forEach((rawItem, index) => {
@@ -574,7 +607,7 @@
       return;
     }
 
-    if (scheduleQuietModeActive) {
+    if (quietModeActiveNow) {
       return;
     }
 
@@ -631,6 +664,18 @@
     homeQuietStatusText = scheduleQuietModeActive
       ? `알림 조용히 중 · ${Math.ceil((quietUntilMs! - scheduleTickNow) / 60_000)}분 남음`
       : '';
+  }
+  $: scheduleHourlyChimeStatusText =
+    store.ui?.scheduleHourlyChimeEnabled === true ? '현재 상태: 켜짐 · 매시 정각 차임' : '현재 상태: 꺼짐';
+  $: {
+    const hourlyChimeEnabled = store.ui?.scheduleHourlyChimeEnabled === true;
+    if (hourlyChimeEnabled && !scheduleHourlyChimePrimed) {
+      scheduleHourlyChimeLastSlot = getScheduleHourlyChimeHourKey(Date.now());
+    }
+    if (!hourlyChimeEnabled) {
+      scheduleHourlyChimeLastSlot = null;
+    }
+    scheduleHourlyChimePrimed = hourlyChimeEnabled;
   }
   $:
     homeStatusText = dictationGameMode
@@ -1109,6 +1154,12 @@
     scheduleTickNow = Date.now();
     updateStoreUi({ scheduleQuietUntil: undefined });
     setMessage('조용히 모드를 해제했습니다.', 'ok');
+  }
+
+  function toggleScheduleHourlyChime() {
+    const nextEnabled = store.ui?.scheduleHourlyChimeEnabled !== true;
+    updateStoreUi({ scheduleHourlyChimeEnabled: nextEnabled });
+    setMessage(nextEnabled ? '정시 차임을 켰습니다.' : '정시 차임을 껐습니다.', 'ok');
   }
 
   function applyRouteSideEffects() {
@@ -1937,6 +1988,24 @@
             {/if}
 
             {#if currentEngineId === 'schedule'}
+              <section class="card">
+                <h3>정시 차임</h3>
+                <p class="muted" data-testid="schedule-hourly-chime-status">{scheduleHourlyChimeStatusText}</p>
+                <div class="inline">
+                  <button
+                    type="button"
+                    data-testid="schedule-hourly-chime-toggle"
+                    on:click={toggleScheduleHourlyChime}
+                  >
+                    {store.ui?.scheduleHourlyChimeEnabled === true ? '정시 차임 끄기' : '정시 차임 켜기'}
+                  </button>
+                </div>
+                <p class="muted">
+                  켜면 매시 정각에 차임 사운드를 한 번 재생합니다. 받아쓰기 실행 중이거나 조용히 모드면
+                  건너뜁니다.
+                </p>
+              </section>
+
               <section class="card" data-testid="schedule-preview-list">
                 <h3>등록된 스케줄 미리 듣기</h3>
                 <p class="muted">

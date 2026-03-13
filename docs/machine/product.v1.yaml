@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/product.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-12",
+  "updated": "2026-03-13",
   "rules": [
     {
       "id": "product.storage.localstorage.single_key",
@@ -86,6 +86,18 @@
     {
       "id": "product.schedule.quiet_mode_30m_suppresses_reminders",
       "statement": "브레인 설정의 30분 조용히 모드가 켜져 있으면 schedule due reminder는 알림 제목, OS notification, 음성 출력 없이 무시되며 홈 화면에는 quiet mode 상태 문구만 표시할 수 있다."
+    },
+    {
+      "id": "product.schedule.hourly_chime_top_of_hour",
+      "statement": "schedule 설정의 정시 차임이 켜져 있으면 매시 정각에 /sounds/chime.mp3 사운드를 1회 재생한다."
+    },
+    {
+      "id": "product.schedule.hourly_chime_toggle_persisted",
+      "statement": "schedule 설정의 정시 차임 On/Off는 localStorage store.ui에 저장되어 앱 재실행 후에도 유지된다."
+    },
+    {
+      "id": "product.schedule.hourly_chime_suppressed_when_quiet_or_dictation",
+      "statement": "정시 차임은 조용히 모드 또는 받아쓰기 실행 중에는 재생하지 않고 해당 시간 슬롯을 조용히 소비한다."
     },
     {
       "id": "product.schedule.recurrence_daily_yearly_only",

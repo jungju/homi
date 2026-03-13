@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/flows.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-09",
+  "updated": "2026-03-13",
   "states": [
     {
       "id": "flow.state.home.idle",
@@ -78,6 +78,12 @@
     },
     {
       "id": "flow.event.schedule.quiet_mode_start"
+    },
+    {
+      "id": "flow.event.schedule.hourly_chime_toggle"
+    },
+    {
+      "id": "flow.event.schedule.hourly_chime_tick"
     },
     {
       "id": "flow.event.schedule.preview_speech"
@@ -190,6 +196,25 @@
       ]
     },
     {
+      "id": "flow.schedule.hourly_chime_toggle",
+      "from": "flow.state.engine.schedule",
+      "event": "flow.event.schedule.hourly_chime_toggle",
+      "to": "flow.state.engine.schedule",
+      "contractRefs": [
+        "product.schedule.hourly_chime_toggle_persisted",
+        "ui.schedule.hourly_chime_controls"
+      ]
+    },
+    {
+      "id": "flow.schedule.hourly_chime_on_home_idle",
+      "from": "flow.state.home.idle",
+      "event": "flow.event.schedule.hourly_chime_tick",
+      "to": "flow.state.home.idle",
+      "contractRefs": [
+        "product.schedule.hourly_chime_top_of_hour"
+      ]
+    },
+    {
       "id": "flow.schedule.preview_speech_in_engine",
       "from": "flow.state.engine.schedule",
       "event": "flow.event.schedule.preview_speech",
@@ -271,6 +296,13 @@
       "statement": "schedule quiet mode가 켜져 있으면 due reminder는 소비되더라도 알림 제목/OS notification/음성 출력은 발생시키지 않고, 홈에는 quiet mode 상태 문구만 남길 수 있다.",
       "contractRefs": [
         "product.schedule.quiet_mode_30m_suppresses_reminders"
+      ]
+    },
+    {
+      "id": "flow.invariant.schedule_hourly_chime_respects_suppression",
+      "statement": "정시 차임이 켜져 있어도 quiet mode 또는 dictation running 중에는 사운드를 재생하지 않는다.",
+      "contractRefs": [
+        "product.schedule.hourly_chime_suppressed_when_quiet_or_dictation"
       ]
     }
   ],

@@ -41,6 +41,9 @@
           "type": "string",
           "format": "date-time"
         },
+        "scheduleHourlyChimeEnabled": {
+          "type": "boolean"
+        },
         "linkedImport": {
           "type": "object",
           "additionalProperties": false,

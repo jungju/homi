@@ -222,6 +222,14 @@
         "enabledToggleTestId": {
           "type": "string",
           "const": "schedule-enabled-toggle"
+        },
+        "hourlyChimeToggleTestId": {
+          "type": "string",
+          "const": "schedule-hourly-chime-toggle"
+        },
+        "hourlyChimeStatusTestId": {
+          "type": "string",
+          "const": "schedule-hourly-chime-status"
         }
       }
     },

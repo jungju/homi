@@ -109,6 +109,45 @@ async function installSpeechSynthesisMock(page: Page) {
   });
 }
 
+async function installAudioPlayMock(page: Page) {
+  await page.addInitScript(() => {
+    let playCount = 0;
+    let chimeCount = 0;
+    let lastSrc = '';
+
+    Object.defineProperty(window, '__homiAudioPlayCount', {
+      configurable: true,
+      get() {
+        return playCount;
+      },
+    });
+    Object.defineProperty(window, '__homiChimePlayCount', {
+      configurable: true,
+      get() {
+        return chimeCount;
+      },
+    });
+    Object.defineProperty(window, '__homiLastAudioSrc', {
+      configurable: true,
+      get() {
+        return lastSrc;
+      },
+    });
+
+    Object.defineProperty(HTMLMediaElement.prototype, 'play', {
+      configurable: true,
+      value: function play() {
+        playCount += 1;
+        lastSrc = this.currentSrc || this.getAttribute('src') || this.src || '';
+        if (lastSrc.includes('/sounds/chime.mp3')) {
+          chimeCount += 1;
+        }
+        return Promise.resolve();
+      },
+    });
+  });
+}
+
 async function installMockClock(page: Page, initialIso: string) {
   await page.addInitScript((seedIso) => {
     const RealDate = Date;
@@ -979,5 +1018,50 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'schedule dataset list is visible',
       'schedule-enabled-toggle interaction available',
     ]);
+  });
+
+  test('[test.p1.schedule.hourly_chime_toggle] schedule 설정의 정시 차임 On/Off가 저장되고 매시 정각에 한 번 재생되어야 한다', async ({
+    page,
+  }) => {
+    await installMockClock(page, '2026-03-12T09:59:50');
+    await installAudioPlayMock(page);
+    await resetLocalData(page);
+
+    await page.goto('/engines/schedule');
+    const status = page.getByTestId('schedule-hourly-chime-status');
+    const toggle = page.getByTestId('schedule-hourly-chime-toggle');
+
+    await expect(status).toHaveText('현재 상태: 꺼짐');
+    await toggle.click();
+    await expect(status).toContainText('켜짐');
+
+    await captureState(page, 'schedule.overlay', '정시 차임 활성화', [
+      'schedule-hourly-chime-toggle is visible',
+      'schedule-hourly-chime-status shows enabled',
+    ]);
+
+    await page.reload();
+    await expect(page.getByTestId('schedule-hourly-chime-status')).toContainText('켜짐');
+
+    await page.goto('/');
+    await setMockClock(page, '2026-03-12T10:00:01');
+    await page.waitForTimeout(3_200);
+    expect(
+      await page.evaluate(() => (window as Window & { __homiChimePlayCount?: number }).__homiChimePlayCount ?? 0),
+    ).toBe(1);
+    expect(
+      await page.evaluate(() => (window as Window & { __homiLastAudioSrc?: string }).__homiLastAudioSrc ?? ''),
+    ).toContain('/sounds/chime.mp3');
+
+    await page.goto('/engines/schedule');
+    await page.getByTestId('schedule-hourly-chime-toggle').click();
+    await expect(page.getByTestId('schedule-hourly-chime-status')).toHaveText('현재 상태: 꺼짐');
+
+    await page.goto('/');
+    await setMockClock(page, '2026-03-12T11:00:01');
+    await page.waitForTimeout(3_200);
+    expect(
+      await page.evaluate(() => (window as Window & { __homiChimePlayCount?: number }).__homiChimePlayCount ?? 0),
+    ).toBe(0);
   });
 });
