@@ -25,3 +25,4 @@ dist-ssr
 public/version.json
 artifacts/ui-history/
 playwright-results/
+test-results/ai-artifacts/
