@@ -5,25 +5,32 @@
   "schemaRef": "schemas/machine/coverage.v1.schema.json",
   "authoritative": false,
   "generated": true,
-  "generatedAt": "2026-03-13T02:10:14.221Z",
+  "generatedAt": "2026-03-13T15:58:51.968Z",
   "generatedFrom": {
     "testsContract": "docs/machine/tests.v1.yaml",
     "testCode": [
-      "tests/e2e/qa-homi.spec.ts"
+      "tests/e2e/qa-homi.spec.ts",
+      "tests/unit/homi.spec.ts"
     ],
-    "testResults": "test-results/.last-run.json#status=passed"
+    "testResults": {
+      "deterministicE2E": "test-results/.last-run.json#status=passed",
+      "deterministicUnit": "test-results/vitest/results.json#status=passed",
+      "aiSemantic": "test-results/ai-reviews/summary.json#status=pass(total=4)"
+    }
   },
   "summary": {
     "totalScenarios": 23,
-    "coveredScenarios": 20,
-    "partialScenarios": 1,
-    "gapScenarios": 2
+    "coveredScenarios": 21,
+    "partialScenarios": 2,
+    "gapScenarios": 0
   },
   "rows": [
     {
       "scenarioId": "test.p0.home.base_layout",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -33,6 +40,8 @@
       "scenarioId": "test.p0.home.alert_message_surface",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -42,6 +51,8 @@
       "scenarioId": "test.p0.overlay.engine_stack",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -51,6 +62,8 @@
       "scenarioId": "test.p0.backup.overlay_contract",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -60,6 +73,8 @@
       "scenarioId": "test.p0.import.preview_before_confirm",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -69,6 +84,8 @@
       "scenarioId": "test.p0.import.replace_only",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -78,6 +95,8 @@
       "scenarioId": "test.p0.import.entry_backup_only",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -87,6 +106,8 @@
       "scenarioId": "test.p0.dictation.start_sets_mode",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -96,6 +117,8 @@
       "scenarioId": "test.p0.dictation.timer_next_exit",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -105,6 +128,8 @@
       "scenarioId": "test.p0.schedule.no_interrupt_during_dictation",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -114,6 +139,8 @@
       "scenarioId": "test.p0.security.javascript_scheme_block",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -123,6 +150,8 @@
       "scenarioId": "test.p0.security.text_render_only",
       "priority": "P0",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -132,6 +161,8 @@
       "scenarioId": "test.p1.import.share_link_preview",
       "priority": "P1",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -141,6 +172,8 @@
       "scenarioId": "test.p1.import.url_linked_auto_refresh",
       "priority": "P1",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -150,6 +183,8 @@
       "scenarioId": "test.p1.import.url_saved_persists",
       "priority": "P1",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -159,6 +194,8 @@
       "scenarioId": "test.p1.schedule.quiet_mode_suppresses_reminders",
       "priority": "P1",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -168,6 +205,8 @@
       "scenarioId": "test.p1.schedule.recurring_daily_yearly",
       "priority": "P1",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -177,6 +216,8 @@
       "scenarioId": "test.p1.schedule.preview_speech",
       "priority": "P1",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -186,6 +227,8 @@
       "scenarioId": "test.p1.schedule.toggle_enabled",
       "priority": "P1",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -195,6 +238,8 @@
       "scenarioId": "test.p1.schedule.hourly_chime_toggle",
       "priority": "P1",
       "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
       "coverageStatus": "covered",
       "evidence": [
         "scenarioTag found in tests/e2e/qa-homi.spec.ts"
@@ -203,28 +248,36 @@
     {
       "scenarioId": "test.p1.source_type_text_roundtrip",
       "priority": "P1",
-      "type": "manual",
-      "coverageStatus": "partial",
+      "type": "automated",
+      "implementationFramework": "vitest",
+      "gateLayer": "deterministic_unit",
+      "coverageStatus": "covered",
       "evidence": [
-        "manual scenario registered in tests.v1.yaml"
+        "scenarioTag found in tests/unit/homi.spec.ts"
       ]
     },
     {
       "scenarioId": "test.ai.home.intent",
       "priority": "P1",
       "type": "ai",
-      "coverageStatus": "gap",
+      "implementationFramework": "ai_review",
+      "gateLayer": "ai_semantic",
+      "coverageStatus": "partial",
       "evidence": [
-        "ai review result missing: test-results/ai-reviews/home.default.ai-review.json"
+        "artifact evidence found for home.default",
+        "ai review fallback/issues=AI_REVIEW_SKIPPED"
       ]
     },
     {
       "scenarioId": "test.ai.backup.preview_visible",
       "priority": "P1",
       "type": "ai",
-      "coverageStatus": "gap",
+      "implementationFramework": "ai_review",
+      "gateLayer": "ai_semantic",
+      "coverageStatus": "partial",
       "evidence": [
-        "ai review result missing: test-results/ai-reviews/backup.overlay.ai-review.json"
+        "artifact evidence found for backup.overlay",
+        "ai review fallback/issues=AI_REVIEW_SKIPPED"
       ]
     }
   ]

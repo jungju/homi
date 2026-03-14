@@ -1,0 +1,72 @@
+name: QA Harness
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  harness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Fast deterministic gate
+        run: pnpm run qa:fast
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Smoke gate
+        run: pnpm run qa:smoke
+
+      - name: AI review gate
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: pnpm run qa:ai-review
+
+      - name: Refresh generated reports
+        run: pnpm run build:coverage && pnpm run build:dependency-graph && pnpm run build:qa-failure-taxonomy
+
+      - name: Publish taxonomy summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f test-results/qa-failure-taxonomy.md ]; then
+            cat test-results/qa-failure-taxonomy.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "QA taxonomy summary missing." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload QA artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-harness-artifacts
+          if-no-files-found: warn
+          path: |
+            playwright-results/**
+            test-results/ai-artifacts/**
+            test-results/ai-reviews/**
+            test-results/vitest/**
+            test-results/qa-failure-taxonomy.json
+            test-results/qa-failure-taxonomy.md
+            docs/machine/coverage.v1.yaml
+            docs/machine/dependency-graph.v1.yaml

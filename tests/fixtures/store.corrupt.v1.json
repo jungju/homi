@@ -1,0 +1,26 @@
+{
+  "storeVersion": 1,
+  "updatedAt": "not-a-date",
+  "datasetsByEngine": {
+    "not-an-engine": [
+      {
+        "id": "broken_1",
+        "engineId": "schedule",
+        "engineSchemaVersion": 1,
+        "title": "손상된 스토어 항목",
+        "items": [
+          {
+            "repeat": "daily",
+            "title": "손상",
+            "timeStart": "08:00"
+          }
+        ],
+        "createdAt": "2026-03-14T00:00:00.000Z",
+        "updatedAt": "2026-03-14T00:00:00.000Z"
+      }
+    ]
+  },
+  "ui": {
+    "lastOpenedEngineId": "schedule"
+  }
+}

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import process from 'node:process';
 
-import { existsRelative, readJson, readStructured, writeStructured } from './_machine-utils.mjs';
+import { existsRelative, expandGlob, readJson, readStructured, writeStructured } from './_machine-utils.mjs';
 
 function readText(relativePath) {
   return readFileSync(relativePath, 'utf8');
@@ -16,7 +16,23 @@ function findAiScreenId(aiReviewDoc, scenarioId) {
   return null;
 }
 
-function getAiScenarioCoverage(scenario, aiReviewDoc) {
+async function hasArtifactCoverageEvidence(aiReviewDoc, screenId) {
+  const screen = (aiReviewDoc.screens ?? []).find((item) => item.id === screenId);
+  if (!screen) {
+    return false;
+  }
+
+  const artifactDir = aiReviewDoc.artifactContract?.artifactDir ?? 'test-results/ai-artifacts';
+  for (const pattern of screen.requiredArtifacts ?? []) {
+    const matches = await expandGlob(`${artifactDir}/${pattern}`);
+    if (matches.length === 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+async function getAiScenarioCoverage(scenario, aiReviewDoc) {
   const screenId = findAiScreenId(aiReviewDoc, scenario.id);
   if (!screenId) {
     return {
@@ -26,7 +42,18 @@ function getAiScenarioCoverage(scenario, aiReviewDoc) {
   }
 
   const reviewPath = `test-results/ai-reviews/${screenId}.ai-review.json`;
+  const artifactCoverageAllowed = aiReviewDoc.gatePolicy?.artifactEvidenceCountsAsPartialCoverage === true;
+  const hasArtifactEvidence = artifactCoverageAllowed
+    ? await hasArtifactCoverageEvidence(aiReviewDoc, screenId)
+    : false;
+
   if (!existsRelative(reviewPath)) {
+    if (hasArtifactEvidence) {
+      return {
+        coverageStatus: 'partial',
+        evidence: [`artifact evidence found for ${screenId}`, `ai review result missing: ${reviewPath}`],
+      };
+    }
     return {
       coverageStatus: 'gap',
       evidence: [`ai review result missing: ${reviewPath}`],
@@ -48,6 +75,15 @@ function getAiScenarioCoverage(scenario, aiReviewDoc) {
     : [];
 
   if (issueCodes.some((code) => blockingCodes.has(code))) {
+    if (hasArtifactEvidence) {
+      return {
+        coverageStatus: 'partial',
+        evidence: [
+          `artifact evidence found for ${screenId}`,
+          `ai review fallback/issues=${issueCodes.join(',') || 'none'}`,
+        ],
+      };
+    }
     return {
       coverageStatus: 'gap',
       evidence: [
@@ -66,7 +102,7 @@ function getAiScenarioCoverage(scenario, aiReviewDoc) {
   };
 }
 
-function getScenarioCoverage(scenario, aiReviewDoc) {
+async function getScenarioCoverage(scenario, aiReviewDoc) {
   if (scenario.type === 'manual') {
     return {
       coverageStatus: 'partial',
@@ -126,21 +162,64 @@ function loadLastRunStatus() {
   }
 }
 
+function loadVitestStatus() {
+  const reportPath = 'test-results/vitest/results.json';
+  if (!existsRelative(reportPath)) {
+    return 'missing';
+  }
+  try {
+    const data = readJson(reportPath);
+    if (typeof data.success === 'boolean') {
+      return data.success ? 'passed' : 'failed';
+    }
+    if (typeof data.numFailedTests === 'number') {
+      return data.numFailedTests === 0 ? 'passed' : 'failed';
+    }
+    return 'unknown';
+  } catch {
+    return 'invalid';
+  }
+}
+
+function loadAiSummaryStatus() {
+  const reportPath = 'test-results/ai-reviews/summary.json';
+  if (!existsRelative(reportPath)) {
+    return 'missing';
+  }
+  try {
+    const data = readJson(reportPath);
+    if (typeof data.fail === 'number' && typeof data.total === 'number') {
+      return data.fail > 0 ? `warn_or_fail(total=${data.total},fail=${data.fail})` : `pass(total=${data.total})`;
+    }
+    return 'unknown';
+  } catch {
+    return 'invalid';
+  }
+}
+
 async function run() {
   const testsContract = readStructured('docs/machine/tests.v1.yaml');
   const aiReviewDoc = readStructured('docs/machine/ai-review.v1.yaml');
   const scenarios = testsContract.scenarios ?? [];
 
-  const rows = scenarios.map((scenario) => {
-    const result = getScenarioCoverage(scenario, aiReviewDoc);
-    return {
+  const rows = [];
+  for (const scenario of scenarios) {
+    const result = await getScenarioCoverage(scenario, aiReviewDoc);
+    const implementationFramework = scenario.type === 'ai'
+      ? 'ai_review'
+      : scenario.type === 'manual'
+        ? 'manual'
+        : scenario.implementation?.framework ?? 'manual';
+    rows.push({
       scenarioId: scenario.id,
       priority: scenario.priority,
       type: scenario.type,
+      implementationFramework,
+      gateLayer: scenario.gate?.layer ?? (scenario.type === 'ai' ? 'ai_semantic' : 'deterministic_e2e'),
       coverageStatus: result.coverageStatus,
       evidence: result.evidence,
-    };
-  });
+    });
+  }
 
   const summary = {
     totalScenarios: rows.length,
@@ -159,8 +238,18 @@ async function run() {
     generatedAt: new Date().toISOString(),
     generatedFrom: {
       testsContract: 'docs/machine/tests.v1.yaml',
-      testCode: ['tests/e2e/qa-homi.spec.ts'],
-      testResults: `test-results/.last-run.json#status=${loadLastRunStatus()}`,
+      testCode: [
+        ...new Set(
+          scenarios
+            .map((scenario) => scenario.implementation?.file)
+            .filter((value) => typeof value === 'string'),
+        ),
+      ],
+      testResults: {
+        deterministicE2E: `test-results/.last-run.json#status=${loadLastRunStatus()}`,
+        deterministicUnit: `test-results/vitest/results.json#status=${loadVitestStatus()}`,
+        aiSemantic: `test-results/ai-reviews/summary.json#status=${loadAiSummaryStatus()}`,
+      },
     },
     summary,
     rows,

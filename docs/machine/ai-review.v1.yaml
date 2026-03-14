@@ -5,12 +5,13 @@
   "schemaRef": "schemas/machine/ai-review.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-07",
+  "updated": "2026-03-14",
   "gatePolicy": {
     "id": "ai.gate.secondary_only",
     "deterministicFirstGate": true,
     "aiCanOverrideDeterministic": false,
-    "defaultGateBehavior": "soft_fail"
+    "defaultGateBehavior": "soft_fail",
+    "artifactEvidenceCountsAsPartialCoverage": true
   },
   "expectedOutputSchema": "schemas/ai-ui-review-result.schema.json",
   "artifactContract": {

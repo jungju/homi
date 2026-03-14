@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { createBrowserRuntime, type ClockAdapter, type StorageAdapter } from './runtime';
+
 export type SourceType = 'manual' | 'sample' | 'url' | 'file' | 'text';
 export type EngineId = 'schedule' | 'dictation';
 export type BundleType = 'sample' | 'import' | 'backup';
@@ -311,8 +313,10 @@ const StoreSchema = z
   })
   .strict();
 
-function nowIso(): string {
-  return new Date().toISOString();
+const defaultRuntime = createBrowserRuntime();
+
+function nowIso(clock: Pick<ClockAdapter, 'now' | 'toISOString'> = defaultRuntime.clock): string {
+  return clock.toISOString(clock.now());
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -360,11 +364,21 @@ export function getEngineMeta(engineId: string): EngineDefinition | undefined {
   return ENGINE_REGISTRY.find((engine) => engine.id === engineId);
 }
 
-export function createId(prefix = 'ds'): string {
-  if ('randomUUID' in crypto) {
-    return `${prefix}_${crypto.randomUUID()}`;
+export function createId(
+  prefix = 'ds',
+  sources: {
+    clock?: Pick<ClockAdapter, 'now'>;
+    randomUUID?: (() => string) | undefined;
+    random?: (() => number) | undefined;
+  } = {},
+): string {
+  const randomUUID = sources.randomUUID ?? globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+  if (randomUUID) {
+    return `${prefix}_${randomUUID()}`;
   }
-  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+  const now = (sources.clock ?? defaultRuntime.clock).now();
+  const random = (sources.random ?? Math.random)();
+  return `${prefix}_${now.toString(36)}_${random.toString(36).slice(2, 10)}`;
 }
 
 export function createEmptyStore(): HomiStoreV1 {
@@ -452,16 +466,6 @@ function sanitizeStore(store: HomiStoreV1): { store: HomiStoreV1; mutated: boole
     },
     mutated: true,
   };
-}
-
-function recoverEmptyStore(): HomiStoreV1 {
-  const empty = createEmptyStore();
-  try {
-    saveStore(empty);
-  } catch {
-    // localStorage write can fail independently; returning empty state is still safer than keeping corruption
-  }
-  return empty;
 }
 
 export function parseBundleText(raw: string): ParseBundleResult | ParseBundleError {
@@ -580,13 +584,16 @@ function stripUnknownFieldsFromDataSet(data: DataSetV1): DataSetPayloadV1 {
   return payload as DataSetPayloadV1;
 }
 
-export function loadStore(): HomiStoreV1 {
-  if (typeof localStorage === 'undefined') {
+export function loadStoreFromStorage(
+  storage: Pick<StorageAdapter, 'getItem' | 'setItem'>,
+  clock: Pick<ClockAdapter, 'now' | 'toISOString'> = defaultRuntime.clock,
+): HomiStoreV1 {
+  if (!storage) {
     return createEmptyStore();
   }
 
   try {
-    const raw = localStorage.getItem(HOMI_STORAGE_KEY);
+    const raw = storage.getItem(HOMI_STORAGE_KEY);
     if (!raw) {
       return createEmptyStore();
     }
@@ -594,35 +601,35 @@ export function loadStore(): HomiStoreV1 {
     const parsed = JSON.parse(raw);
     const checked = StoreSchema.safeParse(parsed);
     if (!checked.success) {
-      return recoverEmptyStore();
+      return recoverEmptyStoreWithStorage(storage, clock);
     }
 
     const next: HomiStoreV1 = {
       storeVersion: 1,
-      updatedAt: checked.data.updatedAt || nowIso(),
+      updatedAt: checked.data.updatedAt || nowIso(clock),
       datasetsByEngine: {},
       ui: checked.data.ui ?? {},
     };
 
     for (const [engineId, rawSet] of Object.entries(checked.data.datasetsByEngine)) {
       if (!isEngineId(engineId) || !Array.isArray(rawSet)) {
-        return recoverEmptyStore();
+        return recoverEmptyStoreWithStorage(storage, clock);
       }
 
       const parsedSet: DataSetV1[] = [];
       for (const rawDataSet of rawSet) {
         const safeParsed = DataSetSchema.safeParse(rawDataSet);
         if (!safeParsed.success) {
-          return recoverEmptyStore();
+          return recoverEmptyStoreWithStorage(storage, clock);
         }
 
         if (!Array.isArray(safeParsed.data.items) || !validateEngineItems(engineId, safeParsed.data.items)) {
-          return recoverEmptyStore();
+          return recoverEmptyStoreWithStorage(storage, clock);
         }
 
         const dataset = safeParsed.data as DataSetV1;
         if (dataset.engineId !== engineId) {
-          return recoverEmptyStore();
+          return recoverEmptyStoreWithStorage(storage, clock);
         }
         parsedSet.push(dataset);
       }
@@ -634,30 +641,66 @@ export function loadStore(): HomiStoreV1 {
 
     const normalized = sanitizeStore(next);
     if (normalized.mutated) {
-      saveStore(normalized.store);
+      saveStoreToStorage(storage, normalized.store, clock);
     }
     return normalized.store;
   } catch {
-    return recoverEmptyStore();
+    return recoverEmptyStoreWithStorage(storage, clock);
   }
 }
 
-export function saveStore(store: HomiStoreV1): void {
-  if (typeof localStorage === 'undefined') {
+function recoverEmptyStoreWithStorage(
+  storage: Pick<StorageAdapter, 'getItem' | 'setItem'>,
+  clock: Pick<ClockAdapter, 'now' | 'toISOString'> = defaultRuntime.clock,
+): HomiStoreV1 {
+  const empty = {
+    ...createEmptyStore(),
+    updatedAt: nowIso(clock),
+  };
+  try {
+    saveStoreToStorage(storage, empty, clock);
+  } catch {
+    // localStorage write can fail independently; returning empty state is still safer than keeping corruption
+  }
+  return empty;
+}
+
+export function loadStore(storage: Pick<StorageAdapter, 'getItem' | 'setItem'> = defaultRuntime.storage): HomiStoreV1 {
+  return loadStoreFromStorage(storage, defaultRuntime.clock);
+}
+
+export function saveStoreToStorage(
+  storage: Pick<StorageAdapter, 'setItem'>,
+  store: HomiStoreV1,
+  clock: Pick<ClockAdapter, 'now' | 'toISOString'> = defaultRuntime.clock,
+): void {
+  if (!storage) {
     return;
   }
 
-  localStorage.setItem(
+  storage.setItem(
     HOMI_STORAGE_KEY,
     JSON.stringify({
       ...store,
-      updatedAt: nowIso(),
+      updatedAt: nowIso(clock),
     }),
   );
 }
 
+export function saveStore(store: HomiStoreV1, storage: Pick<StorageAdapter, 'setItem'> = defaultRuntime.storage): void {
+  saveStoreToStorage(storage, store, defaultRuntime.clock);
+}
+
 export function getDatasetsByEngine(store: HomiStoreV1, engineId: EngineId): DataSetV1[] {
   return store.datasetsByEngine[engineId] ?? [];
+}
+
+export function isDatasetEnabled(dataset: DataSetV1): boolean {
+  if (!dataset.meta || typeof dataset.meta !== 'object') {
+    return true;
+  }
+  const enabled = (dataset.meta as Record<string, unknown>).enabled;
+  return enabled !== false;
 }
 
 export function upsertDataset(store: HomiStoreV1, dataset: DataSetV1): HomiStoreV1 {

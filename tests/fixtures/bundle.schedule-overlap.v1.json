@@ -1,0 +1,33 @@
+{
+  "format": "homi",
+  "version": 1,
+  "bundleType": "import",
+  "bundleId": "bundle_schedule_overlap_v1",
+  "title": "스케줄 중첩 테스트 번들",
+  "datasets": [
+    {
+      "id": "schedule_overlap_1",
+      "engineId": "schedule",
+      "engineSchemaVersion": 1,
+      "title": "아침 알림 묶음",
+      "meta": {
+        "enabled": true
+      },
+      "items": [
+        {
+          "repeat": "daily",
+          "title": "매일 스트레칭",
+          "timeStart": "09:00",
+          "notes": "매일 09:00"
+        },
+        {
+          "repeat": "yearly",
+          "monthDay": "03-14",
+          "title": "화이트데이 준비",
+          "timeStart": "09:00",
+          "notes": "매년 03-14 09:00"
+        }
+      ]
+    }
+  ]
+}

@@ -138,7 +138,8 @@
               "layer": {
                 "type": "string",
                 "enum": [
-                  "deterministic",
+                  "deterministic_e2e",
+                  "deterministic_unit",
                   "ai_semantic"
                 ]
               }
@@ -156,7 +157,8 @@
               "framework": {
                 "type": "string",
                 "enum": [
-                  "playwright"
+                  "playwright",
+                  "vitest"
                 ]
               },
               "file": {

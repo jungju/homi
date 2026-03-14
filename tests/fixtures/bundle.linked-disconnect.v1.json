@@ -1,0 +1,22 @@
+{
+  "format": "homi",
+  "version": 1,
+  "bundleType": "import",
+  "bundleId": "bundle_linked_disconnect_v1",
+  "title": "URL 연결 해제 테스트 번들",
+  "datasets": [
+    {
+      "id": "schedule_linked_disconnect_1",
+      "engineId": "schedule",
+      "engineSchemaVersion": 1,
+      "title": "원격 연결 일정",
+      "items": [
+        {
+          "repeat": "daily",
+          "title": "원격 아침 점검",
+          "timeStart": "07:45"
+        }
+      ]
+    }
+  ]
+}

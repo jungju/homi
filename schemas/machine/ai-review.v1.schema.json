@@ -54,7 +54,8 @@
         "id",
         "deterministicFirstGate",
         "aiCanOverrideDeterministic",
-        "defaultGateBehavior"
+        "defaultGateBehavior",
+        "artifactEvidenceCountsAsPartialCoverage"
       ],
       "properties": {
         "id": {
@@ -74,6 +75,10 @@
           "enum": [
             "soft_fail"
           ]
+        },
+        "artifactEvidenceCountsAsPartialCoverage": {
+          "type": "boolean",
+          "const": true
         }
       }
     },

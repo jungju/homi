@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: './tests/e2e',
   outputDir: 'playwright-results',
   timeout: 90_000,
   expect: {
@@ -29,5 +29,5 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 120000,
   },
-  reporter: [['list']],
+  reporter: [['list'], ['json', { outputFile: 'playwright-results/report.json' }]],
 });

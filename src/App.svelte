@@ -6,7 +6,6 @@
     type DataSetPayloadV1,
     type EngineId,
     type HomiBundleV1,
-    type LinkedUrlImportV1,
     type HomiStoreUI,
     type HomiStoreV1,
     buildBundleFromDatasetIds,
@@ -19,6 +18,7 @@
     getDatasetsByEngine,
     getEngineMeta,
     importDatasets,
+    isDatasetEnabled,
     isEngineId,
     loadStore,
     normalizeImportUrl,
@@ -28,6 +28,38 @@
     saveStore,
     upsertDataset,
   } from './lib/homi';
+  import {
+    buildSchedulePreviewEntries,
+    buildScheduleSpeechPayload,
+    evaluateScheduleTick,
+    getScheduleHourlyChimeHourKey,
+    type SchedulePreviewEntry,
+    SCHEDULE_HOURLY_CHIME_AUDIO_URL,
+  } from './lib/engines/schedule-core';
+  import {
+    advanceDictationSession,
+    createIdleDictationSession,
+    ensureDictationSession,
+    getCurrentDictationItem,
+    getDictationDisplayText,
+    selectDictationDataset as selectDictationDatasetState,
+    startDictationSession as startDictationSessionState,
+    stopDictationSession as stopDictationSessionState,
+    type DictationSessionState,
+    type DictationTransition,
+    type DictationWriteMode,
+  } from './lib/engines/dictation-core';
+  import {
+    currentLinkedImport,
+    preserveRememberedLinkedImport,
+    rememberedLinkedImport,
+    withLinkedImport,
+  } from './lib/import-core';
+  import {
+    createBrowserRuntime,
+    playSpeechOrAudio,
+    type TimerHandle,
+  } from './lib/runtime';
 
   type Route =
     | { kind: 'home' }
@@ -62,18 +94,7 @@
     type: 'ok' | 'error';
   }
 
-  interface SchedulePreviewEntry {
-    key: string;
-    datasetId: string;
-    datasetTitle: string;
-    itemIndex: number;
-    title: string;
-    meta: string;
-    item: Record<string, unknown>;
-  }
-
   type HomeMood = 'smile' | 'curious' | 'proud' | 'calm' | 'concern' | 'wink';
-  type DictationWriteMode = 'korean' | 'english';
   type BackupTabId = 'url' | 'text' | 'file' | 'sample';
   type HomiWindow = Window & { __HOMI_URL_SYNC_INTERVAL_MS__?: number };
   const BRAIN_ROUTE_PATH = '/brain';
@@ -86,7 +107,9 @@
     { id: 'sample', label: '샘플 가져오기' },
   ];
 
-  let store: HomiStoreV1 = loadStore();
+  const runtime = createBrowserRuntime();
+
+  let store: HomiStoreV1 = loadStore(runtime.storage);
   let route: Route = parseRoute(window.location.pathname);
   let preview: ImportPreview | null = null;
   let importUrl = '';
@@ -102,29 +125,26 @@
   let message: Message | null = null;
   let exportSelection = new Set<string>();
   let blink = false;
-  let blinkResetTimeout: number | null = null;
+  let blinkResetTimeout: TimerHandle | null = null;
   let homeAlertText = '';
-  let homeAlertTimeout: number | null = null;
+  let homeAlertTimeout: TimerHandle | null = null;
   let importJsonText = '';
-  let scheduleReminderTimer: number | null = null;
+  let scheduleReminderTimer: TimerHandle | null = null;
   let scheduleReminderLastSlot = new Map<string, string>();
-  let scheduleTickNow = Date.now();
+  let scheduleTickNow = runtime.clock.now();
   let reminderPermissionWarned = false;
-  let dictationDatasetId: string | null = null;
+  let dictationSession: DictationSessionState = createIdleDictationSession();
   let dictationMode: DictationWriteMode = 'korean';
-  let dictationCurrentIndex = 0;
-  let dictationRunning = false;
-  let dictationIntervalTimer: number | null = null;
-  let dictationGameMode = false;
+  let dictationIntervalTimer: TimerHandle | null = null;
   let selectedDictationDataset: DataSetV1 | null = null;
   let datasetCount = 0;
   let homeMood: HomeMood = 'smile';
   let displayMood: HomeMood = 'smile';
-  let homeClockNow = Date.now();
-  let homeClockTimer: number | null = null;
+  let homeClockNow = runtime.clock.now();
+  let homeClockTimer: TimerHandle | null = null;
   let homeClockDateText = '';
   let homeClockTimeText = '';
-  let linkedImportSyncTimer: number | null = null;
+  let linkedImportSyncTimer: TimerHandle | null = null;
   let linkedImportSyncInFlight = false;
   let backupUrlSyncStatusText = '현재 URL 자동 업데이트 연결 없음';
   let backupVersionDateText = '버전: 확인 중';
@@ -148,7 +168,6 @@
   const DICTATION_INTERVAL_MS = 10_000;
   const HOME_ALERT_VISIBILITY_MS = 8_000;
   const SCHEDULE_QUIET_MODE_MS = 30 * 60 * 1000;
-  const SCHEDULE_HOURLY_CHIME_AUDIO_URL = '/sounds/chime.mp3';
   const LINKED_URL_SYNC_INTERVAL_MS = 5 * 60 * 1000;
   const HOME_CLOCK_WEEKDAYS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 
@@ -172,31 +191,6 @@
 
   function maybeShowImportLimits() {
     return `가져오기 제한: 최대 ${prettyBytes(LIMIT_BYTES)} JSON, 번들당 최대 ${LIMIT_DATASETS}개 세트, 세트당 최대 ${LIMIT_ITEMS}개 항목`;
-  }
-
-  function isPlainRecord(value: unknown): value is Record<string, unknown> {
-    return value !== null && typeof value === 'object' && !Array.isArray(value);
-  }
-
-  function asString(value: unknown): string | undefined {
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
-      return trimmed.length > 0 ? trimmed : undefined;
-    }
-    return undefined;
-  }
-
-  function asPositiveInt(value: unknown): number | null {
-    if (typeof value === 'number' && Number.isFinite(value) && Number.isInteger(value) && value > 0) {
-      return value;
-    }
-    if (typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value))) {
-      const parsed = Number(value);
-      if (Number.isInteger(parsed) && parsed > 0) {
-        return parsed;
-      }
-    }
-    return null;
   }
 
   function formatHomeClockDate(timestamp: number) {
@@ -223,7 +217,7 @@
 
   async function loadBackupVersionDate() {
     try {
-      const response = await fetch('/version.json', { cache: 'no-store' });
+      const response = await runtime.fetch('/version.json', { cache: 'no-store' });
       if (!response.ok) {
         backupVersionDateText = '버전: 알 수 없음';
         return;
@@ -243,17 +237,13 @@
   }
 
   function refreshHomeClock() {
-    homeClockNow = Date.now();
-    if (typeof window === 'undefined') {
-      return;
-    }
-
+    homeClockNow = runtime.clock.now();
     const elapsedInMinute = homeClockNow % 60_000;
     const remainingMs = elapsedInMinute === 0 ? 60_000 : 60_000 - elapsedInMinute;
     if (homeClockTimer !== null) {
-      clearTimeout(homeClockTimer);
+      runtime.clock.clearTimeout(homeClockTimer);
     }
-    homeClockTimer = window.setTimeout(() => {
+    homeClockTimer = runtime.clock.setTimeout(() => {
       homeClockTimer = null;
       refreshHomeClock();
     }, remainingMs);
@@ -265,17 +255,16 @@
 
   function stopHomeClock() {
     if (homeClockTimer !== null) {
-      clearTimeout(homeClockTimer);
+      runtime.clock.clearTimeout(homeClockTimer);
       homeClockTimer = null;
     }
   }
 
   $: homeClockDateText = formatHomeClockDate(homeClockNow);
   $: homeClockTimeText = formatHomeClockTime(homeClockNow);
-  $: schedulePreviewEntries = buildSchedulePreviewEntries();
+  $: schedulePreviewEntries = buildSchedulePreviewEntries(getDatasetsByEngine(store, 'schedule'), isDatasetEnabled);
   $: {
-    const linkedImport =
-      store.ui?.linkedImport?.sourceType === 'url' ? store.ui.linkedImport : null;
+    const linkedImport = rememberedLinkedImport(store);
     backupUrlSyncStatusText = !linkedImport
       ? '현재 URL 자동 업데이트 연결 없음'
       : linkedImport.signature
@@ -300,215 +289,13 @@
     }
   }
 
-  function getReminderKey(datasetId: string, itemIndex: number) {
-    return `${datasetId}:${itemIndex}`;
-  }
-
-  function getMonthDayFromDate(value: string | undefined) {
-    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      return undefined;
-    }
-    return value.slice(5);
-  }
-
-  function getScheduleRepeatMode(item: Record<string, unknown>): 'daily' | 'yearly' | 'interval' | null {
-    const repeat = asString(item.repeat);
-    if (repeat === 'daily' || repeat === 'yearly') {
-      return repeat;
-    }
-    if (asPositiveInt(item.repeatIntervalSec)) {
-      return 'interval';
-    }
-    if (asString(item.monthDay)) {
-      return 'yearly';
-    }
-    if (asString(item.timeStart) || asString(item.date)) {
-      return 'daily';
-    }
-    return null;
-  }
-
-  function getScheduleTimingText(item: Record<string, unknown>) {
-    const repeatMode = getScheduleRepeatMode(item);
-    const timeStart = asString(item.timeStart);
-    const monthDay = asString(item.monthDay) ?? getMonthDayFromDate(asString(item.date));
-
-    if (repeatMode === 'interval') {
-      const intervalSec = asPositiveInt(item.repeatIntervalSec);
-      return intervalSec ? `테스트용 매 ${intervalSec}초` : '테스트용 반복';
-    }
-
-    if (repeatMode === 'yearly' && monthDay && timeStart) {
-      return `매년 ${monthDay} ${timeStart}`;
-    }
-
-    if (timeStart) {
-      return `매일 ${timeStart}`;
-    }
-
-    return '';
-  }
-
-  function getScheduleReminderSlot(item: Record<string, unknown>, now: number) {
-    const repeatMode = getScheduleRepeatMode(item);
-    if (!repeatMode) {
-      return null;
-    }
-
-    if (repeatMode === 'interval') {
-      const intervalSec = asPositiveInt(item.repeatIntervalSec);
-      if (!intervalSec) {
-        return null;
-      }
-      const intervalMs = intervalSec * 1000;
-      return {
-        slotKey: `interval:${Math.floor(now / intervalMs)}`,
-        fireOnFirstSeen: false,
-      };
-    }
-
-    const timeStart = asString(item.timeStart);
-    if (!timeStart) {
-      return null;
-    }
-
-    const [targetHourText, targetMinuteText] = timeStart.split(':');
-    const targetHour = Number(targetHourText);
-    const targetMinute = Number(targetMinuteText);
-    if (!Number.isInteger(targetHour) || !Number.isInteger(targetMinute)) {
-      return null;
-    }
-
-    const current = new Date(now);
-    if (current.getHours() !== targetHour || current.getMinutes() !== targetMinute) {
-      return {
-        slotKey: null,
-        fireOnFirstSeen: true,
-      };
-    }
-
-    const currentMonthDay = `${String(current.getMonth() + 1).padStart(2, '0')}-${String(
-      current.getDate(),
-    ).padStart(2, '0')}`;
-
-    if (repeatMode === 'yearly') {
-      const monthDay = asString(item.monthDay) ?? getMonthDayFromDate(asString(item.date));
-      if (!monthDay || monthDay !== currentMonthDay) {
-        return {
-          slotKey: null,
-          fireOnFirstSeen: true,
-        };
-      }
-      return {
-        slotKey: `yearly:${current.getFullYear()}-${monthDay}T${timeStart}`,
-        fireOnFirstSeen: true,
-      };
-    }
-
-    return {
-      slotKey: `daily:${current.getFullYear()}-${currentMonthDay}T${timeStart}`,
-      fireOnFirstSeen: true,
-    };
-  }
-
-  function getScheduleSpeechPayload(datasetTitle: string, item: Record<string, unknown>) {
-    const title = asString(item.title) ?? datasetTitle ?? 'Homi 알림';
-    const bodyParts = [
-      getScheduleTimingText(item),
-      asString(item.notes) ?? '',
-    ].filter(Boolean);
-    return {
-      title,
-      notificationBody: `${title}${bodyParts.length > 0 ? ` - ${bodyParts.join(' ')}` : ''}`,
-      audioUrl: asString(item.audioUrl),
-    };
-  }
-
-  function getScheduleHourlyChimeHourKey(now: number) {
-    const current = new Date(now);
-    return `hourly:${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(
-      current.getDate(),
-    ).padStart(2, '0')}T${String(current.getHours()).padStart(2, '0')}`;
-  }
-
-  function playSpeechText(text: string, lang = 'ko-KR') {
-    if (
-      typeof window === 'undefined' ||
-      typeof SpeechSynthesisUtterance === 'undefined' ||
-      !window.speechSynthesis
-    ) {
-      return false;
-    }
-
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = lang;
-    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
-      window.speechSynthesis.cancel();
-    }
-    window.speechSynthesis.speak(utter);
-    return true;
-  }
-
-  function playScheduleSpeech(payload: { title: string; audioUrl?: string }) {
-    if (typeof window === 'undefined') {
-      return 'unavailable' as const;
-    }
-
-    if (payload.audioUrl) {
-      const audio = new Audio(payload.audioUrl);
-      void audio.play().catch(() => {
-        playSpeechText(payload.title);
-      });
-      return 'audio' as const;
-    }
-
-    return playSpeechText(payload.title) ? ('speech' as const) : ('unavailable' as const);
-  }
-
-  function playScheduleHourlyChime() {
-    if (typeof window === 'undefined') {
-      return false;
-    }
-
-    const audio = new Audio(SCHEDULE_HOURLY_CHIME_AUDIO_URL);
-    void audio.play().catch(() => undefined);
-    return true;
-  }
-
-  function formatSchedulePreviewMeta(dataset: DataSetV1, item: Record<string, unknown>) {
-    const parts = [
-      dataset.title,
-      isDatasetEnabled(dataset) ? '사용중' : '사용안함',
-      getScheduleTimingText(item),
-      asString(item.notes) ?? '',
-    ].filter(Boolean);
-    return parts.join(' · ');
-  }
-
-  function buildSchedulePreviewEntries() {
-    return getDatasetsByEngine(store, 'schedule').flatMap((dataset) =>
-      dataset.items.flatMap((rawItem, itemIndex) => {
-        if (!isPlainRecord(rawItem)) {
-          return [];
-        }
-        return [
-          {
-            key: getReminderKey(dataset.id, itemIndex),
-            datasetId: dataset.id,
-            datasetTitle: dataset.title,
-            itemIndex,
-            title: asString(rawItem.title) ?? `${dataset.title} 항목 ${itemIndex + 1}`,
-            meta: formatSchedulePreviewMeta(dataset, rawItem),
-            item: rawItem,
-          } satisfies SchedulePreviewEntry,
-        ];
-      }),
-    );
-  }
-
-  function previewScheduleEntry(entry: SchedulePreviewEntry) {
-    const payload = getScheduleSpeechPayload(entry.datasetTitle, entry.item);
-    const mode = playScheduleSpeech(payload);
+  async function previewScheduleEntry(entry: SchedulePreviewEntry) {
+    const payload = buildScheduleSpeechPayload(entry.datasetTitle, entry.item);
+    const mode = await playSpeechOrAudio(runtime, {
+      text: payload.title,
+      audioUrl: payload.audioUrl,
+      lang: 'ko-KR',
+    });
     schedulePreviewPlayedKey = entry.key;
     schedulePreviewPlayedMode = mode;
     if (mode !== 'unavailable') {
@@ -516,127 +303,81 @@
     }
   }
 
-  function cleanupReminderState(validKeys: Set<string>) {
-    for (const key of scheduleReminderLastSlot.keys()) {
-      if (!validKeys.has(key)) {
-        scheduleReminderLastSlot.delete(key);
-      }
-    }
-  }
+  async function announceReminder(effect: {
+    datasetTitle: string;
+    payload: { title: string; notificationBody: string; audioUrl?: string };
+  }) {
+    showHomeAlert(effect.payload.title);
 
-  function announceReminder(datasetTitle: string, item: Record<string, unknown>) {
-    const payload = getScheduleSpeechPayload(datasetTitle, item);
-
-    const isDictationGameActive = dictationRunning && dictationGameMode;
-    if (isDictationGameActive) {
-      // 얼굴 실행 화면에서는 일정 알림 toast를 띄우지 않는다.
-      return;
-    }
-
-    showHomeAlert(payload.title);
-
-    if (typeof Notification !== 'undefined') {
-      if (Notification.permission === 'granted') {
-        new Notification(`Homi / ${datasetTitle}`, {
-          body: payload.notificationBody,
-        });
-      } else if (!reminderPermissionWarned && Notification.permission !== 'denied') {
-        setMessage('브라우저 알림이 차단되어 있어 표시되지 않을 수 있어요. 알림 허용 시 스케줄 알림이 뜹니다.', 'error');
-        reminderPermissionWarned = true;
-      }
+    const permission = runtime.notifications.permission();
+    if (permission === 'granted') {
+      runtime.notifications.notify(`Homi / ${effect.datasetTitle}`, {
+        body: effect.payload.notificationBody,
+      });
+    } else if (!reminderPermissionWarned && permission !== 'denied' && permission !== 'unsupported') {
+      setMessage('브라우저 알림이 차단되어 있어 표시되지 않을 수 있어요. 알림 허용 시 스케줄 알림이 뜹니다.', 'error');
+      reminderPermissionWarned = true;
     }
 
-    playScheduleSpeech(payload);
+    await playSpeechOrAudio(runtime, {
+      text: effect.payload.title,
+      audioUrl: effect.payload.audioUrl,
+      lang: 'ko-KR',
+    });
   }
 
   function tickScheduleReminder() {
-    const reminders = getDatasetsByEngine(store, 'schedule').filter((dataset) => isDatasetEnabled(dataset));
-    const now = Date.now();
+    const now = runtime.clock.now();
     const quietUntilMs = getScheduleQuietUntilMs();
-    const quietModeActiveNow = quietUntilMs !== null && quietUntilMs > now;
     scheduleTickNow = now;
-    const validKeys = new Set<string>();
-    const dueCandidates: Array<{ datasetTitle: string; item: Record<string, unknown> }> = [];
-
-    if (store.ui?.scheduleHourlyChimeEnabled) {
-      const currentHourKey = getScheduleHourlyChimeHourKey(now);
-      if (new Date(now).getMinutes() === 0 && scheduleHourlyChimeLastSlot !== currentHourKey) {
-        scheduleHourlyChimeLastSlot = currentHourKey;
-        if (!quietModeActiveNow && !dictationGameMode) {
-          playScheduleHourlyChime();
-        }
-      }
-    }
-
-    reminders.forEach((dataset) => {
-      dataset.items.forEach((rawItem, index) => {
-        if (!isPlainRecord(rawItem)) {
-          return;
-        }
-        const key = getReminderKey(dataset.id, index);
-        const reminderSlot = getScheduleReminderSlot(rawItem, now);
-        if (!reminderSlot) {
-          return;
-        }
-        validKeys.add(key);
-        const lastSlot = scheduleReminderLastSlot.get(key);
-
-        if (!reminderSlot.slotKey) {
-          return;
-        }
-
-        if (lastSlot === undefined && !reminderSlot.fireOnFirstSeen) {
-          scheduleReminderLastSlot.set(key, reminderSlot.slotKey);
-          return;
-        }
-
-        if (lastSlot === reminderSlot.slotKey) {
-          return;
-        }
-
-        dueCandidates.push({
-          datasetTitle: dataset.title,
-          item: rawItem,
-        });
-        scheduleReminderLastSlot.set(key, reminderSlot.slotKey);
-      });
+    const result = evaluateScheduleTick({
+      datasets: getDatasetsByEngine(store, 'schedule'),
+      now,
+      quietUntilMs,
+      hourlyChimeEnabled: store.ui?.scheduleHourlyChimeEnabled === true,
+      dictationActive: dictationSession.gameMode,
+      reminderLastSlot: scheduleReminderLastSlot,
+      hourlyChimeLastSlot: scheduleHourlyChimeLastSlot,
+      isDatasetEnabled,
     });
 
-    cleanupReminderState(validKeys);
-    if (dueCandidates.length === 0) {
-      return;
+    scheduleReminderLastSlot = result.nextReminderLastSlot;
+    scheduleHourlyChimeLastSlot = result.nextHourlyChimeLastSlot;
+
+    if (result.hourlyChimeEffect) {
+      void runtime.audio.play(result.hourlyChimeEffect.audioUrl);
     }
 
-    if (quietModeActiveNow) {
+    if (result.reminderEffects.length === 0) {
       return;
     }
 
     triggerHomeWink();
-    dueCandidates.forEach((candidate) => {
-      announceReminder(candidate.datasetTitle, candidate.item);
+    result.reminderEffects.forEach((effect) => {
+      void announceReminder(effect);
     });
   }
 
   function startScheduleReminder() {
     if (scheduleReminderTimer !== null) return;
     tickScheduleReminder();
-    scheduleReminderTimer = window.setInterval(() => {
+    scheduleReminderTimer = runtime.clock.setInterval(() => {
       tickScheduleReminder();
     }, SCHEDULE_REMINDER_TICK_MS);
   }
 
   function stopScheduleReminder() {
     if (scheduleReminderTimer === null) return;
-    clearInterval(scheduleReminderTimer);
+    runtime.clock.clearInterval(scheduleReminderTimer);
     scheduleReminderTimer = null;
   }
 
   function showHomeAlert(text: string) {
     homeAlertText = text;
     if (homeAlertTimeout !== null) {
-      clearTimeout(homeAlertTimeout);
+      runtime.clock.clearTimeout(homeAlertTimeout);
     }
-    homeAlertTimeout = window.setTimeout(() => {
+    homeAlertTimeout = runtime.clock.setTimeout(() => {
       homeAlertText = '';
       homeAlertTimeout = null;
     }, HOME_ALERT_VISIBILITY_MS);
@@ -654,7 +395,7 @@
             ? 'curious'
             : 'proud';
   $: displayMood = blink ? 'wink' : homeMood;
-  $: homeModeText = dictationGameMode ? '현재 모드: 받아쓰기 실행모드' : '';
+  $: homeModeText = dictationSession.gameMode ? '현재 모드: 받아쓰기 실행모드' : '';
   $: {
     const quietUntilMs = getScheduleQuietUntilMs();
     scheduleQuietModeActive = quietUntilMs !== null && quietUntilMs > scheduleTickNow;
@@ -670,7 +411,7 @@
   $: {
     const hourlyChimeEnabled = store.ui?.scheduleHourlyChimeEnabled === true;
     if (hourlyChimeEnabled && !scheduleHourlyChimePrimed) {
-      scheduleHourlyChimeLastSlot = getScheduleHourlyChimeHourKey(Date.now());
+      scheduleHourlyChimeLastSlot = getScheduleHourlyChimeHourKey(runtime.clock.now());
     }
     if (!hourlyChimeEnabled) {
       scheduleHourlyChimeLastSlot = null;
@@ -678,7 +419,7 @@
     scheduleHourlyChimePrimed = hourlyChimeEnabled;
   }
   $:
-    homeStatusText = dictationGameMode
+    homeStatusText = dictationSession.gameMode
       ? '받아쓰기를 진행하고 있어요'
       : homeAlertText
         ? homeAlertText
@@ -688,7 +429,7 @@
           ? message.text
           : '';
   $:
-    homeStatusTone = dictationGameMode
+    homeStatusTone = dictationSession.gameMode
       ? 'running'
       : homeAlertText
         ? 'alert'
@@ -696,89 +437,26 @@
           ? 'error'
           : 'default';
   $:
-    selectedDictationDataset = dictationDatasetId
-      ? getDatasetsByEngine(store, 'dictation').find((dataset) => dataset.id === dictationDatasetId) ?? null
+    selectedDictationDataset = dictationSession.datasetId
+      ? getDatasetsByEngine(store, 'dictation').find((dataset) => dataset.id === dictationSession.datasetId) ?? null
       : null;
 
   function triggerHomeWink() {
     blink = true;
     if (blinkResetTimeout !== null) {
-      clearTimeout(blinkResetTimeout);
+      runtime.clock.clearTimeout(blinkResetTimeout);
     }
-    blinkResetTimeout = window.setTimeout(() => {
+    blinkResetTimeout = runtime.clock.setTimeout(() => {
       blink = false;
       blinkResetTimeout = null;
     }, 450);
   }
 
-  function getSelectedDictationDataset(): DataSetV1 | null {
-    if (!dictationDatasetId) {
-      return null;
-    }
-    const list = getDatasetsByEngine(store, 'dictation');
-    return list.find((dataset) => dataset.id === dictationDatasetId) ?? null;
-  }
-
   function selectDictationDataset(dataset: DataSetV1) {
-    if (dataset.engineId !== 'dictation') {
-      return;
-    }
-    if (dictationRunning) {
-      stopDictationSession();
-    }
-    dictationDatasetId = dataset.id;
-    dictationCurrentIndex = 0;
+    applyDictationTransition(selectDictationDatasetState(dictationSession, dataset));
     if (route.kind === 'engine') {
       setMessage(`"${dataset.title}"를 받아쓰기 대상으로 선택했습니다.`, 'ok');
     }
-  }
-
-  function getDictationSpeechPayload(item: Record<string, unknown>) {
-    if (dictationMode === 'korean') {
-      const englishWord = asString(item.word);
-      return englishWord
-        ? {
-            text: englishWord,
-            lang: 'en-US',
-          }
-        : null;
-    }
-
-    const koreanText = asString(item.meaning);
-    if (koreanText) {
-      return {
-        text: koreanText,
-        lang: 'ko-KR',
-      };
-    }
-
-    const fallbackWord = asString(item.word);
-    return fallbackWord
-      ? {
-          text: fallbackWord,
-          lang: 'ko-KR',
-        }
-      : null;
-  }
-
-  function getDictationDisplayText(item: Record<string, unknown>) {
-    const word = asString(item.word) ?? '';
-    const meaning = asString(item.meaning) ?? '';
-    return dictationMode === 'korean' ? word : meaning || word;
-  }
-
-  function getCurrentDictationItem(dataset: DataSetV1 | null): Record<string, unknown> | null {
-    if (!dataset) return null;
-    const item = dataset.items[dictationCurrentIndex];
-    return isPlainRecord(item) ? item : null;
-  }
-
-  function isDatasetEnabled(dataset: DataSetV1): boolean {
-    if (!dataset.meta || typeof dataset.meta !== 'object') {
-      return true;
-    }
-    const enabled = (dataset.meta as Record<string, unknown>).enabled;
-    return enabled !== false;
   }
 
   function toggleScheduleDatasetEnabled(dataset: DataSetV1) {
@@ -790,153 +468,81 @@
       ...(dataset.meta ?? {}),
       enabled: nextEnabled,
     };
-    const now = new Date().toISOString();
+    const now = runtime.clock.toISOString();
     const nextDataset: DataSetV1 = {
       ...dataset,
       meta: nextMeta,
       updatedAt: now,
     };
-    persist(preserveRememberedLinkedImport(upsertDataset(store, nextDataset)));
+    persist(preserveRememberedLinkedImport(upsertDataset(store, nextDataset), store));
     setMessage(
       `${dataset.title}를 ${nextEnabled ? '사용' : '사용안함'} 상태로 바꿨습니다.`,
       'ok',
     );
   }
 
-  function stopDictationSession() {
-    if (!dictationRunning) {
-      dictationRunning = false;
-    }
-    dictationGameMode = false;
-    if (dictationIntervalTimer !== null) {
-      clearInterval(dictationIntervalTimer);
+  function applyDictationTransition(transition: DictationTransition) {
+    if (dictationIntervalTimer !== null && (transition.stopTimer || transition.restartTimer || !transition.nextState.running)) {
+      runtime.clock.clearInterval(dictationIntervalTimer);
       dictationIntervalTimer = null;
     }
-    if (typeof window !== 'undefined' && window.speechSynthesis?.speaking) {
-      window.speechSynthesis.cancel();
+    if (!transition.nextState.running || transition.speakPayload) {
+      runtime.speech.cancel();
     }
-    dictationRunning = false;
+
+    dictationSession = transition.nextState;
+
+    if (transition.navigateHome && route.kind !== 'home') {
+      navigate('/');
+    }
+    if (transition.speakPayload) {
+      triggerHomeWink();
+      runtime.speech.speak(transition.speakPayload);
+    }
+    if (transition.restartTimer) {
+      startDictationAutoTimer();
+    }
+    if (transition.message) {
+      setMessage(transition.message.text, transition.message.type);
+    }
+  }
+
+  function stopDictationSession() {
+    applyDictationTransition(stopDictationSessionState(dictationSession));
   }
 
   function startDictationAutoTimer() {
     if (dictationIntervalTimer !== null) {
-      clearInterval(dictationIntervalTimer);
+      runtime.clock.clearInterval(dictationIntervalTimer);
     }
-    dictationIntervalTimer = window.setInterval(() => {
-      if (!dictationRunning) return;
-      moveToNextDictationItem(true);
+    dictationIntervalTimer = runtime.clock.setInterval(() => {
+      if (!dictationSession.running) {
+        return;
+      }
+      applyDictationTransition(
+        advanceDictationSession(dictationSession, selectedDictationDataset, dictationMode, { auto: true }),
+      );
     }, DICTATION_INTERVAL_MS);
   }
 
-  function playDictationCurrentItem(auto = false) {
-    const dataset = getSelectedDictationDataset();
-    if (!dataset) {
-      if (dictationRunning) {
-        stopDictationSession();
-      }
-      return;
-    }
-
-    if (dataset.items.length === 0 || dictationCurrentIndex >= dataset.items.length) {
-      stopDictationSession();
-      setMessage('마지막 항목까지 진행했습니다.', 'ok');
-      return;
-    }
-
-    const raw = dataset.items[dictationCurrentIndex];
-    if (!isPlainRecord(raw)) {
-      if (auto) {
-        moveToNextDictationItem(true);
-        return;
-      }
-      setMessage('현재 항목 형식이 유효하지 않습니다.', 'error');
-      return;
-    }
-
-    const payload = getDictationSpeechPayload(raw);
-    if (!payload) {
-      if (auto) {
-        moveToNextDictationItem(true);
-        return;
-      }
-      setMessage('현재 항목에 발화할 텍스트가 없습니다.', 'error');
-      return;
-    }
-
-    const utter = new SpeechSynthesisUtterance(payload.text);
-    utter.lang = payload.lang;
-    if (window.speechSynthesis?.speaking || window.speechSynthesis?.pending) {
-      window.speechSynthesis.cancel();
-    }
-    triggerHomeWink();
-    window.speechSynthesis?.speak(utter);
-  }
-
-  function moveToNextDictationItem(auto = false) {
-    const dataset = getSelectedDictationDataset();
-    if (!dataset) {
-      stopDictationSession();
-      return;
-    }
-
-    if (dictationCurrentIndex + 1 >= dataset.items.length) {
-      stopDictationSession();
-      setMessage('마지막 항목까지 진행했습니다.', 'ok');
-      return;
-    }
-
-    dictationCurrentIndex += 1;
-    playDictationCurrentItem(auto);
-
-    if (auto) {
-      return;
-    }
-
-    startDictationAutoTimer();
-  }
-
   function startDictationSession() {
-    const dataset = getSelectedDictationDataset();
-    if (!dataset) {
-      setMessage('받아쓰기 데이터를 먼저 선택해주세요.', 'error');
-      return;
-    }
-
-    if (dataset.items.length === 0) {
-      setMessage('선택한 데이터셋이 비어 있습니다.', 'error');
-      return;
-    }
-
-    stopDictationSession();
-    dictationRunning = true;
-    dictationGameMode = true;
-    dictationCurrentIndex = 0;
-    if (route.kind !== 'home') {
-      navigate('/');
-    }
-    playDictationCurrentItem();
-    startDictationAutoTimer();
-    setMessage(`"${dataset.title}" 받아쓰기 시작`, 'ok');
+    applyDictationTransition(
+      startDictationSessionState(dictationSession, selectedDictationDataset, dictationMode),
+    );
   }
 
   function onNextDictationItem() {
-    if (!dictationRunning) {
+    if (!dictationSession.running) {
       setMessage('시작한 뒤 Next를 눌러주세요.', 'error');
       return;
     }
-    moveToNextDictationItem();
+    applyDictationTransition(
+      advanceDictationSession(dictationSession, selectedDictationDataset, dictationMode, { auto: false }),
+    );
   }
 
   function ensureDictationUiStopsIfNeeded() {
-    const dataset = getSelectedDictationDataset();
-    if (!dataset) {
-      stopDictationSession();
-      return;
-    }
-    if (dictationCurrentIndex >= dataset.items.length) {
-      dictationCurrentIndex = Math.max(0, dataset.items.length - 1);
-      stopDictationSession();
-    }
+    applyDictationTransition(ensureDictationSession(dictationSession, selectedDictationDataset));
   }
 
   function canonicalizeRoutePath(pathname: string) {
@@ -984,7 +590,7 @@
       return null;
     }
 
-    const parsed = Date.parse(rawValue);
+    const parsed = runtime.clock.parse(rawValue);
     return Number.isFinite(parsed) ? parsed : null;
   }
 
@@ -1006,46 +612,6 @@
     });
   }
 
-  function rememberedLinkedImport(): LinkedUrlImportV1 | null {
-    return store.ui?.linkedImport?.sourceType === 'url' ? store.ui.linkedImport : null;
-  }
-
-  function currentLinkedImport(): LinkedUrlImportV1 | null {
-    const linkedImport = rememberedLinkedImport();
-    if (!linkedImport?.signature) {
-      return null;
-    }
-    return linkedImport;
-  }
-
-  function withLinkedImport(baseStore: HomiStoreV1, linkedImport?: LinkedUrlImportV1 | null): HomiStoreV1 {
-    const nextUi: HomiStoreUI = {
-      ...(baseStore.ui ?? {}),
-    };
-
-    if (linkedImport) {
-      nextUi.linkedImport = linkedImport;
-    } else {
-      delete nextUi.linkedImport;
-    }
-
-    return {
-      ...baseStore,
-      ui: nextUi,
-    };
-  }
-
-  function preserveRememberedLinkedImport(baseStore: HomiStoreV1): HomiStoreV1 {
-    const linkedImport = rememberedLinkedImport();
-    if (!linkedImport) {
-      return withLinkedImport(baseStore, null);
-    }
-    return withLinkedImport(baseStore, {
-      sourceType: 'url',
-      url: linkedImport.url,
-    });
-  }
-
   function getLinkedImportSyncIntervalMs() {
     if (typeof window !== 'undefined') {
       const rawValue = Number((window as HomiWindow).__HOMI_URL_SYNC_INTERVAL_MS__);
@@ -1057,14 +623,14 @@
   }
 
   async function syncLinkedImportIfNeeded() {
-    const linkedImport = currentLinkedImport();
+    const linkedImport = currentLinkedImport(store);
     if (!linkedImport || linkedImportSyncInFlight) {
       return;
     }
 
     linkedImportSyncInFlight = true;
     try {
-      const response = await fetch(linkedImport.url, { cache: 'no-store' });
+      const response = await runtime.fetch(linkedImport.url, { cache: 'no-store' });
       if (!response.ok) {
         return;
       }
@@ -1092,7 +658,7 @@
         return;
       }
 
-      const activeLinkedImport = currentLinkedImport();
+      const activeLinkedImport = currentLinkedImport(store);
       if (
         !activeLinkedImport ||
         activeLinkedImport.url !== linkedImport.url ||
@@ -1128,30 +694,30 @@
   }
 
   function startLinkedImportSync() {
-    if (typeof window === 'undefined' || linkedImportSyncTimer !== null) {
+    if (linkedImportSyncTimer !== null) {
       return;
     }
-    linkedImportSyncTimer = window.setInterval(() => {
+    linkedImportSyncTimer = runtime.clock.setInterval(() => {
       void syncLinkedImportIfNeeded();
     }, getLinkedImportSyncIntervalMs());
   }
 
   function stopLinkedImportSync() {
     if (linkedImportSyncTimer !== null) {
-      clearInterval(linkedImportSyncTimer);
+      runtime.clock.clearInterval(linkedImportSyncTimer);
       linkedImportSyncTimer = null;
     }
   }
 
   function startScheduleQuietMode() {
-    const quietUntil = new Date(Date.now() + SCHEDULE_QUIET_MODE_MS).toISOString();
-    scheduleTickNow = Date.now();
+    const quietUntil = runtime.clock.toISOString(runtime.clock.now() + SCHEDULE_QUIET_MODE_MS);
+    scheduleTickNow = runtime.clock.now();
     updateStoreUi({ scheduleQuietUntil: quietUntil });
     setMessage('30분 동안 스케줄 알림을 무시합니다.', 'ok');
   }
 
   function clearScheduleQuietMode() {
-    scheduleTickNow = Date.now();
+    scheduleTickNow = runtime.clock.now();
     updateStoreUi({ scheduleQuietUntil: undefined });
     setMessage('조용히 모드를 해제했습니다.', 'ok');
   }
@@ -1177,13 +743,13 @@
       // 브레인 설정에서는 전체 export만 사용한다.
       backupTab = 'url';
       if (!importUrl) {
-        importUrl = rememberedLinkedImport()?.url ?? '';
+        importUrl = rememberedLinkedImport(store)?.url ?? '';
       }
       stopDictationSession();
     } else if (route.kind === 'home') {
       exportSelection = new Set();
       // 실행 모드 진입 후 팝업을 닫아도 받아쓰기 세션은 유지한다.
-      if (!dictationGameMode) {
+      if (!dictationSession.gameMode) {
         stopDictationSession();
       }
     } else {
@@ -1202,13 +768,13 @@
 
   function setMessage(text: string, type: Message['type']) {
     message = { text, type };
-    setTimeout(() => {
+    runtime.clock.setTimeout(() => {
       message = null;
     }, 3500);
   }
 
   function nowTag() {
-    const now = new Date();
+    const now = runtime.clock.date();
     return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(
       now.getDate(),
     ).padStart(2, '0')}`;
@@ -1216,7 +782,7 @@
 
   function persist(nextStore: HomiStoreV1) {
     store = nextStore;
-    saveStore(store);
+    saveStore(store, runtime.storage);
     if (route.kind === 'engine') {
       exportSelection = new Set(getDatasetsByEngine(store, route.engineId).map((item) => item.id));
     } else if (route.kind === 'backup') {
@@ -1324,7 +890,7 @@
       return;
     }
 
-    const now = new Date().toISOString();
+    const now = runtime.clock.toISOString();
     const origin =
       editor.mode === 'edit'
         ? getDatasetsByEngine(store, editor.engineId).find((item) => item.id === editor.datasetId)
@@ -1342,7 +908,7 @@
       source: origin?.source ?? { type: 'manual' },
     };
 
-    persist(preserveRememberedLinkedImport(upsertDataset(store, nextDataset)));
+    persist(preserveRememberedLinkedImport(upsertDataset(store, nextDataset), store));
     if (route.kind === 'engine' && editor.engineId === 'dictation') {
       ensureDictationUiStopsIfNeeded();
     }
@@ -1352,11 +918,10 @@
 
   function onDeleteDataset(dataset: DataSetV1) {
     if (!confirm(`"${dataset.title}"를 삭제할까요?`)) return;
-    persist(preserveRememberedLinkedImport(removeDataset(store, dataset.engineId, dataset.id)));
-    if (dataset.engineId === 'dictation' && dictationDatasetId === dataset.id) {
+    persist(preserveRememberedLinkedImport(removeDataset(store, dataset.engineId, dataset.id), store));
+    if (dataset.engineId === 'dictation' && dictationSession.datasetId === dataset.id) {
       stopDictationSession();
-      dictationDatasetId = null;
-      dictationCurrentIndex = 0;
+      dictationSession = createIdleDictationSession();
     }
     setMessage('자료 세트를 삭제했습니다.', 'ok');
   }
@@ -1433,7 +998,7 @@
     }
 
     try {
-      const response = await fetch(normalized.url);
+      const response = await runtime.fetch(normalized.url);
       if (!response.ok) {
         setMessage(`요청 실패: ${response.status} ${response.statusText}`, 'error');
         return;
@@ -1495,7 +1060,7 @@
     }
     preview = null;
     try {
-      const response = await fetch('/samples/homi.sample.homi.json');
+      const response = await runtime.fetch('/samples/homi.sample.homi.json');
       if (!response.ok) {
         setMessage('샘플 불러오기 실패', 'error');
         return;
@@ -1695,7 +1260,7 @@
             : 'url';
 
     const replaceStore: HomiStoreV1 = createEmptyStore();
-    const rememberedBefore = rememberedLinkedImport();
+    const rememberedBefore = rememberedLinkedImport(store);
     const linkEligible = preview.sourceKind === 'url' && selected.length === preview.candidates.length;
     const linkedImport =
       preview.sourceKind === 'url'
@@ -1764,11 +1329,11 @@
   onDestroy(() => {
     window.removeEventListener('popstate', onPopState);
     if (blinkResetTimeout !== null) {
-      clearTimeout(blinkResetTimeout);
+      runtime.clock.clearTimeout(blinkResetTimeout);
       blinkResetTimeout = null;
     }
     if (homeAlertTimeout !== null) {
-      clearTimeout(homeAlertTimeout);
+      runtime.clock.clearTimeout(homeAlertTimeout);
       homeAlertTimeout = null;
     }
     stopHomeClock();
@@ -1831,7 +1396,7 @@
           </div>
           <div class="home-control-box" data-box="7" data-testid="home-control-box-7"></div>
           <div class="home-control-box" data-box="8" data-testid="home-control-box-8">
-            {#if dictationGameMode && selectedDictationDataset}
+            {#if dictationSession.gameMode && selectedDictationDataset}
               <section class="card dictation-game-screen home-bottom-panel" data-testid="dictation-root">
                 <h3>받아쓰기 게임</h3>
                 <p class="muted">
@@ -1840,15 +1405,17 @@
                 </p>
 
                 {#if selectedDictationDataset.items.length > 0}
-                  {@const currentDictationItem = getCurrentDictationItem(selectedDictationDataset)}
+                  {@const currentDictationItem = getCurrentDictationItem(selectedDictationDataset, dictationSession)}
                   {#if currentDictationItem}
                     <p class="count" data-testid="dictation-progress">
                       진행:
-                      <span data-testid="dictation-progress-index">{dictationCurrentIndex + 1}</span>
+                      <span data-testid="dictation-progress-index">{dictationSession.currentIndex + 1}</span>
                       /
                       <span data-testid="dictation-progress-total">{selectedDictationDataset.items.length}</span>
                     </p>
-                    <p class="muted" data-testid="dictation-current-text">현재 항목: {getDictationDisplayText(currentDictationItem)}</p>
+                    <p class="muted" data-testid="dictation-current-text">
+                      현재 항목: {getDictationDisplayText(currentDictationItem, dictationMode)}
+                    </p>
                   {/if}
                 {/if}
 
@@ -1859,7 +1426,7 @@
                 </div>
               </section>
             {/if}
-            {#if !dictationGameMode}
+            {#if !dictationSession.gameMode}
               <section class="home-bottom-panel home-idle-controls">
                 <div class="home-engine-row" data-testid="home-open-engines">
                   {#each ENGINE_REGISTRY as engine}
@@ -1957,15 +1524,15 @@
                 <p class="count">
                   진행:
                   <span>
-                    {selectedDictationDataset.items.length > 0 ? dictationCurrentIndex + 1 : 0}
+                    {selectedDictationDataset.items.length > 0 ? dictationSession.currentIndex + 1 : 0}
                   </span>
                   /
                   <span>{selectedDictationDataset.items.length}</span>
                 </p>
                 {#if selectedDictationDataset.items.length > 0}
-                  {@const currentDictationItem = getCurrentDictationItem(selectedDictationDataset)}
+                  {@const currentDictationItem = getCurrentDictationItem(selectedDictationDataset, dictationSession)}
                   {#if currentDictationItem}
-                    <p class="muted">현재 항목: {getDictationDisplayText(currentDictationItem)}</p>
+                    <p class="muted">현재 항목: {getDictationDisplayText(currentDictationItem, dictationMode)}</p>
                   {/if}
                 {/if}
               {:else}
@@ -1973,15 +1540,15 @@
               {/if}
 
                 <div class="inline">
-                  <button
-                    data-testid="dictation-start"
-                    on:click={startDictationSession}
-                    disabled={!selectedDictationDataset || dictationRunning}
-                  >
-                    {dictationRunning ? '실행 중' : '시작'}
-                  </button>
-                </div>
-                {#if dictationRunning}
+                    <button
+                      data-testid="dictation-start"
+                      on:click={startDictationSession}
+                      disabled={!selectedDictationDataset || dictationSession.running}
+                    >
+                      {dictationSession.running ? '실행 중' : '시작'}
+                    </button>
+                  </div>
+                {#if dictationSession.running}
                   <p class="muted">받아쓰기는 홈 실행 모드에서 진행 중입니다.</p>
                 {/if}
               </section>
@@ -2088,16 +1655,16 @@
                       </button>
                     {/if}
                     {#if currentEngineId === 'dictation'}
-                      <button
-                        type="button"
-                        data-testid="dataset-open"
-                        class:dictation-selected={dictationDatasetId === dataset.id}
-                        on:click={() => selectDictationDataset(dataset)}
-                        class:disabled={dictationRunning}
-                        disabled={dictationRunning}
-                      >
-                        {dictationDatasetId === dataset.id ? '선택됨' : '선택'}
-                      </button>
+                        <button
+                          type="button"
+                          data-testid="dataset-open"
+                          class:dictation-selected={dictationSession.datasetId === dataset.id}
+                          on:click={() => selectDictationDataset(dataset)}
+                          class:disabled={dictationSession.running}
+                          disabled={dictationSession.running}
+                        >
+                          {dictationSession.datasetId === dataset.id ? '선택됨' : '선택'}
+                        </button>
                     {/if}
                     <button on:click={() => startEditDataset(dataset)}>편집</button>
                     <button on:click={() => onDeleteDataset(dataset)}>삭제</button>

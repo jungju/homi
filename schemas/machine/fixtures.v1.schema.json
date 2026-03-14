@@ -106,6 +106,13 @@
           },
           "sampleBundle": {
             "type": "boolean"
+          },
+          "validationExpectation": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "invalid_expected"
+            ]
           }
         }
       }

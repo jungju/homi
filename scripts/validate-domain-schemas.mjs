@@ -68,7 +68,20 @@ async function run() {
     if (!existsRelative(fixture.schemaRef)) {
       throw new Error(`Fixture schema missing: ${fixture.schemaRef}`);
     }
-    validateJsonFile(ajv, fixture.schemaRef, fixture.path);
+    const expectation = fixture.validationExpectation ?? 'valid';
+    if (expectation === 'invalid_expected') {
+      const schema = readJson(fixture.schemaRef);
+      const key = schema.$id || fixture.schemaRef;
+      let validate = ajv.getSchema(key);
+      if (!validate) validate = ajv.compile(schema);
+      const raw = readJson(fixture.path);
+      const ok = validate(raw);
+      if (ok) {
+        throw new Error(`Fixture expected to be invalid but passed schema validation: ${fixture.path}`);
+      }
+    } else {
+      validateJsonFile(ajv, fixture.schemaRef, fixture.path);
+    }
     validated += 1;
   }
 

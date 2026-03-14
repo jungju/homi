@@ -1,0 +1,21 @@
+{
+  "format": "homi",
+  "version": 1,
+  "bundleType": "import",
+  "bundleId": "bundle_roundtrip_text_v1",
+  "title": "텍스트 왕복 테스트 번들",
+  "datasets": [
+    {
+      "id": "dictation_roundtrip_text_1",
+      "engineId": "dictation",
+      "engineSchemaVersion": 1,
+      "title": "왕복 받아쓰기",
+      "items": [
+        {
+          "word": "apple",
+          "meaning": "사과"
+        }
+      ]
+    }
+  ]
+}

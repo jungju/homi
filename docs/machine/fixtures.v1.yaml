@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/fixtures.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-07",
+  "updated": "2026-03-14",
   "fixtures": [
     {
       "id": "fixture.bundle.min.v1",
@@ -60,6 +60,123 @@
       "securityClassification": "public_sample_data",
       "mutability": "fixed",
       "sampleBundle": true
+    },
+    {
+      "id": "fixture.bundle.roundtrip-text.v1",
+      "path": "tests/fixtures/bundle.roundtrip-text.v1.json",
+      "schemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+      "purpose": "text import/export/reimport source 추적 검증",
+      "tags": [
+        "import",
+        "text",
+        "unit"
+      ],
+      "usedByTests": [
+        "test.p1.source_type_text_roundtrip"
+      ],
+      "securityClassification": "trusted_test_data",
+      "mutability": "fixed",
+      "sampleBundle": false
+    },
+    {
+      "id": "fixture.bundle.schedule-overlap.v1",
+      "path": "tests/fixtures/bundle.schedule-overlap.v1.json",
+      "schemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+      "purpose": "중첩 시각 recurrence와 동일 슬롯 dedupe 검증",
+      "tags": [
+        "schedule",
+        "recurrence",
+        "unit"
+      ],
+      "usedByTests": [
+        "test.p1.schedule.recurring_daily_yearly"
+      ],
+      "securityClassification": "trusted_test_data",
+      "mutability": "fixed",
+      "sampleBundle": false
+    },
+    {
+      "id": "fixture.bundle.quiet-mode.v1",
+      "path": "tests/fixtures/bundle.quiet-mode.v1.json",
+      "schemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+      "purpose": "quiet mode suppression과 정시 차임 억제 검증",
+      "tags": [
+        "schedule",
+        "quiet",
+        "unit"
+      ],
+      "usedByTests": [
+        "test.p1.schedule.quiet_mode_suppresses_reminders",
+        "test.p1.schedule.hourly_chime_toggle"
+      ],
+      "securityClassification": "trusted_test_data",
+      "mutability": "fixed",
+      "sampleBundle": false
+    },
+    {
+      "id": "fixture.bundle.audio-fallback.v1",
+      "path": "tests/fixtures/bundle.audio-fallback.v1.json",
+      "schemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+      "purpose": "audio 재생 실패 시 speech fallback 검증",
+      "tags": [
+        "schedule",
+        "audio",
+        "unit"
+      ],
+      "usedByTests": [
+        "test.p1.schedule.preview_speech"
+      ],
+      "securityClassification": "trusted_test_data",
+      "mutability": "fixed",
+      "sampleBundle": false
+    },
+    {
+      "id": "fixture.bundle.linked-disconnect.v1",
+      "path": "tests/fixtures/bundle.linked-disconnect.v1.json",
+      "schemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+      "purpose": "URL 연결 metadata 유지/연결 해제 상태 검증",
+      "tags": [
+        "import",
+        "url",
+        "unit"
+      ],
+      "usedByTests": [
+        "test.p1.import.url_saved_persists"
+      ],
+      "securityClassification": "trusted_test_data",
+      "mutability": "fixed",
+      "sampleBundle": false
+    },
+    {
+      "id": "fixture.store.corrupt.v1",
+      "path": "tests/fixtures/store.corrupt.v1.json",
+      "schemaRef": "schemas/domain/store.v1.schema.json",
+      "purpose": "손상된 store 입력을 empty store로 복구하는 방어 경로 검증",
+      "tags": [
+        "store",
+        "corruption",
+        "unit"
+      ],
+      "usedByTests": [],
+      "securityClassification": "untrusted_input_simulation",
+      "mutability": "fixed",
+      "sampleBundle": false,
+      "validationExpectation": "invalid_expected"
+    },
+    {
+      "id": "fixture.bundle.max-boundary.v1",
+      "path": "tests/fixtures/bundle.max-boundary.v1.json",
+      "schemaRef": "schemas/domain/homi-bundle.v1.schema.json",
+      "purpose": "긴 문자열/복수 dataset 조합의 경계값 import 검증",
+      "tags": [
+        "import",
+        "boundary",
+        "unit"
+      ],
+      "usedByTests": [],
+      "securityClassification": "trusted_test_data",
+      "mutability": "fixed",
+      "sampleBundle": false
     }
   ]
 }

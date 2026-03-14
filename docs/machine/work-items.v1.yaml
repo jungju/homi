@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/work-items.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-07",
+  "updated": "2026-03-14",
   "workItems": [
     {
       "id": "work.doc.machine_manifest_created",
@@ -126,45 +126,245 @@
     },
     {
       "id": "work.qa.contract_ref_coverage_expansion",
-      "status": "todo",
-      "description": "P0 수동/갭 시나리오를 Playwright 자동화로 확장해 contractRefs 커버리지를 높인다.",
+      "status": "done",
+      "description": "초기 coverage 확장 TODO를 unit/E2E/AI layered harness 정렬 작업으로 흡수 완료했다.",
       "affectedContracts": [
         "docs/machine/tests.v1.yaml",
         "tests/e2e/qa-homi.spec.ts",
         "docs/machine/coverage.v1.yaml"
       ],
       "requiredTests": [
+        "qa:contract",
         "qa:smoke",
-        "build:coverage"
+        "test:unit"
       ],
       "blockers": [],
       "doneCriteria": [
-        "P0 manual 시나리오 중 3개 이상 automated 전환",
-        "coverage.v1에서 p0 gap 감소"
+        "manual source_type scenario를 automated unit test로 전환",
+        "coverage.v1에서 deterministic/unit/ai evidence가 분리 기록"
       ],
       "evidenceLinks": [
-        "docs/machine/coverage.v1.yaml"
+        "docs/machine/tests.v1.yaml",
+        "scripts/build-coverage-matrix.mjs"
       ]
     },
     {
       "id": "work.qa.dictation_timer_stub",
-      "status": "todo",
-      "description": "dictation 10초 타이머 검증을 위한 clock/stub 기반 deterministic 테스트를 추가한다.",
+      "status": "done",
+      "description": "dictation timer TODO를 dictation-core 추출과 Vitest deterministic session tests로 대체 완료했다.",
       "affectedContracts": [
-        "docs/machine/tests.v1.yaml",
-        "tests/helpers/capture-ui-artifacts.ts",
-        "tests/e2e/qa-homi.spec.ts"
+        "src/lib/engines/dictation-core.ts",
+        "tests/unit/dictation-core.spec.ts",
+        "docs/machine/tests.v1.yaml"
       ],
       "requiredTests": [
+        "test:unit",
         "qa:smoke"
       ],
       "blockers": [],
       "doneCriteria": [
-        "test.p0.dictation.timer_next_exit 자동화 구현",
-        "flaky wait 제거"
+        "dictation start/advance/finish 전이가 unit layer에서 결정적으로 검증",
+        "기존 smoke scenario와 core session logic이 같은 contract를 공유"
       ],
       "evidenceLinks": [
-        "tests/e2e/qa-homi.spec.ts"
+        "src/lib/engines/dictation-core.ts",
+        "tests/unit/dictation-core.spec.ts"
+      ]
+    },
+    {
+      "id": "work.harness.backlog_rebaseline",
+      "status": "done",
+      "description": "stale harness TODO를 정리하고 maturity backlog를 authoritative work item 세트로 재기록했다.",
+      "affectedContracts": [
+        "docs/machine/work-items.v1.yaml",
+        "docs/machine/tests.v1.yaml",
+        "docs/machine/fixtures.v1.yaml"
+      ],
+      "requiredTests": [
+        "validate:machine-docs"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "stale TODO 2개가 done 상태로 정리",
+        "harness maturity 작업이 work item으로 추가 기록"
+      ],
+      "evidenceLinks": [
+        "docs/machine/work-items.v1.yaml"
+      ]
+    },
+    {
+      "id": "work.harness.runtime_adapter_layer",
+      "status": "done",
+      "description": "clock/speech/audio/notification/storage/fetch 런타임 어댑터 계층을 추가하고 앱 오케스트레이션과 store IO를 여기에 연결했다.",
+      "affectedContracts": [
+        "src/lib/runtime.ts",
+        "src/lib/homi.ts",
+        "src/App.svelte",
+        "tests/unit/runtime.spec.ts"
+      ],
+      "requiredTests": [
+        "test:unit",
+        "check"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "App.svelte에서 직접 fetch/audio/notification/speech/localStorage 호출 제거",
+        "store load/save가 storage adapter 기반 경로를 가진다."
+      ],
+      "evidenceLinks": [
+        "src/lib/runtime.ts",
+        "src/lib/homi.ts",
+        "src/App.svelte"
+      ]
+    },
+    {
+      "id": "work.harness.schedule_core_extracted",
+      "status": "done",
+      "description": "schedule 계산을 pure core로 분리하고 reminder/hourly chime/preview metadata를 effect intent 기반으로 계산한다.",
+      "affectedContracts": [
+        "src/lib/engines/schedule-core.ts",
+        "src/App.svelte",
+        "tests/unit/schedule-core.spec.ts"
+      ],
+      "requiredTests": [
+        "test:unit",
+        "qa:smoke"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "schedule preview metadata와 recurrence text가 core에서 계산",
+        "reminder dedupe/quiet suppression/hourly chime이 core tick 결과로 계산"
+      ],
+      "evidenceLinks": [
+        "src/lib/engines/schedule-core.ts",
+        "tests/unit/schedule-core.spec.ts"
+      ]
+    },
+    {
+      "id": "work.harness.dictation_core_extracted",
+      "status": "done",
+      "description": "dictation session start/advance/finish/selection 규칙을 pure core로 분리하고 App은 효과 실행만 담당한다.",
+      "affectedContracts": [
+        "src/lib/engines/dictation-core.ts",
+        "src/App.svelte",
+        "tests/unit/dictation-core.spec.ts"
+      ],
+      "requiredTests": [
+        "test:unit",
+        "qa:smoke"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "dictation session 전이가 core transition API로 표현",
+        "auto/manual advance와 finish 경로가 unit test로 검증"
+      ],
+      "evidenceLinks": [
+        "src/lib/engines/dictation-core.ts",
+        "tests/unit/dictation-core.spec.ts"
+      ]
+    },
+    {
+      "id": "work.harness.vitest_fast_layer",
+      "status": "done",
+      "description": "Vitest fast layer와 qa:fast 스크립트를 추가해 core/store/import/runtime 경로를 빠르게 검증한다.",
+      "affectedContracts": [
+        "package.json",
+        "vitest.config.ts",
+        "tests/unit/homi.spec.ts",
+        "tests/unit/import-core.spec.ts",
+        "tests/unit/runtime.spec.ts",
+        "tests/unit/schedule-core.spec.ts",
+        "tests/unit/dictation-core.spec.ts"
+      ],
+      "requiredTests": [
+        "test:unit",
+        "qa:fast"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "test:unit이 deterministic unit suite를 실행",
+        "qa:fast가 machine/domain validation과 unit suite를 묶어 실행"
+      ],
+      "evidenceLinks": [
+        "package.json",
+        "vitest.config.ts",
+        "tests/unit/homi.spec.ts"
+      ]
+    },
+    {
+      "id": "work.harness.fixture_matrix_expanded",
+      "status": "done",
+      "description": "roundtrip/overlap/quiet/audio/linked-disconnect/corrupt-store/max-boundary fixture 세트를 추가하고 registry/validator를 확장했다.",
+      "affectedContracts": [
+        "docs/machine/fixtures.v1.yaml",
+        "schemas/machine/fixtures.v1.schema.json",
+        "scripts/validate-domain-schemas.mjs",
+        "tests/fixtures/*.json"
+      ],
+      "requiredTests": [
+        "validate:domain-schemas",
+        "test:unit"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "새 fixture 7종이 registry에 등록",
+        "invalid_expected fixture가 validator에서 기대된 실패로 처리"
+      ],
+      "evidenceLinks": [
+        "docs/machine/fixtures.v1.yaml",
+        "tests/fixtures/bundle.roundtrip-text.v1.json",
+        "tests/fixtures/store.corrupt.v1.json"
+      ]
+    },
+    {
+      "id": "work.harness.contract_and_report_alignment",
+      "status": "done",
+      "description": "tests/ai-review/coverage schema와 generator를 layered harness 구조에 맞게 정렬했다.",
+      "affectedContracts": [
+        "docs/machine/tests.v1.yaml",
+        "docs/machine/ai-review.v1.yaml",
+        "schemas/machine/tests.v1.schema.json",
+        "schemas/machine/coverage.v1.schema.json",
+        "schemas/machine/ai-review.v1.schema.json",
+        "scripts/build-coverage-matrix.mjs"
+      ],
+      "requiredTests": [
+        "validate:machine-docs",
+        "build:coverage"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "gate layer가 deterministic_e2e/deterministic_unit/ai_semantic으로 구분",
+        "AI artifact evidence가 partial coverage로 기록 가능"
+      ],
+      "evidenceLinks": [
+        "docs/machine/tests.v1.yaml",
+        "docs/machine/ai-review.v1.yaml",
+        "scripts/build-coverage-matrix.mjs"
+      ]
+    },
+    {
+      "id": "work.harness.ci_artifact_and_flake_governance",
+      "status": "done",
+      "description": "qa:gate를 fast/unit + smoke + ai + taxonomy 순으로 정리하고 CI artifact upload 및 failure taxonomy 생성을 추가했다.",
+      "affectedContracts": [
+        "package.json",
+        "playwright.config.ts",
+        ".github/workflows/qa-harness.yml",
+        "scripts/build-qa-failure-taxonomy.mjs"
+      ],
+      "requiredTests": [
+        "qa:gate"
+      ],
+      "blockers": [],
+      "doneCriteria": [
+        "CI가 qa:fast/qa:smoke/qa:ai-review를 단계적으로 실행",
+        "playwright-results/test-results artifacts와 taxonomy summary가 업로드 가능"
+      ],
+      "evidenceLinks": [
+        ".github/workflows/qa-harness.yml",
+        "scripts/build-qa-failure-taxonomy.mjs",
+        "package.json"
       ]
     }
   ]

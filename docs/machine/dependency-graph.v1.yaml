@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/dependency-graph.v1.schema.json",
   "authoritative": false,
   "generated": true,
-  "generatedAt": "2026-03-13T02:10:14.668Z",
+  "generatedAt": "2026-03-13T15:57:35.991Z",
   "generatedFrom": {
     "manifest": "docs/machine/manifest.v1.yaml"
   },
@@ -396,6 +396,13 @@
       "generated": false
     },
     {
+      "id": "resolved.scripts/build-qa-failure-taxonomy.mjs",
+      "path": "scripts/build-qa-failure-taxonomy.mjs",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
       "id": "resolved.scripts/next-step.mjs",
       "path": "scripts/next-step.mjs",
       "kind": "resolved_path",
@@ -424,8 +431,29 @@
       "generated": false
     },
     {
+      "id": "resolved.src/lib/engines/dictation-core.ts",
+      "path": "src/lib/engines/dictation-core.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.src/lib/engines/schedule-core.ts",
+      "path": "src/lib/engines/schedule-core.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
       "id": "resolved.src/lib/homi.ts",
       "path": "src/lib/homi.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.src/lib/runtime.ts",
+      "path": "src/lib/runtime.ts",
       "kind": "resolved_path",
       "authoritative": false,
       "generated": false
@@ -438,8 +466,50 @@
       "generated": false
     },
     {
+      "id": "resolved.tests/fixtures/bundle.audio-fallback.v1.json",
+      "path": "tests/fixtures/bundle.audio-fallback.v1.json",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/fixtures/bundle.linked-disconnect.v1.json",
+      "path": "tests/fixtures/bundle.linked-disconnect.v1.json",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/fixtures/bundle.max-boundary.v1.json",
+      "path": "tests/fixtures/bundle.max-boundary.v1.json",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
       "id": "resolved.tests/fixtures/bundle.min.v1.json",
       "path": "tests/fixtures/bundle.min.v1.json",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/fixtures/bundle.quiet-mode.v1.json",
+      "path": "tests/fixtures/bundle.quiet-mode.v1.json",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/fixtures/bundle.roundtrip-text.v1.json",
+      "path": "tests/fixtures/bundle.roundtrip-text.v1.json",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/fixtures/bundle.schedule-overlap.v1.json",
+      "path": "tests/fixtures/bundle.schedule-overlap.v1.json",
       "kind": "resolved_path",
       "authoritative": false,
       "generated": false
@@ -452,8 +522,50 @@
       "generated": false
     },
     {
+      "id": "resolved.tests/fixtures/store.corrupt.v1.json",
+      "path": "tests/fixtures/store.corrupt.v1.json",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
       "id": "resolved.tests/helpers/capture-ui-artifacts.ts",
       "path": "tests/helpers/capture-ui-artifacts.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/unit/dictation-core.spec.ts",
+      "path": "tests/unit/dictation-core.spec.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/unit/homi.spec.ts",
+      "path": "tests/unit/homi.spec.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/unit/import-core.spec.ts",
+      "path": "tests/unit/import-core.spec.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/unit/runtime.spec.ts",
+      "path": "tests/unit/runtime.spec.ts",
+      "kind": "resolved_path",
+      "authoritative": false,
+      "generated": false
+    },
+    {
+      "id": "resolved.tests/unit/schedule-core.spec.ts",
+      "path": "tests/unit/schedule-core.spec.ts",
       "kind": "resolved_path",
       "authoritative": false,
       "generated": false
@@ -653,6 +765,11 @@
     {
       "from": "docs/machine/coverage.v1.yaml",
       "to": "tests/e2e/qa-homi.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/coverage.v1.yaml",
+      "to": "tests/unit/homi.spec.ts",
       "reason": "path_ref"
     },
     {
@@ -932,6 +1049,11 @@
     },
     {
       "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "scripts/build-qa-failure-taxonomy.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
       "to": "scripts/next-step.mjs",
       "reason": "path_ref"
     },
@@ -952,7 +1074,22 @@
     },
     {
       "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "src/lib/engines/dictation-core.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "src/lib/engines/schedule-core.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
       "to": "src/lib/homi.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "src/lib/runtime.ts",
       "reason": "path_ref"
     },
     {
@@ -962,7 +1099,37 @@
     },
     {
       "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/fixtures/bundle.audio-fallback.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/fixtures/bundle.linked-disconnect.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/fixtures/bundle.max-boundary.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
       "to": "tests/fixtures/bundle.min.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/fixtures/bundle.quiet-mode.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/fixtures/bundle.roundtrip-text.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/fixtures/bundle.schedule-overlap.v1.json",
       "reason": "path_ref"
     },
     {
@@ -972,7 +1139,37 @@
     },
     {
       "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/fixtures/store.corrupt.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
       "to": "tests/helpers/capture-ui-artifacts.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/unit/dictation-core.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/unit/homi.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/unit/import-core.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/unit/runtime.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/dependency-graph.v1.yaml",
+      "to": "tests/unit/schedule-core.spec.ts",
       "reason": "path_ref"
     },
     {
@@ -987,6 +1184,11 @@
     },
     {
       "from": "docs/machine/fixtures.v1.yaml",
+      "to": "schemas/domain/store.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
       "to": "schemas/machine/fixtures.v1.schema.json",
       "reason": "path_ref"
     },
@@ -997,12 +1199,47 @@
     },
     {
       "from": "docs/machine/fixtures.v1.yaml",
+      "to": "tests/fixtures/bundle.audio-fallback.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "tests/fixtures/bundle.linked-disconnect.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "tests/fixtures/bundle.max-boundary.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
       "to": "tests/fixtures/bundle.min.v1.json",
       "reason": "path_ref"
     },
     {
       "from": "docs/machine/fixtures.v1.yaml",
+      "to": "tests/fixtures/bundle.quiet-mode.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "tests/fixtures/bundle.roundtrip-text.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "tests/fixtures/bundle.schedule-overlap.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
       "to": "tests/fixtures/bundle.xss.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/fixtures.v1.yaml",
+      "to": "tests/fixtures/store.corrupt.v1.json",
       "reason": "path_ref"
     },
     {
@@ -1711,6 +1948,11 @@
       "reason": "path_ref"
     },
     {
+      "from": "docs/machine/tests.v1.yaml",
+      "to": "tests/unit/homi.spec.ts",
+      "reason": "path_ref"
+    },
+    {
       "from": "docs/machine/truth-order.v1.yaml",
       "to": "docs/machine/ai-review.v1.yaml",
       "reason": "path_ref"
@@ -1907,6 +2149,11 @@
     },
     {
       "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/ai-review.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
       "to": "schemas/machine/change-policy.v1.schema.json",
       "reason": "path_glob_resolved"
     },
@@ -1917,6 +2164,11 @@
     },
     {
       "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/coverage.v1.schema.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
       "to": "schemas/machine/dependency-graph.v1.schema.json",
       "reason": "path_glob_resolved"
     },
@@ -1924,6 +2176,11 @@
       "from": "docs/machine/work-items.v1.yaml",
       "to": "schemas/machine/fixtures.v1.schema.json",
       "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "schemas/machine/fixtures.v1.schema.json",
+      "reason": "path_ref"
     },
     {
       "from": "docs/machine/work-items.v1.yaml",
@@ -2002,6 +2259,11 @@
     },
     {
       "from": "docs/machine/work-items.v1.yaml",
+      "to": "scripts/build-qa-failure-taxonomy.mjs",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
       "to": "scripts/next-step.mjs",
       "reason": "path_ref"
     },
@@ -2017,12 +2279,112 @@
     },
     {
       "from": "docs/machine/work-items.v1.yaml",
+      "to": "src/App.svelte",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "src/lib/engines/dictation-core.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "src/lib/engines/schedule-core.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "src/lib/homi.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "src/lib/runtime.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
       "to": "tests/e2e/qa-homi.spec.ts",
       "reason": "path_ref"
     },
     {
       "from": "docs/machine/work-items.v1.yaml",
-      "to": "tests/helpers/capture-ui-artifacts.ts",
+      "to": "tests/fixtures/bundle.audio-fallback.v1.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/fixtures/bundle.linked-disconnect.v1.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/fixtures/bundle.max-boundary.v1.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/fixtures/bundle.min.v1.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/fixtures/bundle.quiet-mode.v1.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/fixtures/bundle.roundtrip-text.v1.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/fixtures/bundle.roundtrip-text.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/fixtures/bundle.schedule-overlap.v1.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/fixtures/bundle.xss.v1.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/fixtures/store.corrupt.v1.json",
+      "reason": "path_glob_resolved"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/fixtures/store.corrupt.v1.json",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/unit/dictation-core.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/unit/homi.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/unit/import-core.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/unit/runtime.spec.ts",
+      "reason": "path_ref"
+    },
+    {
+      "from": "docs/machine/work-items.v1.yaml",
+      "to": "tests/unit/schedule-core.spec.ts",
       "reason": "path_ref"
     },
     {

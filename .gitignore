@@ -26,3 +26,8 @@ public/version.json
 artifacts/ui-history/
 playwright-results/
 test-results/ai-artifacts/
+test-results/ai-reviews/
+test-results/vitest/
+test-results/qa-failure-taxonomy.json
+test-results/qa-failure-taxonomy.md
+test-results/.last-run.json

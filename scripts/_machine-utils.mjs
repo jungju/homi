@@ -85,8 +85,14 @@ export function matchesGlob(filePath, globPattern) {
 }
 
 export async function expandGlob(globPattern) {
-  const base = globPattern.split('*')[0].replace(/\/$/, '');
-  const walkRoot = base === '' ? '.' : base;
+  const basePrefix = globPattern.split('*')[0];
+  const normalizedBase = basePrefix.replace(/\/$/, '');
+  let walkRoot = normalizedBase === '' ? '.' : normalizedBase;
+
+  if (walkRoot !== '.' && !existsSync(repoPath(walkRoot))) {
+    walkRoot = path.dirname(walkRoot);
+  }
+
   const files = await walkFiles(walkRoot);
   return files.filter((filePath) => matchesGlob(filePath, globPattern));
 }

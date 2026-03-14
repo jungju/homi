@@ -12,15 +12,18 @@
     "share:link": "node scripts/build-share-link.mjs",
     "ui:history": "node scripts/capture-ui-history.mjs",
     "qa:install": "playwright install --with-deps",
+    "test:unit": "vitest run --config vitest.config.ts",
     "validate:machine-docs": "node scripts/validate-machine-docs.mjs",
     "validate:domain-schemas": "node scripts/validate-domain-schemas.mjs",
     "build:coverage": "node scripts/build-coverage-matrix.mjs",
     "build:dependency-graph": "node scripts/build-dependency-graph.mjs",
+    "build:qa-failure-taxonomy": "node scripts/build-qa-failure-taxonomy.mjs",
+    "qa:fast": "npm run validate:machine-docs && npm run validate:domain-schemas && npm run test:unit",
     "qa:contract": "npm run validate:machine-docs && npm run validate:domain-schemas && npm run build:coverage && npm run build:dependency-graph",
     "qa:smoke": "playwright test",
     "qa:ai-review": "node scripts/ai-ui-review.mjs --config docs/machine/ai-review.v1.yaml --schema schemas/ai-ui-review-result.schema.json --artifacts test-results/ai-artifacts --out test-results/ai-reviews",
-    "qa:gate": "npm run qa:contract && npm run qa:smoke && npm run qa:ai-review && npm run build:coverage",
-    "qa:gate:strict": "npm run qa:contract && npm run qa:smoke && npm run qa:ai-review -- --strict && npm run build:coverage",
+    "qa:gate": "npm run qa:fast && npm run qa:smoke && npm run qa:ai-review && npm run build:coverage && npm run build:qa-failure-taxonomy",
+    "qa:gate:strict": "npm run qa:fast && npm run qa:smoke && npm run qa:ai-review -- --strict && npm run build:coverage && npm run build:qa-failure-taxonomy",
     "next-step": "node scripts/next-step.mjs"
   },
   "devDependencies": {
@@ -33,7 +36,8 @@
     "svelte": "^5.45.2",
     "svelte-check": "^4.3.4",
     "typescript": "~5.9.3",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^4.1.0"
   },
   "dependencies": {
     "dayjs": "^1.11.19",

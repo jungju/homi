@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/tests.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-13",
+  "updated": "2026-03-14",
   "scenarios": [
     {
       "id": "test.p0.home.base_layout",
@@ -65,7 +65,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -105,7 +105,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -140,7 +140,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -186,7 +186,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -219,7 +219,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -251,7 +251,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -282,7 +282,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -334,7 +334,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -373,7 +373,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -409,7 +409,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -441,7 +441,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -472,7 +472,7 @@
       ],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -507,7 +507,7 @@
       ],
       "gate": {
         "behavior": "soft_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -545,7 +545,7 @@
       ],
       "gate": {
         "behavior": "soft_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -583,7 +583,7 @@
       ],
       "gate": {
         "behavior": "soft_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -623,7 +623,7 @@
       ],
       "gate": {
         "behavior": "soft_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -662,7 +662,7 @@
       ],
       "gate": {
         "behavior": "soft_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -699,7 +699,7 @@
       ],
       "gate": {
         "behavior": "soft_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -729,7 +729,7 @@
       ],
       "gate": {
         "behavior": "soft_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -770,7 +770,7 @@
       ],
       "gate": {
         "behavior": "soft_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_e2e"
       },
       "implementation": {
         "framework": "playwright",
@@ -782,7 +782,7 @@
       "id": "test.p1.source_type_text_roundtrip",
       "title": "text import source 추적이 export/reimport 경로에서 유지된다.",
       "priority": "P1",
-      "type": "manual",
+      "type": "automated",
       "contractRefs": [
         "product.import.bundle_level_only"
       ],
@@ -798,11 +798,16 @@
         "source.type=text 추적 확인"
       ],
       "artifacts": [
-        "manual-check:source-type-roundtrip"
+        "test-results/vitest/results.json"
       ],
       "gate": {
         "behavior": "soft_fail",
-        "layer": "deterministic"
+        "layer": "deterministic_unit"
+      },
+      "implementation": {
+        "framework": "vitest",
+        "file": "tests/unit/homi.spec.ts",
+        "scenarioTag": "test.p1.source_type_text_roundtrip"
       }
     },
     {
