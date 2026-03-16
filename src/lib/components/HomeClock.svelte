@@ -23,7 +23,7 @@
     height: 100%;
     box-sizing: border-box;
     text-align: right;
-    padding: clamp(1.1rem, 2.5vw, 1.95rem) clamp(1.15rem, 2.7vw, 2.15rem);
+    padding: clamp(1.1rem, 2.5vw, 1.95rem) clamp(0.95rem, 2vw, 1.7rem) clamp(1.1rem, 2.5vw, 1.95rem) clamp(1.15rem, 2.7vw, 2.15rem);
     border-radius: clamp(30px, 4vw, 42px);
     border: 1px solid rgba(84, 117, 153, 0.22);
     background:
@@ -54,7 +54,7 @@
     margin: 0;
     width: 100%;
     max-width: 100%;
-    font-size: clamp(4.9rem, 25cqw, 8.2rem);
+    font-size: clamp(5.6rem, 22cqw, 8.2rem);
     line-height: 0.8;
     font-weight: 900;
     letter-spacing: -0.075em;

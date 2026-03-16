@@ -270,10 +270,12 @@
   .home-control-box[data-box='6'] {
     align-items: stretch;
     justify-content: flex-end;
-    width: min(calc(100% + clamp(5rem, 10vw, 8rem)), calc(100vw - clamp(0.9rem, 2vw, 1.8rem)));
-    max-width: min(32rem, calc(100vw - clamp(0.9rem, 2vw, 1.8rem)));
-    margin-left: auto;
-    padding: clamp(10px, 1.4vw, 16px) clamp(10px, 1.5vw, 18px) clamp(10px, 1.4vw, 16px) 0;
+    justify-self: end;
+    width: min(calc(100% + clamp(6rem, 12vw, 9rem)), calc(100vw - clamp(0.9rem, 2vw, 1.8rem)));
+    max-width: min(35rem, calc(100vw - clamp(0.9rem, 2vw, 1.8rem)));
+    margin-left: 0;
+    margin-right: 0;
+    padding: clamp(10px, 1.4vw, 16px) clamp(8px, 1.2vw, 14px) clamp(10px, 1.4vw, 16px) 0;
     z-index: 4;
   }
   .home-control-box[data-box='9'] {
