@@ -81,17 +81,37 @@ async function expectSettingsIconButtonInBox9(page: Page) {
 async function expectHomeClockInBox6(page: Page) {
   const zone = page.getByTestId('home-control-box-6');
   const clock = zone.getByTestId('home-clock');
+  const date = page.getByTestId('home-clock-date');
+  const time = page.getByTestId('home-clock-time');
   await expect(clock).toBeVisible();
-  await expect(page.getByTestId('home-clock-date')).toHaveText(
+  await expect(date).toHaveText(
     /^\d{4}\.\d{2}\.\d{2} (일|월|화|수|목|금|토)요일$/,
   );
-  await expect(page.getByTestId('home-clock-time')).toHaveText(/^\d{2}:\d{2}$/);
+  await expect(time).toHaveText(/^\d{2}:\d{2}$/);
   const zoneBox = await zone.boundingBox();
   const clockBox = await clock.boundingBox();
+  const dateBox = await date.boundingBox();
+  const timeBox = await time.boundingBox();
+  const viewport = page.viewportSize();
   expect(zoneBox).not.toBeNull();
   expect(clockBox).not.toBeNull();
+  expect(dateBox).not.toBeNull();
+  expect(timeBox).not.toBeNull();
+  expect(viewport).not.toBeNull();
   expect(clockBox!.width).toBeGreaterThan(zoneBox!.width - 36);
   expect(clockBox!.height).toBeGreaterThan(zoneBox!.height - 36);
+  expect(dateBox!.x).toBeGreaterThanOrEqual(clockBox!.x - 1);
+  expect(dateBox!.y).toBeGreaterThanOrEqual(clockBox!.y - 1);
+  expect(dateBox!.x + dateBox!.width).toBeLessThanOrEqual(clockBox!.x + clockBox!.width + 1);
+  expect(dateBox!.y + dateBox!.height).toBeLessThanOrEqual(clockBox!.y + clockBox!.height + 1);
+  expect(timeBox!.x).toBeGreaterThanOrEqual(clockBox!.x - 1);
+  expect(timeBox!.y).toBeGreaterThanOrEqual(clockBox!.y - 1);
+  expect(timeBox!.x + timeBox!.width).toBeLessThanOrEqual(clockBox!.x + clockBox!.width + 1);
+  expect(timeBox!.y + timeBox!.height).toBeLessThanOrEqual(clockBox!.y + clockBox!.height + 1);
+  expect(clockBox!.x).toBeGreaterThanOrEqual(-1);
+  expect(clockBox!.y).toBeGreaterThanOrEqual(-1);
+  expect(clockBox!.x + clockBox!.width).toBeLessThanOrEqual(viewport!.width + 1);
+  expect(clockBox!.y + clockBox!.height).toBeLessThanOrEqual(viewport!.height + 1);
 }
 
 async function selectFirstDictationDataset(page: Page) {
@@ -155,6 +175,8 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-clock is visible in control box 6',
       'home-clock fills most of control box 6',
       'home-clock shows date, weekday, and HH:MM',
+      'home-clock date/time text stay inside the home-clock card',
+      'home-clock card stays inside the viewport',
       'home-clock time uses extra-large tablet font size',
       'home-robot-name shows 호미',
       'home-status-text is absent without alert or quiet mode',

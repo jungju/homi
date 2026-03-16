@@ -270,6 +270,9 @@
   .home-control-box[data-box='6'] {
     align-items: stretch;
     justify-content: flex-end;
+    width: min(calc(100% + clamp(5rem, 10vw, 8rem)), calc(100vw - clamp(0.9rem, 2vw, 1.8rem)));
+    max-width: min(32rem, calc(100vw - clamp(0.9rem, 2vw, 1.8rem)));
+    margin-left: auto;
     padding: clamp(10px, 1.4vw, 16px) clamp(10px, 1.5vw, 18px) clamp(10px, 1.4vw, 16px) 0;
     z-index: 4;
   }
@@ -318,6 +321,9 @@
       padding-bottom: max(6px, env(safe-area-inset-bottom));
     }
     .home-control-box[data-box='6'] {
+      width: 100%;
+      max-width: none;
+      margin-left: 0;
       padding: clamp(8px, 2vw, 12px);
     }
     .home-control-box[data-box='9'] {

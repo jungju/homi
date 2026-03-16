@@ -40,6 +40,10 @@
       "statement": "홈(/)의 control box 6(중앙 오른쪽)에는 home-clock이 구역 대부분을 채우도록 표시되고, home-clock-date/home-clock-time으로 날짜·요일·시:분을 매우 큰 글자로 보여준다."
     },
     {
+      "id": "ui.home.control_box_6.clock_content_contained",
+      "statement": "home-clock의 날짜/시간 텍스트는 항상 home-clock 카드 내부에 완전히 들어가야 하며, 카드가 control box 6 기준으로 인접 구역을 침범하더라도 viewport 밖으로 나가면 안 된다."
+    },
+    {
       "id": "ui.home.zone_bounds_soft",
       "statement": "home-control-grid의 9개 구역은 배치 기준점이며, 콘텐츠는 필요 시 인접 구역을 침범할 수 있다. 특히 home-bubble은 control box 2를 기준으로 box 1/3 영역까지 수평 확장이 가능하다."
     },
