@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { getStore, getThemeMode, setThemeMode } from '../state/app.svelte';
+  import {
+    getStore,
+    getThemeMode,
+    setThemeMode,
+    getDebugAreasVisible,
+    setDebugAreasVisible,
+  } from '../state/app.svelte';
   import { getMessage } from '../state/message.svelte';
   import {
     getScheduleQuietModeActive,
@@ -39,6 +45,7 @@
   const store = $derived(getStore());
   const datasetCount = $derived(getDatasetCount());
   const themeMode = $derived(getThemeMode());
+  const debugAreasVisible = $derived(getDebugAreasVisible());
   const backupVersionDateText = $derived(getBackupVersionDateText());
   const scheduleQuietModeActive = $derived(getScheduleQuietModeActive());
   const scheduleQuietStatusText = $derived(getScheduleQuietStatusText());
@@ -79,13 +86,13 @@
       <p data-testid="backup-error" class="error">{message.text}</p>
     {/if}
     <div class="popup-content">
-      <section class="card">
+      <section class="card" data-testid="backup-summary-section" data-debug-anchor-id="backup-summary-section">
         <h2>브레인 설정</h2>
         <p class="muted">현재 저장 데이터: {datasetCount}개</p>
         <p class="muted" data-testid="backup-version">{backupVersionDateText}</p>
       </section>
 
-      <section class="card">
+      <section class="card" data-testid="backup-theme-section" data-debug-anchor-id="backup-theme-section">
         <h2>화면 테마</h2>
         <p data-testid="backup-theme-status" class="muted">
           현재 테마: {themeMode === 'dark' ? '다크 모드' : '라이트 모드'}
@@ -113,7 +120,35 @@
         <p class="muted">여기서 바꾸면 홈과 모든 설정 오버레이에 즉시 적용되고 다음 실행에도 유지됩니다.</p>
       </section>
 
-      <section class="card">
+      <section class="card" data-testid="backup-debug-section" data-debug-anchor-id="backup-debug-section">
+        <h2>디버그 표시</h2>
+        <p data-testid="backup-debug-areas-status" class="muted">
+          홈 9분할 area: {debugAreasVisible ? '표시 중' : '숨김'}
+        </p>
+        <div class="inline">
+          <button
+            type="button"
+            data-testid="backup-debug-areas-show"
+            class:active={debugAreasVisible}
+            aria-pressed={debugAreasVisible}
+            onclick={() => setDebugAreasVisible(true)}
+          >
+            Show
+          </button>
+          <button
+            type="button"
+            data-testid="backup-debug-areas-hide"
+            class:active={!debugAreasVisible}
+            aria-pressed={!debugAreasVisible}
+            onclick={() => setDebugAreasVisible(false)}
+          >
+            Hidden (none)
+          </button>
+        </div>
+        <p class="muted">개발/디버그용 반투명 색상 오버레이이며, 홈 얼굴 화면의 9개 area를 각기 다른 색으로 표시합니다.</p>
+      </section>
+
+      <section class="card" data-testid="backup-quiet-section" data-debug-anchor-id="backup-quiet-section">
         <h2>알림 관리</h2>
         <p data-testid="backup-quiet-status" class="muted">{scheduleQuietStatusText}</p>
         <div class="inline">
@@ -132,7 +167,7 @@
         <p class="muted">조용히 모드 동안 schedule 알림은 홈 문구, 브라우저 알림, 음성 출력 없이 무시됩니다.</p>
       </section>
 
-      <section class="card">
+      <section class="card" data-testid="backup-import-section" data-debug-anchor-id="backup-import-section">
         <h2>브레인 입력</h2>
         <p class="muted">가져오기 방식은 탭으로 전환합니다.</p>
         <div
@@ -264,7 +299,7 @@
       </section>
 
       {#if preview}
-        <section class="card" data-testid="backup-preview">
+        <section class="card" data-testid="backup-preview" data-debug-anchor-id="backup-preview-section">
           <h3>Import 미리보기</h3>
           <p class="muted">출처: {preview.sourceText}</p>
           <p class="muted">bundleType: {preview.bundle.bundleType}, datasets: {preview.bundle.datasets.length}</p>

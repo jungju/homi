@@ -84,6 +84,14 @@ export function setThemeMode(themeMode: ThemeMode) {
   updateStoreUi({ themeMode });
 }
 
+export function getDebugAreasVisible(): boolean {
+  return _store.ui?.debugAreasVisible === true;
+}
+
+export function setDebugAreasVisible(debugAreasVisible: boolean) {
+  updateStoreUi({ debugAreasVisible });
+}
+
 export function getRuntime(): HomiRuntime {
   return _runtime;
 }

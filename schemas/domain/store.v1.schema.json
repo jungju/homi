@@ -51,6 +51,9 @@
             "dark"
           ]
         },
+        "debugAreasVisible": {
+          "type": "boolean"
+        },
         "linkedImport": {
           "type": "object",
           "additionalProperties": false,

@@ -44,6 +44,7 @@ export interface HomiStoreUI {
   scheduleHourlyChimeEnabled?: boolean;
   linkedImport?: LinkedUrlImportV1;
   themeMode?: ThemeMode;
+  debugAreasVisible?: boolean;
 }
 
 export interface HomiStoreV1 {
@@ -310,6 +311,7 @@ const StoreSchema = z
         scheduleHourlyChimeEnabled: z.boolean().optional(),
         linkedImport: LinkedUrlImportSchema.optional(),
         themeMode: z.enum(['light', 'dark']).optional(),
+        debugAreasVisible: z.boolean().optional(),
       })
       .passthrough()
       .optional(),

@@ -103,7 +103,7 @@
     <p id="overlay-title" class="muted" data-testid="overlay-title">페이지: /engines/{engineId}</p>
     <div class="popup-content">
       {#if engineId === 'dictation'}
-        <section class="card" data-testid="dictation-settings-root">
+        <section class="card" data-testid="dictation-settings-root" data-debug-anchor-id="dictation-settings-section">
           <h3>받아쓰기 실행</h3>
           <p class="muted">한글쓰기면 영어 발화, 영어쓰기면 한국어 발화</p>
           <p class="muted">학습 모드</p>
@@ -170,7 +170,7 @@
       {/if}
 
       {#if engineId === 'schedule'}
-        <section class="card">
+        <section class="card" data-debug-anchor-id="schedule-hourly-chime-section">
           <h3>정시 차임</h3>
           <p class="muted" data-testid="schedule-hourly-chime-status">{scheduleHourlyChimeStatusText}</p>
           <div class="inline">
@@ -188,7 +188,7 @@
           </p>
         </section>
 
-        <section class="card" data-testid="schedule-preview-list">
+        <section class="card" data-testid="schedule-preview-list" data-debug-anchor-id="schedule-preview-section">
           <h3>등록된 스케줄 미리 듣기</h3>
           <p class="muted">
             항목을 누르면 현재 브라우저에서 즉시 음성을 시험 재생합니다. audioUrl이 있으면 오디오를
@@ -215,7 +215,7 @@
         </section>
       {/if}
 
-      <section class="card" data-testid="engine-datasets-list">
+      <section class="card" data-testid="engine-datasets-list" data-debug-anchor-id="engine-datasets-section">
         <div class="inline header-row">
           <h3>자료 세트</h3>
           <button onclick={() => selectAllCurrentEngine(true)}>전체 선택</button>
@@ -289,7 +289,7 @@
       </section>
 
       {#if editor.mode}
-        <section class="card">
+        <section class="card" data-debug-anchor-id="engine-editor-section">
           <h3>{editor.mode === 'add' ? '자료 세트 추가' : '자료 세트 편집'}</h3>
           <p class="muted">항목은 엔진 스키마 형식의 JSON 배열로 입력해주세요.</p>
           <label>

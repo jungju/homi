@@ -100,6 +100,10 @@
       "statement": "브레인 설정에서 선택한 라이트/다크 모드는 localStorage store.ui.themeMode에 저장되고 홈과 overlay 전체에 즉시 적용되며 앱 재실행 후에도 유지된다."
     },
     {
+      "id": "product.ui.debug_control_boxes_toggle_persisted",
+      "statement": "브레인 설정의 디버그 표시에서 home-area 9분할 반투명 오버레이와 독립 debug layer를 함께 Show/Hidden(none)으로 전환할 수 있고, 선택 상태는 localStorage store.ui.debugAreasVisible에 저장되어 유지된다."
+    },
+    {
       "id": "product.schedule.hourly_chime_suppressed_when_quiet_or_dictation",
       "statement": "정시 차임은 조용히 모드 또는 받아쓰기 실행 중에는 재생하지 않고 해당 시간 슬롯을 조용히 소비한다."
     },

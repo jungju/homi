@@ -248,6 +248,22 @@ describe('store operations', () => {
     expect(store.ui?.themeMode).toBe('dark');
   });
 
+  it('preserves the debug area visibility preference from ui storage', () => {
+    const storage = createMemoryStorage({
+      [HOMI_STORAGE_KEY]: JSON.stringify({
+        storeVersion: 1,
+        updatedAt: '2026-03-17T00:00:00.000Z',
+        datasetsByEngine: {},
+        ui: {
+          debugAreasVisible: true,
+        },
+      }),
+    });
+
+    const store = loadStoreFromStorage(storage);
+    expect(store.ui?.debugAreasVisible).toBe(true);
+  });
+
   it('getDatasetsByEngine returns empty array for missing engine', () => {
     expect(getDatasetsByEngine(createEmptyStore(), 'dictation')).toEqual([]);
   });

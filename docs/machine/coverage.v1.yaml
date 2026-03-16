@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/coverage.v1.schema.json",
   "authoritative": false,
   "generated": true,
-  "generatedAt": "2026-03-16T12:35:22.969Z",
+  "generatedAt": "2026-03-16T20:00:25.287Z",
   "generatedFrom": {
     "testsContract": "docs/machine/tests.v1.yaml",
     "testCode": [
@@ -19,8 +19,8 @@
     }
   },
   "summary": {
-    "totalScenarios": 24,
-    "coveredScenarios": 22,
+    "totalScenarios": 25,
+    "coveredScenarios": 23,
     "partialScenarios": 2,
     "gapScenarios": 0
   },
@@ -61,6 +61,17 @@
     {
       "scenarioId": "test.p0.backup.overlay_contract",
       "priority": "P0",
+      "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p1.home.debug_control_boxes_toggle",
+      "priority": "P1",
       "type": "automated",
       "implementationFramework": "playwright",
       "gateLayer": "deterministic_e2e",

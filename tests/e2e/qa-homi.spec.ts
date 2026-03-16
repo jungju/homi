@@ -54,33 +54,39 @@ async function getSelectorSizePx(page: Page, selector: string, property: 'width'
     );
 }
 
-async function expectBubbleCanOverflowZone(page: Page) {
+async function expectBubbleAnchoredToTopSpan(page: Page) {
   const bubbleBox = await page.getByTestId('home-bubble').boundingBox();
-  const zoneBox = await page.getByTestId('home-control-box-2').boundingBox();
+  const area2Box = await page.getByTestId('home-area-2').boundingBox();
+  const area3Box = await page.getByTestId('home-area-3').boundingBox();
   expect(bubbleBox).not.toBeNull();
-  expect(zoneBox).not.toBeNull();
-  expect(bubbleBox!.width).toBeGreaterThan(zoneBox!.width);
-  expect(bubbleBox!.x).toBeLessThan(zoneBox!.x);
-  expect(bubbleBox!.x + bubbleBox!.width).toBeGreaterThan(zoneBox!.x + zoneBox!.width);
+  expect(area2Box).not.toBeNull();
+  expect(area3Box).not.toBeNull();
+  expect(bubbleBox!.width).toBeGreaterThan(area2Box!.width);
+  expect(bubbleBox!.x).toBeLessThan(area2Box!.x);
+  expect(bubbleBox!.x + bubbleBox!.width).toBeGreaterThan(area3Box!.x + area3Box!.width - 24);
+  const bubbleCenterX = bubbleBox!.x + bubbleBox!.width / 2;
+  expect(bubbleCenterX).toBeGreaterThan(area2Box!.x);
+  expect(bubbleCenterX).toBeLessThan(area2Box!.x + area2Box!.width);
 }
 
-async function expectSettingsIconButtonInBox9(page: Page) {
+async function expectSettingsIconButtonInArea9(page: Page) {
   const button = page.getByTestId('home-open-backup');
   await expect(button).toBeVisible();
   await expect(button).toHaveAttribute('aria-label', '브레인 설정');
   await expect(button).toHaveText('⚙');
 
   const buttonBox = await button.boundingBox();
-  const zoneBox = await page.getByTestId('home-control-box-9').boundingBox();
+  const areaBox = await page.getByTestId('home-area-9').boundingBox();
   expect(buttonBox).not.toBeNull();
-  expect(zoneBox).not.toBeNull();
-  expect(buttonBox!.x + buttonBox!.width).toBeGreaterThan(zoneBox!.x + zoneBox!.width - 36);
-  expect(buttonBox!.y + buttonBox!.height).toBeGreaterThan(zoneBox!.y + zoneBox!.height - 36);
+  expect(areaBox).not.toBeNull();
+  expect(buttonBox!.x + buttonBox!.width).toBeGreaterThan(areaBox!.x + areaBox!.width - 36);
+  expect(buttonBox!.y + buttonBox!.height).toBeGreaterThan(areaBox!.y + areaBox!.height - 36);
 }
 
-async function expectHomeClockInBox6(page: Page) {
-  const zone = page.getByTestId('home-control-box-6');
-  const clock = zone.getByTestId('home-clock');
+async function expectHomeClockAnchoredToAreas5And6(page: Page) {
+  const area5 = page.getByTestId('home-area-5');
+  const area6 = page.getByTestId('home-area-6');
+  const clock = page.getByTestId('home-clock');
   const date = page.getByTestId('home-clock-date');
   const time = page.getByTestId('home-clock-time');
   await expect(clock).toBeVisible();
@@ -88,18 +94,21 @@ async function expectHomeClockInBox6(page: Page) {
     /^\d{4}\.\d{2}\.\d{2} (일|월|화|수|목|금|토)요일$/,
   );
   await expect(time).toHaveText(/^\d{2}:\d{2}$/);
-  const zoneBox = await zone.boundingBox();
+  const area5Box = await area5.boundingBox();
+  const area6Box = await area6.boundingBox();
   const clockBox = await clock.boundingBox();
   const dateBox = await date.boundingBox();
   const timeBox = await time.boundingBox();
   const viewport = page.viewportSize();
-  expect(zoneBox).not.toBeNull();
+  expect(area5Box).not.toBeNull();
+  expect(area6Box).not.toBeNull();
   expect(clockBox).not.toBeNull();
   expect(dateBox).not.toBeNull();
   expect(timeBox).not.toBeNull();
   expect(viewport).not.toBeNull();
-  expect(clockBox!.width).toBeGreaterThan(zoneBox!.width - 36);
-  expect(clockBox!.height).toBeGreaterThan(zoneBox!.height - 36);
+  expect(clockBox!.width).toBeGreaterThan(area6Box!.width);
+  expect(clockBox!.x).toBeGreaterThanOrEqual(area5Box!.x - 1);
+  expect(clockBox!.x + clockBox!.width).toBeGreaterThan(area6Box!.x + area6Box!.width - 24);
   expect(dateBox!.x).toBeGreaterThanOrEqual(clockBox!.x - 1);
   expect(dateBox!.y).toBeGreaterThanOrEqual(clockBox!.y - 1);
   expect(dateBox!.x + dateBox!.width).toBeLessThanOrEqual(clockBox!.x + clockBox!.width + 1);
@@ -125,6 +134,17 @@ async function expectHomeClockInBox6(page: Page) {
   expect(clockStyles.backgroundImage).toBe('none');
   expect(clockStyles.borderTopWidth).toBe('0px');
   expect(clockStyles.boxShadow).toBe('none');
+}
+
+async function expectElementAnchoredToArea8(page: Page, testId: string) {
+  const elementBox = await page.getByTestId(testId).boundingBox();
+  const areaBox = await page.getByTestId('home-area-8').boundingBox();
+  expect(elementBox).not.toBeNull();
+  expect(areaBox).not.toBeNull();
+  const elementCenterX = elementBox!.x + elementBox!.width / 2;
+  expect(elementCenterX).toBeGreaterThan(areaBox!.x + areaBox!.width * 0.2);
+  expect(elementCenterX).toBeLessThan(areaBox!.x + areaBox!.width * 0.8);
+  expect(elementBox!.y + elementBox!.height).toBeGreaterThan(areaBox!.y + areaBox!.height - 36);
 }
 
 async function selectFirstDictationDataset(page: Page) {
@@ -156,25 +176,26 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByRole('button', { name: '브레인 설정' })).toBeVisible();
     await expect(page.getByRole('button', { name: /스케줄 열기/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /받아쓰기 열기/ })).toBeVisible();
-    await expect(page.getByTestId('home-control-grid')).toBeVisible();
-    await expect(page.locator('[data-testid^=\"home-control-box-\"]')).toHaveCount(9);
-    await expect(page.getByTestId('home-control-box-2').getByTestId('home-bubble')).toBeVisible();
+    await expect(page.getByTestId('home-area-grid')).toBeVisible();
+    await expect(page.locator('[data-testid^=\"home-area-\"]:not([data-testid=\"home-area-grid\"])')).toHaveCount(9);
+    await expect(page.getByTestId('home-bubble')).toBeVisible();
     await expect(page.getByTestId('home-robot-name')).toHaveText('호미');
     await expect(page.getByTestId('home-status-text')).toHaveCount(0);
     await expect(page.getByTestId('home-mode-text')).toHaveCount(0);
     await expect(page.getByTestId('toast-root')).toHaveCount(0);
-    await expect(page.getByTestId('home-control-box-8').getByTestId('home-open-engines')).toBeVisible();
+    await expect(page.getByTestId('home-open-engines')).toBeVisible();
     await expect(page.locator('[data-testid="global-header"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="global-nav"]')).toHaveCount(0);
-    await expectHomeClockInBox6(page);
+    await expectHomeClockAnchoredToAreas5And6(page);
     const faceRect = await getFaceRect(page);
     expect(faceRect.width).toBeGreaterThanOrEqual(620);
     expect(await getSelectorSizePx(page, '.home-face__eye', 'width')).toBeGreaterThanOrEqual(100);
     expect(await getFontSizePx(page, 'home-robot-name')).toBeGreaterThanOrEqual(60);
     expect(await getFontSizePx(page, 'home-clock-time')).toBeGreaterThanOrEqual(88);
     expect(await getFontSizePx(page, 'home-open-backup')).toBeGreaterThanOrEqual(22);
-    await expectBubbleCanOverflowZone(page);
-    await expectSettingsIconButtonInBox9(page);
+    await expectBubbleAnchoredToTopSpan(page);
+    await expectElementAnchoredToArea8(page, 'home-open-engines');
+    await expectSettingsIconButtonInArea9(page);
     await expectFacePageNoScroll(page);
 
     await captureState(page, 'home.default', '기본 모드', [
@@ -182,11 +203,9 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-face is visible',
       'home-face uses large tablet size',
       'home-face eyes use enlarged readable size',
-      'home-control-grid has 9 control boxes',
-      'home-bubble is in control box 2',
-      'home-bubble may overflow box 2 into adjacent zones',
-      'home-clock is visible in control box 6',
-      'home-clock fills most of control box 6',
+      'home-area-grid has 9 named areas',
+      'home-bubble is anchored from area-2 and spans the top row',
+      'home-clock is anchored from area-6 and spans area-5..6',
       'home-clock shows date, weekday, and HH:MM',
       'home-clock date/time text stay inside the home-clock text region',
       'home-clock text region stays inside the viewport',
@@ -195,8 +214,8 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-robot-name shows 호미',
       'home-status-text is absent without alert or quiet mode',
       'toast-root is absent on home face screen',
-      'home-open-engines is in control box 8',
-      'home-open-backup icon button is in control box 9 right bottom',
+      'home-open-engines is anchored to area-8',
+      'home-open-backup icon button is anchored to area-9 right bottom',
       'home-bubble is visible',
       'home-mode-text is absent in basic mode',
       'home typography is tablet-large',
@@ -318,6 +337,9 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByTestId('backup-theme-status')).toContainText('라이트 모드');
     await expect(page.getByTestId('backup-theme-light')).toBeVisible();
     await expect(page.getByTestId('backup-theme-dark')).toBeVisible();
+    await expect(page.getByTestId('backup-debug-areas-status')).toContainText('숨김');
+    await expect(page.getByTestId('backup-debug-areas-show')).toBeVisible();
+    await expect(page.getByTestId('backup-debug-areas-hide')).toBeVisible();
     await expect(page.getByTestId('backup-version')).toHaveText(/^버전: \d{4}-\d{2}-\d{2}$/);
     await expect(page.getByTestId('backup-url-sync-status')).toContainText('현재 URL 자동 업데이트 연결 없음');
     await expect(page.getByTestId('backup-panel-url')).toBeVisible();
@@ -347,6 +369,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'backup-tab-url/text/file/sample are visible in order',
       'backup quiet status and control buttons are visible',
       'backup theme status and light/dark buttons are visible',
+      'backup debug area status and show/hide buttons are visible',
       'backup version date is visible',
       'backup url sync status is visible',
       'backup panels switch with tab selection',
@@ -382,6 +405,81 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     for (const title of expectedScheduleTitles) {
       await expect(page.getByRole('heading', { name: title })).toBeVisible();
     }
+  });
+
+  test('[test.p1.home.debug_control_boxes_toggle] 브레인 설정의 디버그 표시로 홈 9분할 area 오버레이를 Show/Hidden 할 수 있어야 한다', async ({ page }) => {
+    await resetLocalData(page);
+    await page.goto('/brain');
+
+    await expect(page.getByTestId('backup-debug-areas-status')).toContainText('숨김');
+    await page.getByTestId('backup-debug-areas-show').click();
+    await expect(page.getByTestId('backup-debug-areas-status')).toContainText('표시 중');
+
+    await page.goto('/');
+    await expect(page.getByTestId('debug-layer-root')).toBeVisible();
+    await expect(page.getByTestId('debug-page-name')).toHaveText('page: /');
+    await expect(page.getByTestId('home-area-grid')).toHaveAttribute('data-debug-areas', 'visible');
+    const debugOverlayColor = await page.getByTestId('home-area-1').evaluate((element) =>
+      window.getComputedStyle(element as HTMLElement, '::before').backgroundColor,
+    );
+    expect(debugOverlayColor).not.toBe('rgba(0, 0, 0, 0)');
+    await expect(page.getByTestId('home-area-1-label')).toHaveText('area-1 · 좌상단');
+    await expect(page.getByTestId('home-area-6-label')).toContainText('area-6');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="home-bubble-section"]'),
+    ).toHaveText('section: 홈 말풍선');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="home-clock-section"]'),
+    ).toHaveText('section: 홈 시계');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="home-bottom-section"]'),
+    ).toHaveText('section: 하단 실행/엔진 영역');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="home-settings-section"]'),
+    ).toHaveText('section: 설정 진입');
+    await expect(page.locator('[data-testid="debug-control-label"]')).toHaveCount(0);
+
+    await page.goto('/brain');
+    await expect(page.getByTestId('debug-layer-root')).toBeVisible();
+    await expect(page.getByTestId('debug-page-name')).toHaveText('page: /brain');
+    await expect(page.getByTestId('debug-popup-name')).toContainText('popup: 페이지: /brain');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="backup-summary-section"]'),
+    ).toHaveText('section: 브레인 설정');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="backup-theme-section"]'),
+    ).toHaveText('section: 화면 테마');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="backup-debug-section"]'),
+    ).toHaveText('section: 디버그 표시');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="backup-quiet-section"]'),
+    ).toHaveText('section: 알림 관리');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="backup-import-section"]'),
+    ).toHaveText('section: 브레인 입력');
+
+    await page.goto('/engines/schedule');
+    await expect(page.getByTestId('debug-page-name')).toHaveText('page: /engines/schedule');
+    await expect(page.getByTestId('debug-popup-name')).toContainText('popup: 페이지: /engines/schedule');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="schedule-hourly-chime-section"]'),
+    ).toHaveText('section: 정시 차임');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="schedule-preview-section"]'),
+    ).toHaveText('section: 등록된 스케줄 미리 듣기');
+    await expect(
+      page.locator('[data-testid="debug-section-label"][data-debug-target-id="engine-datasets-section"]'),
+    ).toHaveText('section: 자료 세트');
+
+    await page.goto('/brain');
+    await page.getByTestId('backup-debug-areas-hide').click();
+    await expect(page.getByTestId('backup-debug-areas-status')).toContainText('숨김');
+
+    await page.goto('/');
+    await expect(page.getByTestId('home-area-grid')).toHaveAttribute('data-debug-areas', 'hidden');
+    await expect(page.getByTestId('home-area-1-label')).toHaveCount(0);
+    await expect(page.getByTestId('debug-layer-root')).toHaveCount(0);
   });
 
   test('[test.p1.backup.theme_mode_persisted] 브레인 설정의 라이트/다크 모드는 즉시 적용되고 재실행 후에도 유지되어야 한다', async ({ page }) => {
@@ -460,8 +558,9 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     const runningFaceRect = await getFaceRect(page);
     expect(Math.abs(runningFaceRect.x - idleFaceRect.x)).toBeLessThanOrEqual(2);
     expect(Math.abs(runningFaceRect.y - idleFaceRect.y)).toBeLessThanOrEqual(2);
-    await expect(page.getByTestId('home-control-box-2').getByTestId('home-bubble')).toBeVisible();
-    await expect(page.getByTestId('home-control-box-8').getByTestId('dictation-root')).toBeVisible();
+    await expect(page.getByTestId('home-bubble')).toBeVisible();
+    await expect(page.getByTestId('dictation-root')).toBeVisible();
+    await expectElementAnchoredToArea8(page, 'dictation-root');
     await expect(page.getByText('받아쓰기 게임')).toBeVisible();
     await expect(page.getByTestId('home-mode-text')).toContainText('받아쓰기 실행모드');
     await expectFacePageNoScroll(page);

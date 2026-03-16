@@ -274,7 +274,7 @@
     },
     {
       "id": "flow.invariant.home_face_surface_shared_modes",
-      "statement": "기본 모드와 받아쓰기 실행모드는 동일한 홈 얼굴 화면(route=/)을 공유하고 control box 배치만 바뀐다.",
+      "statement": "기본 모드와 받아쓰기 실행모드는 동일한 홈 얼굴 화면(route=/)을 공유하고 area anchor 위의 배치만 바뀐다.",
       "contractRefs": [
         "ui.home.control_grid_3x3",
         "ui.home.control_box_2.bubble",
