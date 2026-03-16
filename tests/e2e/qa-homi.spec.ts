@@ -112,6 +112,19 @@ async function expectHomeClockInBox6(page: Page) {
   expect(clockBox!.y).toBeGreaterThanOrEqual(-1);
   expect(clockBox!.x + clockBox!.width).toBeLessThanOrEqual(viewport!.width + 1);
   expect(clockBox!.y + clockBox!.height).toBeLessThanOrEqual(viewport!.height + 1);
+  const clockStyles = await clock.evaluate((element) => {
+    const styles = window.getComputedStyle(element as HTMLElement);
+    return {
+      backgroundColor: styles.backgroundColor,
+      backgroundImage: styles.backgroundImage,
+      borderTopWidth: styles.borderTopWidth,
+      boxShadow: styles.boxShadow,
+    };
+  });
+  expect(clockStyles.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+  expect(clockStyles.backgroundImage).toBe('none');
+  expect(clockStyles.borderTopWidth).toBe('0px');
+  expect(clockStyles.boxShadow).toBe('none');
 }
 
 async function selectFirstDictationDataset(page: Page) {
@@ -175,8 +188,9 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-clock is visible in control box 6',
       'home-clock fills most of control box 6',
       'home-clock shows date, weekday, and HH:MM',
-      'home-clock date/time text stay inside the home-clock card',
-      'home-clock card stays inside the viewport',
+      'home-clock date/time text stay inside the home-clock text region',
+      'home-clock text region stays inside the viewport',
+      'home-clock shows text without a card surface',
       'home-clock time uses extra-large tablet font size',
       'home-robot-name shows 호미',
       'home-status-text is absent without alert or quiet mode',

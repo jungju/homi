@@ -37,11 +37,11 @@
     },
     {
       "id": "ui.home.control_box_6.clock",
-      "statement": "홈(/)의 control box 6(중앙 오른쪽)에는 home-clock이 구역 대부분을 채우도록 표시되고, home-clock-date/home-clock-time으로 날짜·요일·시:분을 매우 큰 글자로 보여준다."
+      "statement": "홈(/)의 control box 6(중앙 오른쪽)에는 home-clock이 카드형 박스 없이 표시되고, home-clock-date/home-clock-time 텍스트로 날짜·요일·시:분을 매우 큰 글자로 보여준다."
     },
     {
       "id": "ui.home.control_box_6.clock_content_contained",
-      "statement": "home-clock의 날짜/시간 텍스트는 항상 home-clock 카드 내부에 완전히 들어가야 하며, 카드가 control box 6 기준으로 인접 구역을 침범하더라도 viewport 밖으로 나가면 안 된다."
+      "statement": "home-clock의 날짜/시간 텍스트는 항상 home-clock 텍스트 영역 내부에 완전히 들어가야 하며, 이 영역이 control box 6 기준으로 인접 구역을 침범하더라도 viewport 밖으로 나가면 안 된다."
     },
     {
       "id": "ui.home.zone_bounds_soft",

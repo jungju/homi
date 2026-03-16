@@ -47,6 +47,7 @@
   .home-dialog {
     position: relative;
     flex: 0 0 auto;
+    box-sizing: border-box;
     padding: 1rem 1.35rem;
     border-radius: 22px;
     border: 1px solid var(--panel-border);
@@ -55,15 +56,15 @@
     display: grid;
     gap: 0.45rem;
     text-align: center;
-    width: min(calc(100vw - 1.2rem), 960px);
-    max-width: 960px;
+    width: min(calc(100% - clamp(0.75rem, 2vw, 2.4rem)), calc(100vw - 1.2rem));
+    max-width: none;
     overflow: visible;
     pointer-events: auto;
   }
   .home-dialog:after { display: none; }
   @media (max-width: 700px) {
     .home-dialog {
-      width: min(calc(100vw - 0.9rem), 700px);
+      width: min(calc(100% - 0.35rem), calc(100vw - 0.9rem));
       max-width: none;
     }
   }

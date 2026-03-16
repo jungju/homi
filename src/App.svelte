@@ -217,7 +217,7 @@
     overflow: hidden;
   }
   .home-fullscreen {
-    width: min(100vw, 980px);
+    width: 100%;
     height: 100%;
     max-height: 100%;
     margin: 0 auto;

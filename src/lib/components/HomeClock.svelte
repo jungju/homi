@@ -16,24 +16,15 @@
     display: grid;
     justify-items: end;
     align-content: center;
-    gap: clamp(0.46rem, 1.1vmin, 1rem);
+    gap: clamp(0.32rem, 0.9vmin, 0.72rem);
     width: 100%;
     min-width: 0;
     max-width: none;
     height: 100%;
     box-sizing: border-box;
     text-align: right;
-    padding: clamp(1.1rem, 2.5vw, 1.95rem) clamp(0.95rem, 2vw, 1.7rem) clamp(1.1rem, 2.5vw, 1.95rem) clamp(1.15rem, 2.7vw, 2.15rem);
-    border-radius: clamp(30px, 4vw, 42px);
-    border: 1px solid rgba(84, 117, 153, 0.22);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.86) 0%, rgba(222, 236, 255, 0.96) 100%),
-      radial-gradient(circle at top right, rgba(255, 255, 255, 0.9), transparent 42%);
-    box-shadow:
-      0 24px 52px rgba(23, 53, 93, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(14px);
-    overflow: hidden;
+    padding: clamp(0.4rem, 1vw, 0.8rem) clamp(0.45rem, 1.2vw, 0.9rem) clamp(0.4rem, 1vw, 0.8rem) clamp(0.65rem, 1.6vw, 1.15rem);
+    overflow: visible;
     pointer-events: none;
     container-type: inline-size;
   }
@@ -67,9 +58,8 @@
 
   @media (max-width: 720px) {
     .home-clock {
-      padding: clamp(0.8rem, 2.8vw, 1.05rem);
-      border-radius: clamp(22px, 5vw, 28px);
-      box-shadow: 0 16px 30px rgba(23, 53, 93, 0.14);
+      gap: clamp(0.24rem, 0.8vmin, 0.42rem);
+      padding: clamp(0.2rem, 1vw, 0.45rem) clamp(0.25rem, 1.4vw, 0.45rem) clamp(0.2rem, 1vw, 0.45rem) clamp(0.55rem, 2vw, 0.8rem);
     }
     .home-clock-date {
       font-size: clamp(0.9rem, 8.3cqw, 1.2rem);
