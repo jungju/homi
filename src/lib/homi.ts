@@ -5,6 +5,7 @@ import { createBrowserRuntime, type ClockAdapter, type StorageAdapter } from './
 export type SourceType = 'manual' | 'sample' | 'url' | 'file' | 'text';
 export type EngineId = 'schedule' | 'dictation';
 export type BundleType = 'sample' | 'import' | 'backup';
+export type ThemeMode = 'light' | 'dark';
 
 export interface SourceV1 {
   type: SourceType;
@@ -42,6 +43,7 @@ export interface HomiStoreUI {
   scheduleQuietUntil?: string;
   scheduleHourlyChimeEnabled?: boolean;
   linkedImport?: LinkedUrlImportV1;
+  themeMode?: ThemeMode;
 }
 
 export interface HomiStoreV1 {
@@ -307,6 +309,7 @@ const StoreSchema = z
         scheduleQuietUntil: z.string().optional(),
         scheduleHourlyChimeEnabled: z.boolean().optional(),
         linkedImport: LinkedUrlImportSchema.optional(),
+        themeMode: z.enum(['light', 'dark']).optional(),
       })
       .passthrough()
       .optional(),
@@ -388,6 +391,10 @@ export function createEmptyStore(): HomiStoreV1 {
     datasetsByEngine: {},
     ui: {},
   };
+}
+
+export function getStoredThemeMode(store: Pick<HomiStoreV1, 'ui'> | null | undefined): ThemeMode {
+  return store?.ui?.themeMode === 'dark' ? 'dark' : 'light';
 }
 
 export function computeImportSelectionSignature(selected: DataSetPayloadV1[]): string {

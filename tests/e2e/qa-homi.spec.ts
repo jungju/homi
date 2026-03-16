@@ -279,6 +279,9 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByTestId('backup-quiet-status')).toContainText('현재 상태: 꺼짐');
     await expect(page.getByTestId('backup-quiet-enable')).toBeVisible();
     await expect(page.getByTestId('backup-quiet-clear')).toBeDisabled();
+    await expect(page.getByTestId('backup-theme-status')).toContainText('라이트 모드');
+    await expect(page.getByTestId('backup-theme-light')).toBeVisible();
+    await expect(page.getByTestId('backup-theme-dark')).toBeVisible();
     await expect(page.getByTestId('backup-version')).toHaveText(/^버전: \d{4}-\d{2}-\d{2}$/);
     await expect(page.getByTestId('backup-url-sync-status')).toContainText('현재 URL 자동 업데이트 연결 없음');
     await expect(page.getByTestId('backup-panel-url')).toBeVisible();
@@ -307,6 +310,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'backup-tablist is visible',
       'backup-tab-url/text/file/sample are visible in order',
       'backup quiet status and control buttons are visible',
+      'backup theme status and light/dark buttons are visible',
       'backup version date is visible',
       'backup url sync status is visible',
       'backup panels switch with tab selection',
@@ -342,6 +346,37 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     for (const title of expectedScheduleTitles) {
       await expect(page.getByRole('heading', { name: title })).toBeVisible();
     }
+  });
+
+  test('[test.p1.backup.theme_mode_persisted] 브레인 설정의 라이트/다크 모드는 즉시 적용되고 재실행 후에도 유지되어야 한다', async ({ page }) => {
+    await resetLocalData(page);
+    await page.goto('/brain');
+
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await expect(page.getByTestId('backup-theme-status')).toContainText('라이트 모드');
+    await expect(page.getByTestId('backup-theme-light')).toHaveAttribute('aria-pressed', 'true');
+
+    await page.getByTestId('backup-theme-dark').click();
+
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.getByTestId('backup-theme-status')).toContainText('다크 모드');
+    await expect(page.getByTestId('backup-theme-dark')).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      await page.evaluate(() => {
+        const raw = window.localStorage.getItem('homi.store.v1');
+        const parsed = raw ? JSON.parse(raw) : null;
+        return parsed?.ui?.themeMode ?? null;
+      }),
+    ).toBe('dark');
+
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.getByTestId('backup-theme-status')).toContainText('다크 모드');
+
+    await page.getByTestId('backup-theme-light').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await expect(page.getByTestId('backup-theme-status')).toContainText('라이트 모드');
+    await expect(page.getByTestId('backup-theme-light')).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('[test.p0.import.entry_backup_only] import 입력 UI는 브레인 설정 route(/brain)에만 존재해야 한다', async ({ page }) => {

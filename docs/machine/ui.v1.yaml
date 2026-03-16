@@ -124,6 +124,10 @@
       "statement": "브레인 설정 overlay에는 backup-version이 표시되고, 배포 버전을 YYYY-MM-DD 날짜 형식으로 보여준다."
     },
     {
+      "id": "ui.backup.theme_controls",
+      "statement": "브레인 설정 overlay에는 현재 테마 문구(backup-theme-status)와 라이트/다크 모드 전환 버튼(backup-theme-light, backup-theme-dark)이 표시된다."
+    },
+    {
       "id": "ui.engine.no_backup_import_controls",
       "statement": "engine overlay에서 브레인 설정 import 입력 testid는 존재하면 안 된다."
     },
@@ -261,6 +265,9 @@
         "backup-quiet-status",
         "backup-quiet-enable",
         "backup-quiet-clear",
+        "backup-theme-status",
+        "backup-theme-light",
+        "backup-theme-dark",
         "backup-version",
         "backup-panel-url",
         "backup-panel-text",

@@ -6,6 +6,7 @@ import {
   buildBundleFromDatasetIds,
   computeImportSelectionSignature,
   createEmptyStore,
+  getStoredThemeMode,
   getDatasetsByEngine,
   importDatasets,
   isDatasetEnabled,
@@ -226,6 +227,25 @@ describe('store operations', () => {
     const storage = createMemoryStorage();
     const store = loadStoreFromStorage(storage);
     expect(store.datasetsByEngine).toEqual({});
+  });
+
+  it('defaults theme mode to light and preserves a stored dark mode preference', () => {
+    expect(getStoredThemeMode(createEmptyStore())).toBe('light');
+
+    const storage = createMemoryStorage({
+      [HOMI_STORAGE_KEY]: JSON.stringify({
+        storeVersion: 1,
+        updatedAt: '2026-03-16T00:00:00.000Z',
+        datasetsByEngine: {},
+        ui: {
+          themeMode: 'dark',
+        },
+      }),
+    });
+
+    const store = loadStoreFromStorage(storage);
+    expect(getStoredThemeMode(store)).toBe('dark');
+    expect(store.ui?.themeMode).toBe('dark');
   });
 
   it('getDatasetsByEngine returns empty array for missing engine', () => {
