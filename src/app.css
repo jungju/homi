@@ -36,6 +36,14 @@
   --home-status-alert: #9a4f17;
   --home-status-error: #9c2a2a;
   --home-status-running: #215e82;
+  --home-clock-date-color: #b8742c;
+  --home-clock-weekday-color: #df9540;
+  --home-clock-date-shadow: rgba(255, 184, 106, 0.28);
+  --home-clock-time-color: #143b67;
+  --home-clock-time-grad-start: #123965;
+  --home-clock-time-grad-mid: #2b67a5;
+  --home-clock-time-grad-end: #f1a347;
+  --home-clock-time-shadow: rgba(17, 56, 97, 0.16);
 }
 
 :root[data-theme='dark'] {
@@ -69,6 +77,14 @@
   --home-status-alert: #ffc68f;
   --home-status-error: #ffbcc4;
   --home-status-running: #9fdbff;
+  --home-clock-date-color: #ffcf83;
+  --home-clock-weekday-color: #ffdca8;
+  --home-clock-date-shadow: rgba(255, 188, 102, 0.18);
+  --home-clock-time-color: #dff1ff;
+  --home-clock-time-grad-start: #dff2ff;
+  --home-clock-time-grad-mid: #8fd4ff;
+  --home-clock-time-grad-end: #ffc983;
+  --home-clock-time-shadow: rgba(2, 10, 22, 0.34);
 }
 
 * {

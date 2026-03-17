@@ -1,0 +1,348 @@
+2026-03-16T21:05:56.652128Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell
+OpenAI Codex v0.114.0 (research preview)
+--------
+workdir: c:\Users\jeong\.openclaw\workspace\homi
+model: gpt-5.3-codex
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: none
+session id: 019cf878-419c-7131-a001-71180f3c5c91
+--------
+user
+You are Round 4 Worker C for Homi task ideation.
+
+Read `.omx/context/agent-enhancement-20260316T205459Z.md` and all existing round files under `.omx/plans/agent-enhancement-rounds/round-01-*.md` through `round-03-*.md` before proposing anything. Do not use README or generated artifacts as authority. Do not browse the web.
+
+Round 4 theme: long-term trust, safe maintenance, aging content, and reliability over time.
+
+Goal: propose 4 net-new functionality enhancement tasks that are not duplicates of earlier rounds and that make Homi dependable over months of household use.
+
+Rules:
+- Optimize for real household/customer value.
+- Avoid engineering chores, refactors, or test-only tasks.
+- Prefer tasks that fit the current product shape.
+- Output only markdown.
+- For each task include: Title, Customer Problem, Customer Value, Likely Surface, Why Net-New.
+
+warning: Under-development features enabled: child_agents_md. Under-development features are incomplete and may behave unpredictably. To suppress this warning, set `suppress_unstable_features_warning = true` in C:\Users\jeong\.codex\config.toml.
+mcp: omx_memory starting
+mcp: omx_trace starting
+mcp: Roblox_Studio starting
+mcp: omx_code_intel starting
+mcp: omx_state starting
+mcp: omx_team_run starting
+mcp: playwright starting
+mcp: Roblox_Studio ready
+mcp: omx_memory ready
+mcp: omx_code_intel ready
+mcp: omx_trace ready
+mcp: omx_team_run ready
+mcp: omx_state ready
+mcp: playwright ready
+mcp startup: ready: Roblox_Studio, omx_memory, omx_code_intel, omx_trace, omx_team_run, omx_state, playwright
+codex
+I’ll read the Round context and all Round 1–3 idea files first, then draft four strictly net-new Round 4 tasks focused on long-term trust and reliability.
+exec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Path .omx/context -File | Select-Object -ExpandProperty FullName' in c:\Users\jeong\.openclaw\workspace\homiexec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-ChildItem -Path .omx/plans/agent-enhancement-rounds -File | Select-Object -ExpandProperty FullName' in c:\Users\jeong\.openclaw\workspace\homi succeeded in 886ms:
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-01-worker-a.md
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-01-worker-b.md
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-01-worker-c.md
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-02-worker-a.md
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-02-worker-a.runlog.txt
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-02-worker-b.md
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-02-worker-b.runlog.txt
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-02-worker-c.md
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-02-worker-c.runlog.txt
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-03-worker-a.md
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-03-worker-a.runlog.txt
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-03-worker-b.md
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-03-worker-b.runlog.txt
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-03-worker-c.md
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-03-worker-c.runlog.txt
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-04-worker-a.runlog.txt
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-04-worker-b.runlog.txt
+C:\Users\jeong\.openclaw\workspace\homi\.omx\plans\agent-enhancement-rounds\round-04-worker-c.runlog.txt
+ succeeded in 1.32s:
+C:\Users\jeong\.openclaw\workspace\homi\.omx\context\agent-enhancement-20260316T205459Z.md
+exec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path .omx/plans/agent-enhancement-rounds/round-01-worker-a.md -Raw' in c:\Users\jeong\.openclaw\workspace\homiexec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path .omx/plans/agent-enhancement-rounds/round-01-worker-b.md -Raw' in c:\Users\jeong\.openclaw\workspace\homiexec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path .omx/plans/agent-enhancement-rounds/round-01-worker-c.md -Raw' in c:\Users\jeong\.openclaw\workspace\homiexec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path .omx/context/agent-enhancement-20260316T205459Z.md -Raw' in c:\Users\jeong\.openclaw\workspace\homi succeeded in 844ms:
+## Task 1
+- Title: Weekday/Weekend and Selected-Day Recurrence
+- Customer Problem: Real household routines rarely happen literally every day or only once a year. Families need reminders like school-morning only, weekday bedtime, weekend reset, or specific trash days, and daily-only scheduling is too blunt.
+- Customer Value: Makes Homi useful for real recurring household routines instead of just simple daily alarms, which increases trust and repeat use.
+- Likely Surface: Schedule engine overlay recurrence controls, schedule preview metadata, home reminder bubble.
+- Why Now: The current product contract only supports `daily` and `yearly`, which is a major ceiling on household routine stickiness despite schedule already being a core engine.
+
+## Task 2
+- Title: Actionable Reminder Buttons on the Home Face
+- Customer Problem: A reminder that only announces itself still leaves the household with work to do. Users need a fast way to say “done,” “10 minutes later,” or “skip for now” without leaving the main screen.
+- Customer Value: Turns Homi from a passive announcer into an active routine helper, reducing nagging and making reminders feel useful instead of repetitive.
+- Likely Surface: Home face bubble and bottom action area during an active reminder, with supporting defaults in the schedule overlay.
+- Why Now: Homi already has a large tablet-readable home surface and recurring reminders, but no lightweight completion loop. This is one of the shortest paths to more daily engagement.
+
+## Task 3
+- Title: Missed Reminder Catch-Up After Quiet Mode or Dictation
+- Customer Problem: Quiet mode and dictation correctly suppress interruptions, but a household can lose track of what was missed while Homi stayed silent.
+- Customer Value: Preserves trust. Users can safely use quiet mode or run dictation without feeling that Homi “ate” important household reminders.
+- Likely Surface: Home bubble catch-up summary, small catch-up list in the schedule overlay, status text in brain settings.
+- Why Now: The current flow intentionally suppresses reminder effects during quiet mode and dictation, so catch-up is the natural next step if Homi is meant for real daily use.
+ succeeded in 1.24s:
+## Automatic Restore Points and One-Tap Recovery
+- **Customer Problem:** A household can lose its schedule and dictation setup after a bad import, accidental delete, or local storage corruption, and a local-only product becomes hard to trust once data disappears.
+- **Customer Value:** Customers get a safety net before destructive changes and a simple way to recover yesterday’s working brain instead of rebuilding routines from scratch.
+- **Likely Surface:** `/brain` recovery card, import confirm flow, dataset delete actions in `/engines/schedule` and `/engines/dictation`, local-first store persistence.
+- **Why Now:** Homi is explicitly local-first, imports are replace-only, and corrupted storage currently falls back to an empty store, so recovery is a direct trust gap.
+
+## Household Quiet Hours and Recurring Quiet Profiles
+- **Customer Problem:** A manual 30-minute quiet button is too short and too easy to forget for bedtime, naps, school hours, or work calls.
+- **Customer Value:** Families get predictable quiet behavior without babysitting the tablet, while still seeing a clear “quiet until” state on the home face.
+- **Likely Surface:** `/brain` quiet controls, home status text on `/`, schedule reminder/chime logic.
+- **Why Now:** Quiet mode already exists and fits the product, but it is still a one-off timer rather than a household routine.
+
+## Missed Reminder Digest After Quiet, Dictation, or Reopen
+- **Customer Problem:** When reminders are suppressed during quiet mode or dictation, important prompts can be silently consumed and never shown again.
+- **Customer Value:** Customers keep the benefit of quiet behavior without losing trust that Homi will help them catch missed tasks afterward.
+- **Likely Surface:** home bubble/status on `/`, a “missed today” section in `/brain`, schedule reminder state.
+- **Why Now:** Current behavior intentionally suppresses reminders during quiet or dictation; without a catch-up surface, quiet behavior can feel like reminder loss.
+
+## Persistent At-Distance Reminder Mode with Acknowledge or Snooze
+- **Customer Problem:** A reminder that appears only as transient text is easy to miss from across the room, especially on a shared household tablet.
+ succeeded in 1.43s:
+# Agent Enhancement Task Generation Context
+
+## Task Statement
+Run 5 rounds of Codex CLI worker ideation to propose functionality-enhancement tasks for the Homi service, then run a Codex CLI supervisor that understands the service and likely customer needs to deduplicate, remove low-value tasks, and write a final curated task list to a new file.
+
+## Desired Outcome
+- Five round artifacts with worker-proposed enhancement tasks.
+- One supervisor-curated final task list file.
+- Final task list should be customer-aware, service-aware, and free of obvious duplicates or low-value work.
+
+## Known Facts / Evidence
+- Homi is a static web app.
+- Core surfaces are home face screen (`/`), engine overlays (`/engines/{engineId}`), and brain settings (`/brain`).
+- Current core product capabilities include schedule reminders, dictation mode, import/export via brain settings, quiet mode, hourly chime, and theme/debug controls.
+- The UI is optimized for large, readable tablet-friendly text and at-a-distance use.
+- Storage is local-first via `localStorage` key `homi.store.v1`.
+- Authoritative source order is machine docs under `docs/machine/*` and domain schemas.
+
+## Constraints
+- Use Codex CLI workers for the agent executions.
+ succeeded in 1.65s:
+### 1. Caregiver Quick Setup Wizard
+- **Title:** Caregiver Quick Setup Wizard
+- **Customer Problem:** A first-time caregiver lands on a friendly home face, but the path to a usable household setup is still too abstract and too JSON-heavy.
+- **Customer Value:** Gets Homi from blank slate to first success in minutes by guiding the caregiver through starter content, the first reminder, the first dictation set, and basic notification choices.
+- **Likely Surface:** Home face empty-state bubble, `/brain` onboarding card, handoff into `/engines/schedule` and `/engines/dictation`.
+- **Why Now:** Homi already has the right core engines and import flow, but it lacks a guided first-run path, which is the biggest onboarding gap.
+
+### 2. Goal-Based Starter Brain Packs
+- **Title:** Goal-Based Starter Brain Packs
+- **Customer Problem:** One generic sample bundle is rarely a good fit for real households with different routines, ages, and care needs.
+- **Customer Value:** Gives families immediately useful starting points such as morning routine reminders, medication reminders, beginner dictation, and bedtime routines.
+- **Likely Surface:** `/brain` sample tab, import preview, optional starter-pack picker in setup.
+- **Why Now:** The sample import flow already exists, so expanding it into multiple high-relevance starter packs is a fast way to improve day-one usefulness.
+
+### 3. Plain-Language Schedule and Dictation Builders
+- **Title:** Plain-Language Schedule and Dictation Builders
+- **Customer Problem:** Caregivers currently need to edit item arrays as raw JSON, which is a major blocker for non-technical setup.
+- **Customer Value:** Lets households add reminders and first-week dictation content with large, simple fields instead of schema-shaped text blobs.
+- **Likely Surface:** `/engines/schedule` and `/engines/dictation` dataset editor panels with tablet-readable forms.
+- **Why Now:** Homi’s UI is otherwise approachable and large-format, so JSON-first editing is the sharpest mismatch with the product’s intended audience.
+codex
+I’ve loaded the context and all Round 1 files. Next I’m reading all Round 2–3 files so I can avoid duplicates and anchor Round 4 proposals to uncovered trust/reliability gaps.
+exec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path .omx/plans/agent-enhancement-rounds/round-02-worker-b.md -Raw' in c:\Users\jeong\.openclaw\workspace\homiexec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path .omx/plans/agent-enhancement-rounds/round-02-worker-c.md -Raw' in c:\Users\jeong\.openclaw\workspace\homiexec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path .omx/plans/agent-enhancement-rounds/round-03-worker-b.md -Raw' in c:\Users\jeong\.openclaw\workspace\homiexec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path .omx/plans/agent-enhancement-rounds/round-03-worker-c.md -Raw' in c:\Users\jeong\.openclaw\workspace\homiexec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path .omx/plans/agent-enhancement-rounds/round-03-worker-a.md -Raw' in c:\Users\jeong\.openclaw\workspace\homiexec
+"C:\\Program Files\\PowerShell\\7\\pwsh.exe" -Command 'Get-Content -Path .omx/plans/agent-enhancement-rounds/round-02-worker-a.md -Raw' in c:\Users\jeong\.openclaw\workspace\homi succeeded in 862ms:
+## 1) Adaptive Quieting Tiers per Reminder Type
+- **Title:** Adaptive Quieting Tiers per Reminder Type
+- **Customer Problem:** Quiet mode is currently all-or-nothing, so families either miss important items or get interrupted by low-priority ones.
+- **Customer Value:** Lets households choose how each reminder behaves during quiet time (hold for digest, silent badge only, gentle chime, or normal), so Homi stays respectful without becoming unreliable.
+- **Likely Surface:** `/brain` quiet preferences matrix, `/engines/schedule` reminder priority/quiet-behavior field, home status/badge behavior on `/`.
+- **Why Net-New:** Earlier rounds proposed recurring quiet windows and missed digests, but not preference-aware per-reminder quiet behavior with tiered delivery.
+
+## 2) Behavior-Learning Reminder Tone and Persistence
+- **Title:** Behavior-Learning Reminder Tone and Persistence
+- **Customer Problem:** Fixed reminder style can feel nagging for easy tasks and too weak for routinely missed ones.
+- **Customer Value:** Homi quietly adapts over time using local behavior signals (done fast, snoozed often, ignored repeatedly) to tune persistence and alert tone per reminder, reducing annoyance while improving follow-through.
+- **Likely Surface:** Runtime reminder logic, `/brain` “adaptive behavior” toggle with explainability summary, home reminder card presentation on `/`.
+- **Why Net-New:** Prior rounds added manual actions and persistence, but not automatic local adaptation based on household response patterns.
+
+## 3) Confidence Guard for Risky Schedule Edits
+- **Title:** Confidence Guard for Risky Schedule Edits
+- **Customer Problem:** Non-technical users can accidentally create risky reminder setups (overnight spam, overlapping duplicates, impossible cadence) without noticing.
+- **Customer Value:** Before save/import commit, Homi flags unusual configurations with plain-language risk warnings and safer one-tap fixes, preventing avoidable trust-breaking behavior.
+- **Likely Surface:** `/engines/schedule` save flow, `/brain` import/replace validation preview, inline “fix it for me” suggestions.
+- **Why Net-New:** Earlier rounds addressed destructive-action safety and rollback, but not proactive quality/sanity checks on reminder logic itself.
+ succeeded in 1.24s:
+## 1) Sensitive Reminder Privacy Shield
+- **Title:** Sensitive Reminder Privacy Shield
+- **Customer Problem:** On a shared household tablet, reminder text can expose private details (medications, appointments, personal tasks) to children, guests, or visitors.
+- **Customer Value:** Lets families keep Homi visible in common spaces without leaking sensitive information, improving confidence to use it for higher-stakes reminders.
+- **Likely Surface:** Home face reminder bubble on `/`, schedule item options in `/engines/schedule`, privacy defaults in `/brain`.
+- **Why Net-New:** Round 1 covered access protection and reminder persistence, but not content-level privacy controls for what is shown on-screen.
+
+## 2) Household Change History and Trust Log
+- **Title:** Household Change History and Trust Log
+- **Customer Problem:** When reminders behave differently, households often cannot tell whether someone changed settings/datasets or whether the app failed.
+- **Customer Value:** Builds trust through a clear local timeline of major actions (imports, deletes, quiet profile changes, permission changes), reducing blame and confusion on shared devices.
+- **Likely Surface:** New “History” card in `/brain`, lightweight “recent changes” snippet on `/`.
+- **Why Net-New:** Round 1 proposed recovery and previews, but not a persistent audit-style history explaining who/what changed the setup over time.
+
+## 3) Live Permission Drift Guard
+- **Title:** Live Permission Drift Guard
+- **Customer Problem:** Browser permissions can silently change after OS/browser updates or user taps, causing missed alerts without obvious warning.
+- **Customer Value:** Improves reliability by continuously detecting degraded alert channels and showing immediate, guided recovery steps before a missed reminder matters.
+- **Likely Surface:** Always-visible trust badge on `/`, guided fix flow in `/brain`, runtime checks inside reminder channel logic.
+- **Why Net-New:** Round 1 suggested a manual delivery checkup; this is continuous monitoring with proactive alerts, not a one-time test panel.
+ succeeded in 1.59s:
+## 1) Household Rhythm Auto-Tuning for Reminder Times
+- **Title:** Household Rhythm Auto-Tuning for Reminder Times
+- **Customer Problem:** Families often set reminder times once, then ignore or snooze them because real life timing shifts (school days, commute changes, bedtime drift).
+- **Customer Value:** Homi becomes more useful over time by locally learning completion/snooze patterns and suggesting better times that match the household’s actual rhythm.
+- **Likely Surface:** Schedule engine overlay (`/engines/schedule`) suggestion chips, home face confirmation prompt (`/`), opt-in controls in brain settings (`/brain`).
+- **Why Net-New:** Earlier rounds covered recurrence, actions, and routines, but not adaptive time recommendations driven by observed household behavior.
+
+## 2) Personal Focus Modes with Remembered UI/Alert Preferences
+- **Title:** Personal Focus Modes with Remembered UI/Alert Preferences
+- **Customer Problem:** One shared tablet serves different people (caregiver, child, elder), but each needs different readability and alert intensity.
+- **Customer Value:** One tap can switch to a remembered mode (e.g., “Grandparent Mode,” “Kids Mode”) that applies preferred text scale, contrast, speech/chime level, and interaction density.
+- **Likely Surface:** Home quick mode switch (`/`), saved mode editor in brain settings (`/brain`), inherited behavior in engine overlays (`/engines/*`).
+- **Why Net-New:** Prior rounds addressed access/roles and ownership, but not reusable personalization presets that remember per-person comfort settings.
+
+## 3) Adaptive First-Week Setup Coach (Behavior-Aware)
+- **Title:** Adaptive First-Week Setup Coach (Behavior-Aware)
+- **Customer Problem:** Static onboarding asks everyone the same setup questions, even when households clearly signal different priorities through early use.
+- **Customer Value:** Homi asks fewer, smarter follow-up setup prompts based on local usage (missed reminders, dictation drop-off, frequent quiet toggles), reducing setup fatigue and improving fit.
+- **Likely Surface:** Home micro-prompts (`/`), setup suggestions in brain settings (`/brain`), deep-links into schedule/dictation overlays (`/engines/schedule`, `/engines/dictation`).
+- **Why Net-New:** Earlier rounds proposed setup wizard and starter packs, but not an adaptive coach that changes setup guidance based on observed first-week behavior.
+ succeeded in 1.84s:
+## 1) Time-Shifted Routine Suggestions
+- **Title:** Time-Shifted Routine Suggestions
+- **Customer Problem:** Households often set reminder times once, then keep snoozing because real life timing drifts (school pickup, dinner, bedtime variability).
+- **Customer Value:** Homi suggests better times per routine based on actual completion/snooze behavior, so reminders land when people are most likely to act.
+- **Likely Surface:** Suggestion chip on `/` after repeated snoozes, schedule item “suggested time update” in `/engines/schedule`, opt-in controls in `/brain`.
+- **Why Net-New:** Earlier rounds covered recurrence and reminder actions, but not behavior-driven timing optimization that adapts schedules automatically.
+
+## 2) Adaptive Dictation Difficulty Ladder
+- **Title:** Adaptive Dictation Difficulty Ladder
+- **Customer Problem:** Fixed dictation sets are either too easy or too hard over time, which causes boredom or frustration and breaks daily practice.
+- **Customer Value:** Practice stays in a “just-right” zone by auto-adjusting pace, prompt complexity, and review frequency based on recent accuracy and hesitation.
+- **Likely Surface:** Dictation session engine in `/engines/dictation`, “level up/down” explanation card on `/`, adaptation preferences in `/brain`.
+- **Why Net-New:** Prior rounds proposed goals/streaks and quick queues, but not per-user skill calibration and dynamic difficulty progression.
+
+## 3) Personalized Next-Best Action Card
+- **Title:** Personalized Next-Best Action Card
+- **Customer Problem:** On busy days, families see many possible tasks and don’t know which single action gives the most benefit right now.
+- **Customer Value:** Homi surfaces one high-impact “do this now” suggestion using overdue status, time-of-day, and routine importance to reduce decision friction.
+- **Likely Surface:** Primary card on home face `/`, rationale tooltip (“why this now”), priority tuning in `/brain`.
+- **Why Net-New:** Earlier ideas included boards and persistent reminders, but not ranked recommendation logic that picks the most helpful immediate action.
+ succeeded in 2.11s:
+## 1) Shared Responsibility Assignment for Reminders
+- **Title:** Shared Responsibility Assignment for Reminders
+- **Customer Problem:** In a shared home, reminders often fail because nobody knows who is expected to act, so tasks get assumed, delayed, or duplicated.
+- **Customer Value:** Each reminder can clearly show an owner (or “anyone”), reducing ambiguity and increasing follow-through for recurring chores and care routines.
+- **Likely Surface:** `/engines/schedule` item editor (assignee field), home reminder card on `/` (owner badge), optional household member list in `/brain`.
+- **Why Net-New:** Round 1 added reminder actions (done/snooze) and persistence, but did not introduce explicit per-reminder household ownership.
+
+## 2) “Claim It” Collaborative Reminder Flow
+- **Title:** “Claim It” Collaborative Reminder Flow
+- **Customer Problem:** On a common-space tablet, multiple people may see the same reminder and either both act or both ignore it because accountability is unclear in the moment.
+- **Customer Value:** A one-tap “I’ll do it” claim creates immediate accountability and prevents duplicate effort, while keeping the reminder visible to others until resolved.
+- **Likely Surface:** Home reminder action row on `/` with `Claim`, `Done`, `Snooze`; reminder state shown in schedule overlay.
+- **Why Net-New:** Round 1 proposed actionable reminders, but not collaborative claiming semantics for multi-person coordination on shared devices.
+
+## 3) Household Handoff Notes on Completion
+- **Title:** Household Handoff Notes on Completion
+- **Customer Problem:** Many routines require a handoff detail (“medicine given at 8:10”, “laundry moved to dryer”), but current reminder completion is binary and loses critical context.
+- **Customer Value:** Short completion notes preserve context for the next household member, improving continuity in caregiving and shared chores.
+- **Likely Surface:** Completion modal on `/` (optional quick note chips + text), recent activity strip in `/brain` or schedule overlay.
+- **Why Net-New:** Round 1 focused on completion actions and missed-digest recovery, but did not cover context-sharing between household members after completion.
+ succeeded in 2.84s:
+## Household Role Lanes with Timed Caregiver Unlock
+**Title:** Household Role Lanes with Timed Caregiver Unlock  
+**Customer Problem:** Shared tablets in kitchens/living rooms are used by kids, elders, and guests, so caregivers hesitate to leave management controls easily reachable.  
+**Customer Value:** Lets households keep Homi always visible while reducing accidental edits by offering a quick caregiver unlock that auto-locks back to household-safe mode.  
+**Likely Surface:** Home face (`/`) mode switch affordance, brain settings (`/brain`) for unlock policy, engine overlays (`/engines/*`) for edit gating.  
+**Why Net-New:** Round 1 proposed protected settings broadly; this adds explicit dual-lane interaction (household-safe lane + timed caregiver lane) for common-space tablet flow, not just static protection.
+
+## Caregiver Handoff Log and Shift Notes
+**Title:** Caregiver Handoff Log and Shift Notes  
+**Customer Problem:** In multi-caregiver homes, one person handles reminders/dictation changes but the next caregiver has no quick context on what was changed or skipped.  
+**Customer Value:** Reduces missed care steps and repeated work by showing a short, human-readable “what happened today” handoff on the shared tablet.  
+**Likely Surface:** Home face summary card (`/`), brain settings history panel (`/brain`), reminder/dictation completion events from engine overlays.  
+**Why Net-New:** Round 1 included reminder catch-up for missed alerts, but not caregiver-to-caregiver operational handoff or shift-note continuity.
+
+## Responsibility Tags for Household Tasks
+**Title:** Responsibility Tags for Household Tasks  
+**Customer Problem:** Shared-home reminders are ambiguous when multiple adults are present, causing “someone else will do it” failures.  
+**Customer Value:** Improves follow-through by allowing reminders/routines to be tagged to a person or role (Mom, Dad, Teen, Grandparent, Any Adult) with clear ownership on screen.  
+**Likely Surface:** Schedule editor (`/engines/schedule`) tag field, home reminder bubble owner label (`/`), brain settings tag presets (`/brain`).  
+**Why Net-New:** Round 1 focused on recurrence, actions, and routine sequencing; it did not add ownership semantics for multi-person coordination.
+codex
+## 1) Aging Content Watchlist and Refresh Prompts
+- **Title:** Aging Content Watchlist and Refresh Prompts
+- **Customer Problem:** Reminder and dictation content that worked at setup often becomes outdated after months, but households rarely notice until Homi feels irrelevant.
+- **Customer Value:** Homi stays dependable long-term by flagging stale datasets/routines and prompting quick refresh actions before trust erodes.
+- **Likely Surface:** `/brain` “Aging Content” card, optional home nudge on `/`, deep links into `/engines/schedule` and `/engines/dictation`.
+- **Why Net-New:** Earlier rounds covered onboarding, adaptation, and safety, but not lifecycle aging detection and proactive refresh of old household content.
+
+## 2) Monthly Reliability Checkup (One-Tap Health Review)
+- **Title:** Monthly Reliability Checkup (One-Tap Health Review)
+- **Customer Problem:** Reliability failures usually accumulate silently (permissions changed, quiet policies too broad, old reminders unresolved), and households don’t run manual checks.
+- **Customer Value:** A lightweight recurring checkup keeps alert channels, policies, and active routines healthy over time without technical effort.
+- **Likely Surface:** `/brain` checkup panel with pass/warn items, optional home reminder card on `/`.
+- **Why Net-New:** Prior ideas included manual tests and live drift checks, but not a recurring guided maintenance ritual that bundles trust checks into a single monthly workflow.
+
+## 3) Timezone and Clock Drift Protection
+- **Title:** Timezone and Clock Drift Protection
+- **Customer Problem:** Tablet clock/timezone changes (travel, OS updates, manual mis-set time) can shift reminders and break household confidence.
+- **Customer Value:** Prevents “wrong-time alerts” by detecting major time drift and guiding a safe correction path before reminders fire incorrectly.
+- **Likely Surface:** Always-visible trust warning on `/`, remediation flow in `/brain`, schedule runtime guardrails.
+- **Why Net-New:** Existing proposals discuss permissions and quiet behavior, but not temporal integrity protections for device time and timezone drift.
+
+## 4) Archive-Without-Loss for Retired Routines
+- **Title:** Archive-Without-Loss for Retired Routines
+- **Customer Problem:** Families avoid cleaning old reminders because deletion feels risky, so setup gets cluttered and reliability drops as signal-to-noise worsens.
+- **Customer Value:** Households can retire outdated routines safely while preserving history and easy restore, keeping daily surfaces clean and dependable.
+- **Likely Surface:** Archive actions in `/engines/schedule` and `/engines/dictation`, archive manager in `/brain`, cleaner home relevance on `/`.
+- **Why Net-New:** Earlier rounds covered delete safety and rollback, but not long-term lifecycle management for gracefully retiring obsolete household routines.
+tokens used
+9,955
+## 1) Aging Content Watchlist and Refresh Prompts
+- **Title:** Aging Content Watchlist and Refresh Prompts
+- **Customer Problem:** Reminder and dictation content that worked at setup often becomes outdated after months, but households rarely notice until Homi feels irrelevant.
+- **Customer Value:** Homi stays dependable long-term by flagging stale datasets/routines and prompting quick refresh actions before trust erodes.
+- **Likely Surface:** `/brain` “Aging Content” card, optional home nudge on `/`, deep links into `/engines/schedule` and `/engines/dictation`.
+- **Why Net-New:** Earlier rounds covered onboarding, adaptation, and safety, but not lifecycle aging detection and proactive refresh of old household content.
+
+## 2) Monthly Reliability Checkup (One-Tap Health Review)
+- **Title:** Monthly Reliability Checkup (One-Tap Health Review)
+- **Customer Problem:** Reliability failures usually accumulate silently (permissions changed, quiet policies too broad, old reminders unresolved), and households don’t run manual checks.
+- **Customer Value:** A lightweight recurring checkup keeps alert channels, policies, and active routines healthy over time without technical effort.
+- **Likely Surface:** `/brain` checkup panel with pass/warn items, optional home reminder card on `/`.
+- **Why Net-New:** Prior ideas included manual tests and live drift checks, but not a recurring guided maintenance ritual that bundles trust checks into a single monthly workflow.
+
+## 3) Timezone and Clock Drift Protection
+- **Title:** Timezone and Clock Drift Protection
+- **Customer Problem:** Tablet clock/timezone changes (travel, OS updates, manual mis-set time) can shift reminders and break household confidence.
+- **Customer Value:** Prevents “wrong-time alerts” by detecting major time drift and guiding a safe correction path before reminders fire incorrectly.
+- **Likely Surface:** Always-visible trust warning on `/`, remediation flow in `/brain`, schedule runtime guardrails.
+- **Why Net-New:** Existing proposals discuss permissions and quiet behavior, but not temporal integrity protections for device time and timezone drift.
+
+## 4) Archive-Without-Loss for Retired Routines
+- **Title:** Archive-Without-Loss for Retired Routines
+- **Customer Problem:** Families avoid cleaning old reminders because deletion feels risky, so setup gets cluttered and reliability drops as signal-to-noise worsens.
+- **Customer Value:** Households can retire outdated routines safely while preserving history and easy restore, keeping daily surfaces clean and dependable.
+- **Likely Surface:** Archive actions in `/engines/schedule` and `/engines/dictation`, archive manager in `/brain`, cleaner home relevance on `/`.
+- **Why Net-New:** Earlier rounds covered delete safety and rollback, but not long-term lifecycle management for gracefully retiring obsolete household routines.
