@@ -6,6 +6,7 @@ import {
   buildBundleFromDatasetIds,
   computeImportSelectionSignature,
   createEmptyStore,
+  getStoredRobotStyle,
   getStoredThemeMode,
   getDatasetsByEngine,
   importDatasets,
@@ -246,6 +247,40 @@ describe('store operations', () => {
     const store = loadStoreFromStorage(storage);
     expect(getStoredThemeMode(store)).toBe('dark');
     expect(store.ui?.themeMode).toBe('dark');
+  });
+
+  it('defaults robot style to classic, preserves a stored style, and repairs an invalid stored value', () => {
+    expect(getStoredRobotStyle(createEmptyStore())).toBe('classic');
+
+    const validStorage = createMemoryStorage({
+      [HOMI_STORAGE_KEY]: JSON.stringify({
+        storeVersion: 1,
+        updatedAt: '2026-03-18T00:00:00.000Z',
+        datasetsByEngine: {},
+        ui: {
+          robotStyle: 'midnight',
+        },
+      }),
+    });
+
+    const validStore = loadStoreFromStorage(validStorage);
+    expect(getStoredRobotStyle(validStore)).toBe('midnight');
+    expect(validStore.ui?.robotStyle).toBe('midnight');
+
+    const invalidStorage = createMemoryStorage({
+      [HOMI_STORAGE_KEY]: JSON.stringify({
+        storeVersion: 1,
+        updatedAt: '2026-03-18T00:00:00.000Z',
+        datasetsByEngine: {},
+        ui: {
+          robotStyle: 'retro',
+        },
+      }),
+    });
+
+    const repairedStore = loadStoreFromStorage(invalidStorage);
+    expect(getStoredRobotStyle(repairedStore)).toBe('classic');
+    expect(repairedStore.ui?.robotStyle).toBe('classic');
   });
 
   it('preserves the debug area visibility preference from ui storage', () => {

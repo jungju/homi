@@ -1,7 +1,9 @@
 import {
   type HomiStoreV1,
   type HomiStoreUI,
+  type RobotStyle,
   type ThemeMode,
+  getStoredRobotStyle,
   getStoredThemeMode,
   loadStore,
   saveStore,
@@ -82,6 +84,14 @@ export function getThemeMode(): ThemeMode {
 
 export function setThemeMode(themeMode: ThemeMode) {
   updateStoreUi({ themeMode });
+}
+
+export function getRobotStyle(): RobotStyle {
+  return getStoredRobotStyle(_store);
+}
+
+export function setRobotStyle(robotStyle: RobotStyle) {
+  updateStoreUi({ robotStyle });
 }
 
 export function getDebugAreasVisible(): boolean {

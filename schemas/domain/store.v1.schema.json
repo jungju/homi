@@ -51,6 +51,14 @@
             "dark"
           ]
         },
+        "robotStyle": {
+          "type": "string",
+          "enum": [
+            "classic",
+            "mint",
+            "midnight"
+          ]
+        },
         "debugAreasVisible": {
           "type": "boolean"
         },

@@ -132,6 +132,10 @@
       "statement": "브레인 설정 overlay에는 현재 테마 문구(backup-theme-status)와 라이트/다크 모드 전환 버튼(backup-theme-light, backup-theme-dark)이 표시된다."
     },
     {
+      "id": "ui.backup.robot_style_controls",
+      "statement": "브레인 설정 overlay에는 현재 로봇 스타일 문구(backup-robot-style-status)와 3개 스타일 선택 버튼(backup-robot-style-classic, backup-robot-style-mint, backup-robot-style-midnight)이 표시된다."
+    },
+    {
       "id": "ui.backup.debug_control_box_controls",
       "statement": "브레인 설정 overlay에는 홈 9분할 디버그 오버레이 상태 문구(backup-debug-areas-status)와 Show/Hidden(none) 전환 버튼(backup-debug-areas-show, backup-debug-areas-hide)이 표시된다."
     },
@@ -288,6 +292,10 @@
         "backup-theme-status",
         "backup-theme-light",
         "backup-theme-dark",
+        "backup-robot-style-status",
+        "backup-robot-style-classic",
+        "backup-robot-style-mint",
+        "backup-robot-style-midnight",
         "backup-debug-areas-status",
         "backup-debug-areas-show",
         "backup-debug-areas-hide",

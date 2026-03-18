@@ -3,6 +3,8 @@
     getStore,
     getThemeMode,
     setThemeMode,
+    getRobotStyle,
+    setRobotStyle,
     getDebugAreasVisible,
     setDebugAreasVisible,
   } from '../state/app.svelte';
@@ -45,6 +47,7 @@
   const store = $derived(getStore());
   const datasetCount = $derived(getDatasetCount());
   const themeMode = $derived(getThemeMode());
+  const robotStyle = $derived(getRobotStyle());
   const debugAreasVisible = $derived(getDebugAreasVisible());
   const backupVersionDateText = $derived(getBackupVersionDateText());
   const scheduleQuietModeActive = $derived(getScheduleQuietModeActive());
@@ -118,6 +121,48 @@
           </button>
         </div>
         <p class="muted">여기서 바꾸면 홈과 모든 설정 오버레이에 즉시 적용되고 다음 실행에도 유지됩니다.</p>
+      </section>
+
+      <section class="card" data-testid="backup-robot-style-section">
+        <h2>로봇 스타일</h2>
+        <p data-testid="backup-robot-style-status" class="muted">
+          현재 스타일:
+          {robotStyle === 'mint'
+            ? ' 민트형'
+            : robotStyle === 'midnight'
+              ? ' 미드나잇형'
+              : ' 기본형'}
+        </p>
+        <div class="inline">
+          <button
+            type="button"
+            data-testid="backup-robot-style-classic"
+            class:active={robotStyle === 'classic'}
+            aria-pressed={robotStyle === 'classic'}
+            onclick={() => setRobotStyle('classic')}
+          >
+            기본형
+          </button>
+          <button
+            type="button"
+            data-testid="backup-robot-style-mint"
+            class:active={robotStyle === 'mint'}
+            aria-pressed={robotStyle === 'mint'}
+            onclick={() => setRobotStyle('mint')}
+          >
+            민트형
+          </button>
+          <button
+            type="button"
+            data-testid="backup-robot-style-midnight"
+            class:active={robotStyle === 'midnight'}
+            aria-pressed={robotStyle === 'midnight'}
+            onclick={() => setRobotStyle('midnight')}
+          >
+            미드나잇형
+          </button>
+        </div>
+        <p class="muted">홈 얼굴만 바뀌고 나머지 홈 UI는 유지됩니다.</p>
       </section>
 
       <section class="card" data-testid="backup-debug-section" data-debug-anchor-id="backup-debug-section">

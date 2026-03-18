@@ -6,6 +6,7 @@ export type SourceType = 'manual' | 'sample' | 'url' | 'file' | 'text';
 export type EngineId = 'schedule' | 'dictation';
 export type BundleType = 'sample' | 'import' | 'backup';
 export type ThemeMode = 'light' | 'dark';
+export type RobotStyle = 'classic' | 'mint' | 'midnight';
 
 export interface SourceV1 {
   type: SourceType;
@@ -44,6 +45,7 @@ export interface HomiStoreUI {
   scheduleHourlyChimeEnabled?: boolean;
   linkedImport?: LinkedUrlImportV1;
   themeMode?: ThemeMode;
+  robotStyle?: RobotStyle;
   debugAreasVisible?: boolean;
 }
 
@@ -131,6 +133,7 @@ const ISO_DATE_RE = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])-([0-2]\d|3[01])$/;
 const MONTH_DAY_RE = /^(0[1-9]|1[0-2])-([0-2]\d|3[01])$/;
+const ROBOT_STYLES = ['classic', 'mint', 'midnight'] as const;
 
 export const ENGINE_REGISTRY: EngineDefinition[] = [
   {
@@ -148,6 +151,10 @@ export const ENGINE_REGISTRY: EngineDefinition[] = [
     schemaVersion: 1,
   },
 ];
+
+export function isRobotStyle(value: unknown): value is RobotStyle {
+  return typeof value === 'string' && ROBOT_STYLES.includes(value as RobotStyle);
+}
 
 const SourceSchema = z
   .object({
@@ -311,6 +318,7 @@ const StoreSchema = z
         scheduleHourlyChimeEnabled: z.boolean().optional(),
         linkedImport: LinkedUrlImportSchema.optional(),
         themeMode: z.enum(['light', 'dark']).optional(),
+        robotStyle: z.string().optional(),
         debugAreasVisible: z.boolean().optional(),
       })
       .passthrough()
@@ -399,6 +407,11 @@ export function getStoredThemeMode(store: Pick<HomiStoreV1, 'ui'> | null | undef
   return store?.ui?.themeMode === 'dark' ? 'dark' : 'light';
 }
 
+export function getStoredRobotStyle(store: Pick<HomiStoreV1, 'ui'> | null | undefined): RobotStyle {
+  const robotStyle = store?.ui?.robotStyle;
+  return isRobotStyle(robotStyle) ? robotStyle : 'classic';
+}
+
 export function computeImportSelectionSignature(selected: DataSetPayloadV1[]): string {
   return fnv1aHex(JSON.stringify(stableSortValue(selected)));
 }
@@ -448,18 +461,33 @@ function isLegacyDictationLoveSample(dataset: DataSetV1): boolean {
 }
 
 function sanitizeStore(store: HomiStoreV1): { store: HomiStoreV1; mutated: boolean } {
-  const dictationDatasets = store.datasetsByEngine.dictation;
+  let nextStore = store;
+  let mutated = false;
+
+  if (store.ui?.robotStyle !== undefined && !isRobotStyle(store.ui.robotStyle)) {
+    nextStore = {
+      ...nextStore,
+      ui: {
+        ...(nextStore.ui ?? {}),
+        robotStyle: 'classic',
+      },
+      updatedAt: nowIso(),
+    };
+    mutated = true;
+  }
+
+  const dictationDatasets = nextStore.datasetsByEngine.dictation;
   if (!dictationDatasets) {
-    return { store, mutated: false };
+    return { store: nextStore, mutated };
   }
 
   const sanitized = dictationDatasets.filter((item) => !isLegacyDictationLoveSample(item));
   if (sanitized.length === dictationDatasets.length) {
-    return { store, mutated: false };
+    return { store: nextStore, mutated };
   }
 
   const datasetsByEngine = {
-    ...store.datasetsByEngine,
+    ...nextStore.datasetsByEngine,
   };
   if (sanitized.length > 0) {
     datasetsByEngine.dictation = sanitized;
@@ -469,7 +497,7 @@ function sanitizeStore(store: HomiStoreV1): { store: HomiStoreV1; mutated: boole
 
   return {
     store: {
-      ...store,
+      ...nextStore,
       datasetsByEngine,
       updatedAt: nowIso(),
     },
@@ -613,11 +641,22 @@ export function loadStoreFromStorage(
       return recoverEmptyStoreWithStorage(storage, clock);
     }
 
+    const rawUi = checked.data.ui ?? {};
+    const nextUi: HomiStoreUI = {
+      lastOpenedEngineId: rawUi.lastOpenedEngineId,
+      scheduleQuietUntil: rawUi.scheduleQuietUntil,
+      scheduleHourlyChimeEnabled: rawUi.scheduleHourlyChimeEnabled,
+      linkedImport: rawUi.linkedImport,
+      themeMode: rawUi.themeMode,
+      robotStyle: isRobotStyle(rawUi.robotStyle) ? rawUi.robotStyle : 'classic',
+      debugAreasVisible: rawUi.debugAreasVisible,
+    };
+
     const next: HomiStoreV1 = {
       storeVersion: 1,
       updatedAt: checked.data.updatedAt || nowIso(clock),
       datasetsByEngine: {},
-      ui: checked.data.ui ?? {},
+      ui: nextUi,
     };
 
     for (const [engineId, rawSet] of Object.entries(checked.data.datasetsByEngine)) {

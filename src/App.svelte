@@ -4,7 +4,7 @@
   import type { HomeMood } from './lib/state/face.svelte';
 
   // State modules
-  import { initAppState, getStore, getDebugAreasVisible } from './lib/state/app.svelte';
+  import { initAppState, getStore, getDebugAreasVisible, getRobotStyle } from './lib/state/app.svelte';
   import { getMessage } from './lib/state/message.svelte';
   import { getRoute, parsePath, navigate, setRouteSideEffects, setSharedImportLoader } from './lib/state/route.svelte';
   import { initClockState, getHomeClockDateText, getHomeClockTimeText, startHomeClock, stopHomeClock } from './lib/state/clock.svelte';
@@ -85,6 +85,7 @@
   const scheduleQuietModeActive = $derived(getScheduleQuietModeActive());
   const homeQuietStatusText = $derived(getHomeQuietStatusText());
   const debugAreasVisible = $derived(getDebugAreasVisible());
+  const robotStyle = $derived(getRobotStyle());
 
   // Derived display state
   const homeMood: HomeMood = $derived(
@@ -165,7 +166,7 @@
   <main class="home" data-testid="home-root">
     <section class="home-fullscreen">
       <div class="home-fullscreen__halo"></div>
-      <HomeFace mood={displayMood} />
+      <HomeFace mood={displayMood} styleId={robotStyle} />
       <div
         class="home-area-grid"
         data-testid="home-area-grid"

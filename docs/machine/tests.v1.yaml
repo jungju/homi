@@ -162,6 +162,7 @@
         "ui.backup.single_active_panel",
         "ui.backup.schedule_quiet_controls",
         "ui.backup.theme_controls",
+        "ui.backup.robot_style_controls",
         "ui.backup.debug_control_box_controls",
         "ui.backup.version_date_visible",
         "ui.backup.url_sync_status",
@@ -178,6 +179,7 @@
         "backup-tab-url/text/file/sample visible in order",
         "backup quiet status and control buttons visible",
         "backup theme status and light/dark buttons visible",
+        "backup robot style status and style buttons visible",
         "backup debug area status and show/hide buttons visible",
         "backup version date visible",
         "backup url sync status visible",
@@ -278,6 +280,47 @@
         "framework": "playwright",
         "file": "tests/e2e/qa-homi.spec.ts",
         "scenarioTag": "test.p1.backup.theme_mode_persisted"
+      }
+    },
+    {
+      "id": "test.p1.backup.robot_style_persisted",
+      "title": "브레인 설정의 로봇 스타일은 즉시 적용되고 재실행 후에도 유지된다.",
+      "priority": "P1",
+      "type": "automated",
+      "contractRefs": [
+        "ui.backup.robot_style_controls",
+        "product.ui.robot_style_persisted",
+        "ui.home.face_visible",
+        "ui.home.face_position_stable_across_modes"
+      ],
+      "preconditions": [
+        "route=/brain"
+      ],
+      "actions": [
+        "미드나잇형 버튼 클릭",
+        "reload",
+        "route=/ 이동",
+        "기본형 버튼 클릭"
+      ],
+      "assertions": [
+        "backup-robot-style-status shows current style text",
+        "robot style button aria-pressed switches immediately",
+        "store.ui.robotStyle persists across reload",
+        "home-face reflects the selected style variant",
+        "classic style can be restored from the same controls"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/home.default*.png",
+        "test-results/ai-artifacts/backup.overlay*.png"
+      ],
+      "gate": {
+        "behavior": "soft_fail",
+        "layer": "deterministic_e2e"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p1.backup.robot_style_persisted"
       }
     },
     {

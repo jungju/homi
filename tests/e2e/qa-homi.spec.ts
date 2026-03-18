@@ -37,6 +37,26 @@ async function getFaceRect(page: Page) {
   return box!;
 }
 
+async function expectHomeFaceStyle(page: Page, styleId: 'classic' | 'mint' | 'midnight') {
+  const head = page.locator('[data-testid="home-face"] .home-face__head');
+  const frame = page.locator('[data-testid="home-face"] .home-face__frame');
+  await expect(head).toHaveAttribute('data-style', styleId);
+  await expect(frame).toHaveAttribute('data-style', styleId);
+
+  const metrics = await head.evaluate((element) => {
+    const styles = window.getComputedStyle(element as HTMLElement);
+    const rect = (element as HTMLElement).getBoundingClientRect();
+    return {
+      width: rect.width,
+      borderTopLeftRadius: Number.parseFloat(styles.borderTopLeftRadius),
+    };
+  });
+
+  if (styleId === 'midnight') {
+    expect(metrics.borderTopLeftRadius).toBeLessThan(metrics.width * 0.35);
+  }
+}
+
 async function getFontSizePx(page: Page, testId: string) {
   return page.getByTestId(testId).evaluate((element) =>
     Number.parseFloat(window.getComputedStyle(element as HTMLElement).fontSize),
@@ -337,6 +357,10 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.getByTestId('backup-theme-status')).toContainText('라이트 모드');
     await expect(page.getByTestId('backup-theme-light')).toBeVisible();
     await expect(page.getByTestId('backup-theme-dark')).toBeVisible();
+    await expect(page.getByTestId('backup-robot-style-status')).toContainText('기본형');
+    await expect(page.getByTestId('backup-robot-style-classic')).toBeVisible();
+    await expect(page.getByTestId('backup-robot-style-mint')).toBeVisible();
+    await expect(page.getByTestId('backup-robot-style-midnight')).toBeVisible();
     await expect(page.getByTestId('backup-debug-areas-status')).toContainText('숨김');
     await expect(page.getByTestId('backup-debug-areas-show')).toBeVisible();
     await expect(page.getByTestId('backup-debug-areas-hide')).toBeVisible();
@@ -369,6 +393,7 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'backup-tab-url/text/file/sample are visible in order',
       'backup quiet status and control buttons are visible',
       'backup theme status and light/dark buttons are visible',
+      'backup robot style status and style buttons are visible',
       'backup debug area status and show/hide buttons are visible',
       'backup version date is visible',
       'backup url sync status is visible',
@@ -511,6 +536,41 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
     await expect(page.getByTestId('backup-theme-status')).toContainText('라이트 모드');
     await expect(page.getByTestId('backup-theme-light')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  test('[test.p1.backup.robot_style_persisted] 브레인 설정의 로봇 스타일은 즉시 적용되고 재실행 후에도 유지되어야 한다', async ({ page }) => {
+    await resetLocalData(page);
+    await page.goto('/brain');
+
+    await expect(page.getByTestId('backup-robot-style-status')).toContainText('기본형');
+    await expect(page.getByTestId('backup-robot-style-classic')).toHaveAttribute('aria-pressed', 'true');
+
+    await page.getByTestId('backup-robot-style-midnight').click();
+
+    await expect(page.getByTestId('backup-robot-style-status')).toContainText('미드나잇형');
+    await expect(page.getByTestId('backup-robot-style-midnight')).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      await page.evaluate(() => {
+        const raw = window.localStorage.getItem('homi.store.v1');
+        const parsed = raw ? JSON.parse(raw) : null;
+        return parsed?.ui?.robotStyle ?? null;
+      }),
+    ).toBe('midnight');
+
+    await page.reload();
+    await expect(page.getByTestId('backup-robot-style-status')).toContainText('미드나잇형');
+    await expect(page.getByTestId('backup-robot-style-midnight')).toHaveAttribute('aria-pressed', 'true');
+
+    await page.goto('/');
+    await expectHomeFaceStyle(page, 'midnight');
+
+    await page.goto('/brain');
+    await page.getByTestId('backup-robot-style-classic').click();
+    await expect(page.getByTestId('backup-robot-style-status')).toContainText('기본형');
+    await expect(page.getByTestId('backup-robot-style-classic')).toHaveAttribute('aria-pressed', 'true');
+
+    await page.goto('/');
+    await expectHomeFaceStyle(page, 'classic');
   });
 
   test('[test.p0.import.entry_backup_only] import 입력 UI는 브레인 설정 route(/brain)에만 존재해야 한다', async ({ page }) => {
