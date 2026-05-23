@@ -8,6 +8,31 @@
 - `README.md` is human entrypoint only and is not a source of truth.
 - `docs/legacy/*` and `test-results/*` are non-authoritative.
 
+## Shared Agent Operations
+
+After finishing any development change:
+
+1. Run the relevant validation commands below.
+2. Stage only the intended files.
+3. Commit the completed change with `scripts/agent-commit.sh`.
+
+Do not push or deploy unless the user explicitly asks for it.
+
+Use the same Conventional Commits shape across Jungju service repos:
+
+```text
+<type>(<scope>): <summary>
+```
+
+Prefer the helper so the format stays consistent:
+
+```sh
+TYPE=fix SUMMARY="preserve linked import state" scripts/agent-commit.sh
+TYPE=docs SUMMARY="update machine contract notes" scripts/agent-commit.sh
+```
+
+The default scope is `homi`. Allowed types are `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`, `deploy`, and `content`.
+
 ## First Read
 1. `docs/machine/manifest.v1.yaml`
 2. `docs/machine/truth-order.v1.yaml`
