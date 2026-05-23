@@ -19,6 +19,10 @@ After finishing any development change:
 
 Do not push or deploy unless the user explicitly asks for it.
 
+GitHub Pages deploys through `.github/workflows/deploy-pages.yml` after pushes
+to `main`, or by manually dispatching that workflow. Local `gh-pages` branch
+publishes are not the normal deployment path.
+
 Use the same Conventional Commits shape across Jungju service repos:
 
 ```text

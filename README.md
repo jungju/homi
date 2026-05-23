@@ -140,7 +140,9 @@ npm run qa:gate
 
 ## 배포
 
-- `main` 브랜치 push 시 GitHub Pages 배포 workflow가 실행됩니다.
+- `main` 브랜치 push 시 `.github/workflows/deploy-pages.yml`이 GitHub Pages에 배포합니다.
+- 수동 재배포가 필요하면 `gh workflow run deploy-pages.yml --ref main`을 실행합니다.
+- 로컬에서 `gh-pages` 브랜치로 직접 publish하지 않습니다.
 - release 발행 시 별도 workflow가 UI 캡처를 생성해 release notes를 보강합니다.
 
 ## Legacy Docs
