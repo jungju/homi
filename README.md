@@ -115,6 +115,7 @@ npm run qa:gate
 - `public/`: 정적 리소스와 샘플 브레인 JSON
 - `schemas/domain/`: 실제 저장 데이터와 엔진 데이터 스키마
 - `schemas/machine/`: machine docs 스키마
+- `docs/spec.md`: Codex용 문서 탐색 진입점(authoritative 아님)
 - `docs/machine/`: authoritative contract 문서
 - `docs/legacy/`: 참고용 구 문서
 - `tests/e2e/`: Playwright E2E
@@ -125,6 +126,7 @@ npm run qa:gate
 이 저장소의 제품/테스트/QA/AI 리뷰 계약은 사람이 읽는 Markdown이 아니라 machine docs가 기준입니다.
 
 - Authoritative root: `docs/machine/manifest.v1.yaml`
+- Codex navigation: `docs/spec.md` (not authoritative)
 - Truth order: `docs/machine/truth-order.v1.yaml`
 - Task read sets: `docs/machine/read-sets.v1.yaml`
 - Product contract: `docs/machine/product.v1.yaml`
