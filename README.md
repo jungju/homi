@@ -148,3 +148,11 @@ npm run qa:gate
 ## Legacy Docs
 
 기존 Markdown 문서는 `docs/legacy/`로 격리되어 있으며 authoritative로 취급하지 않습니다.
+
+## License
+
+Source code in this repository is licensed under the [MIT License](LICENSE).
+
+Non-code assets, including text content, images, photos, videos, audio, service
+names, logos, and brand materials, are not covered by the MIT License. See
+[ASSET-LICENSE.md](ASSET-LICENSE.md).
