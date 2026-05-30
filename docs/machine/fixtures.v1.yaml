@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/fixtures.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-14",
+  "updated": "2026-05-31",
   "fixtures": [
     {
       "id": "fixture.bundle.min.v1",
@@ -18,9 +18,8 @@
         "p0"
       ],
       "usedByTests": [
-        "test.p0.import.preview_before_confirm",
-        "test.p0.dictation.start_sets_mode",
-        "test.p1.schedule.toggle_enabled"
+        "test.p0.import.preview",
+        "test.p0.dictation.start_sets_mode"
       ],
       "securityClassification": "trusted_test_data",
       "mutability": "fixed",
@@ -37,7 +36,7 @@
         "p0"
       ],
       "usedByTests": [
-        "test.p0.security.text_render_only"
+        "test.p0.domain.bundle_validation"
       ],
       "securityClassification": "untrusted_input_simulation",
       "mutability": "fixed",
@@ -54,8 +53,8 @@
         "v1"
       ],
       "usedByTests": [
-        "test.p0.backup.overlay_contract",
-        "test.p0.import.preview_before_confirm"
+        "test.p0.domain.bundle_validation",
+        "test.p0.import.preview"
       ],
       "securityClassification": "public_sample_data",
       "mutability": "fixed",
@@ -72,7 +71,7 @@
         "unit"
       ],
       "usedByTests": [
-        "test.p1.source_type_text_roundtrip"
+        "test.p0.import.preview"
       ],
       "securityClassification": "trusted_test_data",
       "mutability": "fixed",
@@ -89,7 +88,7 @@
         "unit"
       ],
       "usedByTests": [
-        "test.p1.schedule.recurring_daily_yearly"
+        "test.p0.domain.bundle_validation"
       ],
       "securityClassification": "trusted_test_data",
       "mutability": "fixed",
@@ -106,8 +105,7 @@
         "unit"
       ],
       "usedByTests": [
-        "test.p1.schedule.quiet_mode_suppresses_reminders",
-        "test.p1.schedule.hourly_chime_toggle"
+        "test.p0.schedule.no_interrupt_during_dictation"
       ],
       "securityClassification": "trusted_test_data",
       "mutability": "fixed",
@@ -124,7 +122,7 @@
         "unit"
       ],
       "usedByTests": [
-        "test.p1.schedule.preview_speech"
+        "test.p0.domain.bundle_validation"
       ],
       "securityClassification": "trusted_test_data",
       "mutability": "fixed",
@@ -141,7 +139,7 @@
         "unit"
       ],
       "usedByTests": [
-        "test.p1.import.url_saved_persists"
+        "test.p0.import.preview"
       ],
       "securityClassification": "trusted_test_data",
       "mutability": "fixed",

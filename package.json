@@ -1,55 +1,28 @@
 {
   "name": "homi",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "packageManager": "pnpm@10.34.1",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "dev": "vite",
-    "prebuild": "node scripts/write-version.mjs",
-    "build": "vite build",
-    "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-    "share:link": "node scripts/build-share-link.mjs",
-    "ui:history": "node scripts/capture-ui-history.mjs",
-    "qa:install": "playwright install --with-deps",
-    "test:unit": "vitest run --config vitest.config.ts",
+    "dev": "go run ./cmd/homi",
+    "build": "go build ./cmd/homi",
+    "check": "go test ./...",
+    "test:unit": "go test ./...",
     "validate:machine-docs": "node scripts/validate-machine-docs.mjs",
     "validate:domain-schemas": "node scripts/validate-domain-schemas.mjs",
     "build:coverage": "node scripts/build-coverage-matrix.mjs",
     "build:dependency-graph": "node scripts/build-dependency-graph.mjs",
-    "build:qa-failure-taxonomy": "node scripts/build-qa-failure-taxonomy.mjs",
     "qa:fast": "pnpm run validate:machine-docs && pnpm run validate:domain-schemas && pnpm run test:unit",
     "qa:contract": "pnpm run validate:machine-docs && pnpm run validate:domain-schemas && pnpm run build:coverage && pnpm run build:dependency-graph",
-    "qa:smoke": "playwright test",
-    "qa:ai-review": "node scripts/ai-ui-review.mjs --config docs/machine/ai-review.v1.yaml --schema schemas/ai-ui-review-result.schema.json --artifacts test-results/ai-artifacts --out test-results/ai-reviews",
-    "qa:gate": "pnpm run qa:fast && pnpm run qa:smoke && pnpm run qa:ai-review && pnpm run build:coverage && pnpm run build:qa-failure-taxonomy",
-    "qa:gate:strict": "pnpm run qa:fast && pnpm run qa:smoke && pnpm run qa:ai-review -- --strict && pnpm run build:coverage && pnpm run build:qa-failure-taxonomy",
+    "qa:gate": "pnpm run qa:fast && pnpm run qa:contract",
     "next-step": "node scripts/next-step.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.54.0",
-    "@sveltejs/vite-plugin-svelte": "^7.1.2",
-    "@tsconfig/svelte": "^5.0.6",
-    "@types/node": "^24.10.1",
     "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1",
-    "svelte": "^5.56.0",
-    "svelte-check": "^4.4.8",
-    "typescript": "~5.9.3",
-    "vite": "^8.0.14",
-    "vitest": "^4.1.0"
-  },
-  "dependencies": {
-    "dayjs": "^1.11.19",
-    "zod": "^4.3.6"
-  },
-  "pnpm": {
-    "overrides": {
-      "picomatch": "^4.0.4"
-    }
+    "ajv-formats": "^3.0.1"
   }
 }

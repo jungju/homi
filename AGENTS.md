@@ -19,9 +19,8 @@ After finishing any development change:
 
 Do not push or deploy unless the user explicitly asks for it.
 
-GitHub Pages deploys through `.github/workflows/deploy-pages.yml` after pushes
-to `main`, or by manually dispatching that workflow. Local `gh-pages` branch
-publishes are not the normal deployment path.
+Homi is a Go webserver. Do not push or deploy unless the user explicitly asks
+for it.
 
 Use the same Conventional Commits shape across Jungju service repos:
 
@@ -46,6 +45,7 @@ The default scope is `homi`. Allowed types are `feat`, `fix`, `docs`, `test`, `r
 5. Task-specific set from `read-sets.v1.yaml`
 
 ## Validation Commands
+- `go test ./...`
 - `npm run validate:machine-docs`
 - `npm run validate:domain-schemas`
 - `npm run qa:contract`

@@ -69,7 +69,8 @@
         "kind": {
           "type": "string",
           "enum": [
-            "static-webapp"
+            "static-webapp",
+            "go-webserver"
           ]
         },
         "root": {

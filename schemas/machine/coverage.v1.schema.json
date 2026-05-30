@@ -152,6 +152,7 @@
             "enum": [
               "playwright",
               "vitest",
+              "go",
               "manual",
               "ai_review"
             ]

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{.Title}} - Homi</title>
+    <link rel="icon" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/app.css">
+  </head>
+  <body data-page="{{.Page}}" data-engine-id="{{.EngineID}}">
+    <script>
+      window.HOMI_CONFIG = {{.ConfigJSON}};
+    </script>
+
+    <div class="layout home-layout" data-testid="app-root">
+      <main class="home" data-testid="home-root">
+        <section class="home-fullscreen">
+          <div class="home-face" data-testid="home-face" role="img" aria-label="친근한 홈 캐릭터 얼굴">
+            <div class="home-face__frame" data-face-frame data-style="classic">
+              <div class="home-face__head" data-face-head data-style="classic">
+                <div class="home-face__antenna"></div>
+                <div class="home-face__eyes">
+                  <span class="home-face__eye"></span>
+                  <span class="home-face__eye"></span>
+                </div>
+                <div class="home-face__mouth"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-area-grid" data-testid="home-area-grid" data-debug-areas="hidden">
+            <div class="home-area" data-area="1" data-testid="home-area-1"></div>
+            <div class="home-area" data-area="2" data-testid="home-area-2"></div>
+            <div class="home-area" data-area="3" data-testid="home-area-3"></div>
+            <div class="home-area" data-area="4" data-testid="home-area-4"></div>
+            <div class="home-area" data-area="5" data-testid="home-area-5"></div>
+            <div class="home-area" data-area="6" data-testid="home-area-6"></div>
+            <div class="home-area" data-area="7" data-testid="home-area-7"></div>
+            <div class="home-area" data-area="8" data-testid="home-area-8"></div>
+            <div class="home-area" data-area="9" data-testid="home-area-9"></div>
+          </div>
+
+          <div class="home-area-label-layer" data-debug-label-layer hidden>
+            <span class="home-area__debug-label" data-testid="home-area-1-label">area-1</span>
+            <span class="home-area__debug-label" data-testid="home-area-2-label">area-2</span>
+            <span class="home-area__debug-label" data-testid="home-area-3-label">area-3</span>
+            <span class="home-area__debug-label" data-testid="home-area-4-label">area-4</span>
+            <span class="home-area__debug-label" data-testid="home-area-5-label">area-5</span>
+            <span class="home-area__debug-label" data-testid="home-area-6-label">area-6</span>
+            <span class="home-area__debug-label" data-testid="home-area-7-label">area-7</span>
+            <span class="home-area__debug-label" data-testid="home-area-8-label">area-8</span>
+            <span class="home-area__debug-label" data-testid="home-area-9-label">area-9</span>
+          </div>
+
+          <div class="home-bubble" data-testid="home-bubble">
+            <strong class="home-robot-name" data-testid="home-robot-name">호미</strong>
+            <p class="home-mode-text" data-testid="home-mode-text" hidden></p>
+            <p class="home-status-text" data-testid="home-status-text" hidden></p>
+          </div>
+
+          <div class="home-clock" data-testid="home-clock">
+            <time class="home-clock-date" data-testid="home-clock-date"></time>
+            <time class="home-clock-time" data-testid="home-clock-time"></time>
+          </div>
+
+          <div class="home-controls" data-testid="home-open-engines">
+            <a class="engine-button" data-testid="home-engine-btn-schedule" href="/engines/schedule">스케줄</a>
+            <a class="engine-button" data-testid="home-engine-btn-dictation" href="/engines/dictation">받아쓰기</a>
+          </div>
+
+          <a class="settings-button" data-testid="home-open-backup" aria-label="브레인 설정" href="/brain">⚙</a>
+        </section>
+      </main>
+
+      {{if eq .Page "brain"}}
+      <section class="overlay" data-testid="overlay-root" data-overlay-kind="backup">
+        <div class="overlay__bar">
+          <h1 data-testid="overlay-title">브레인 설정</h1>
+          <a class="icon-button" data-testid="overlay-close" aria-label="닫기" href="/">×</a>
+        </div>
+        <div class="overlay__body brain-grid">
+          <section class="tool-panel">
+            <h2>Ohmesh</h2>
+            <p data-testid="auth-status" class="muted">확인 중</p>
+            <div class="row-actions">
+              <button type="button" data-action="logout">로그아웃</button>
+            </div>
+          </section>
+
+          <section class="tool-panel">
+            <h2>가져오기</h2>
+            <div class="tabs" role="tablist" data-testid="backup-tablist">
+              <button type="button" data-tab="url" data-testid="backup-tab-url">URL 가져오기</button>
+              <button type="button" data-tab="text" data-testid="backup-tab-text">텍스트로 가져오기</button>
+              <button type="button" data-tab="file" data-testid="backup-tab-file">파일로 가져오기</button>
+              <button type="button" data-tab="sample" data-testid="backup-tab-sample">샘플 가져오기</button>
+            </div>
+            <div class="tab-panel" data-panel="url" data-testid="backup-panel-url">
+              <p data-testid="backup-url-sync-status" class="muted"></p>
+              <input data-testid="backup-url-input" type="url" placeholder="https://example.com/homi.json">
+              <button type="button" data-action="preview-url">미리보기</button>
+            </div>
+            <div class="tab-panel" data-panel="text" data-testid="backup-panel-text" hidden>
+              <textarea data-testid="backup-text-input" rows="8" spellcheck="false"></textarea>
+              <button type="button" data-action="preview-text">미리보기</button>
+            </div>
+            <div class="tab-panel" data-panel="file" data-testid="backup-panel-file" hidden>
+              <input data-testid="backup-file-input" type="file" accept="application/json,.json">
+              <button type="button" data-action="preview-file">미리보기</button>
+            </div>
+            <div class="tab-panel" data-panel="sample" data-testid="backup-panel-sample" hidden>
+              <button type="button" data-testid="backup-sample-load" data-action="preview-sample">샘플 불러오기</button>
+            </div>
+            <div class="preview" data-testid="backup-preview" hidden></div>
+            <div class="row-actions">
+              <button type="button" data-testid="backup-confirm" data-action="confirm-import" disabled>적용</button>
+              <button type="button" data-action="cancel-import">취소</button>
+            </div>
+          </section>
+
+          <section class="tool-panel">
+            <h2>상태</h2>
+            <p data-testid="backup-quiet-status" class="muted"></p>
+            <div class="row-actions">
+              <button type="button" data-testid="backup-quiet-enable" data-action="quiet-enable">30분 조용히</button>
+              <button type="button" data-testid="backup-quiet-clear" data-action="quiet-clear">해제</button>
+            </div>
+            <p data-testid="backup-theme-status" class="muted"></p>
+            <div class="row-actions">
+              <button type="button" data-testid="backup-theme-light" data-action="theme-light">Light</button>
+              <button type="button" data-testid="backup-theme-dark" data-action="theme-dark">Dark</button>
+            </div>
+            <p data-testid="backup-robot-style-status" class="muted"></p>
+            <div class="row-actions">
+              <button type="button" data-testid="backup-robot-style-classic" data-action="robot-classic">Classic</button>
+              <button type="button" data-testid="backup-robot-style-mint" data-action="robot-mint">Mint</button>
+              <button type="button" data-testid="backup-robot-style-midnight" data-action="robot-midnight">Midnight</button>
+            </div>
+            <p data-testid="backup-debug-areas-status" class="muted"></p>
+            <div class="row-actions">
+              <button type="button" data-testid="backup-debug-areas-show" data-action="debug-show">Show</button>
+              <button type="button" data-testid="backup-debug-areas-hide" data-action="debug-hide">Hidden</button>
+            </div>
+            <p data-testid="backup-version" class="muted">Go/Ohmesh</p>
+          </section>
+        </div>
+      </section>
+      {{else if eq .Page "engine"}}
+      <section class="overlay" data-testid="overlay-root" data-overlay-kind="engine" data-engine-id="{{.EngineID}}">
+        <div class="overlay__bar">
+          <h1 data-testid="overlay-title">{{.Title}}</h1>
+          <a class="icon-button" data-testid="overlay-close" aria-label="닫기" href="/">×</a>
+        </div>
+        <div class="overlay__body engine-grid">
+          <section class="tool-panel">
+            <div class="engine-head">
+              <h2 data-engine-title>{{.Title}}</h2>
+              <p data-testid="engine-status" class="muted"></p>
+            </div>
+            <div class="dataset-list" data-testid="dataset-list"></div>
+          </section>
+
+          <section class="tool-panel">
+            <h2>자료 세트</h2>
+            <input data-testid="dataset-title-input" type="text" placeholder="자료 세트 제목">
+            <label class="check-row">
+              <input data-testid="schedule-enabled-toggle" type="checkbox" checked>
+              <span>Enabled</span>
+            </label>
+            <textarea data-testid="dataset-items-input" rows="12" spellcheck="false"></textarea>
+            <div class="row-actions">
+              <button type="button" data-action="save-dataset">저장</button>
+              <button type="button" data-action="new-dataset">새로 작성</button>
+              <button type="button" data-action="delete-dataset">삭제</button>
+            </div>
+          </section>
+
+          {{if eq .EngineID "schedule"}}
+          <section class="tool-panel">
+            <h2>미리 듣기</h2>
+            <p data-testid="schedule-hourly-chime-status" class="muted"></p>
+            <button type="button" data-testid="schedule-hourly-chime-toggle" data-action="toggle-chime">정시 차임</button>
+            <p data-testid="schedule-preview-status" class="muted"></p>
+            <div data-testid="schedule-preview-list" class="preview-list"></div>
+          </section>
+          {{else}}
+          <section class="tool-panel">
+            <h2>실행</h2>
+            <button type="button" data-action="start-dictation">시작</button>
+            <div data-testid="dictation-root" class="dictation-runner" hidden>
+              <p data-testid="dictation-progress"></p>
+              <p data-testid="dictation-word"></p>
+              <p data-testid="dictation-meaning"></p>
+              <div class="row-actions">
+                <button type="button" data-testid="dictation-next" data-action="dictation-next">다음</button>
+                <button type="button" data-testid="dictation-exit" data-action="dictation-exit">종료</button>
+              </div>
+            </div>
+          </section>
+          {{end}}
+        </div>
+      </section>
+      {{else if eq .Page "not-found"}}
+      <section class="overlay" data-testid="not-found-root">
+        <div class="overlay__bar">
+          <h1>페이지 없음</h1>
+          <a class="icon-button" aria-label="홈" href="/">×</a>
+        </div>
+      </section>
+      {{end}}
+    </div>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

@@ -150,35 +150,8 @@ async function getScenarioCoverage(scenario, aiReviewDoc) {
   };
 }
 
-function loadLastRunStatus() {
-  if (!existsRelative('test-results/.last-run.json')) {
-    return 'missing';
-  }
-  try {
-    const data = readJson('test-results/.last-run.json');
-    return typeof data.status === 'string' ? data.status : 'unknown';
-  } catch {
-    return 'invalid';
-  }
-}
-
-function loadVitestStatus() {
-  const reportPath = 'test-results/vitest/results.json';
-  if (!existsRelative(reportPath)) {
-    return 'missing';
-  }
-  try {
-    const data = readJson(reportPath);
-    if (typeof data.success === 'boolean') {
-      return data.success ? 'passed' : 'failed';
-    }
-    if (typeof data.numFailedTests === 'number') {
-      return data.numFailedTests === 0 ? 'passed' : 'failed';
-    }
-    return 'unknown';
-  } catch {
-    return 'invalid';
-  }
+function loadGoTestStatus() {
+  return 'run go test ./... separately';
 }
 
 function loadAiSummaryStatus() {
@@ -246,8 +219,8 @@ async function run() {
         ),
       ],
       testResults: {
-        deterministicE2E: `test-results/.last-run.json#status=${loadLastRunStatus()}`,
-        deterministicUnit: `test-results/vitest/results.json#status=${loadVitestStatus()}`,
+        deterministicE2E: 'not_applicable_for_go_server',
+        deterministicUnit: `go test ./...#status=${loadGoTestStatus()}`,
         aiSemantic: `test-results/ai-reviews/summary.json#status=${loadAiSummaryStatus()}`,
       },
     },

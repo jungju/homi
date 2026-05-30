@@ -5,11 +5,11 @@
   "schemaRef": "schemas/machine/manifest.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-07",
+  "updated": "2026-05-31",
   "project": {
     "id": "homi",
     "name": "homi",
-    "kind": "static-webapp",
+    "kind": "go-webserver",
     "root": "."
   },
   "parserHints": {

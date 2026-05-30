@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/read-sets.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-07",
+  "updated": "2026-05-31",
   "taskSets": [
     {
       "taskType": "ui_change",
@@ -15,15 +15,16 @@
         "docs/machine/ui.v1.yaml",
         "docs/machine/flows.v1.yaml",
         "docs/machine/tests.v1.yaml",
-        "src/App.svelte"
+        "internal/server/templates/page.html",
+        "internal/server/static/app.css",
+        "internal/server/static/app.js"
       ],
       "shouldRead": [
         "docs/machine/product.v1.yaml",
-        "docs/machine/coverage.v1.yaml"
+        "internal/server/server.go"
       ],
       "mayRead": [
-        "tests/e2e/qa-homi.spec.ts",
-        "tests/helpers/capture-ui-artifacts.ts"
+        "internal/server/server_test.go"
       ],
       "forbiddenAsAuthority": [
         "README.md",
@@ -40,15 +41,16 @@
         "schemas/domain/homi-bundle.v1.schema.json",
         "schemas/domain/dataset-payload.v1.schema.json",
         "schemas/domain/dataset.v1.schema.json",
-        "src/lib/homi.ts",
-        "src/App.svelte"
+        "internal/homi/domain.go",
+        "internal/server/static/app.js"
       ],
       "shouldRead": [
         "docs/machine/ui.v1.yaml",
         "docs/machine/fixtures.v1.yaml"
       ],
       "mayRead": [
-        "tests/e2e/qa-homi.spec.ts"
+        "internal/homi/domain_test.go",
+        "internal/server/server_test.go"
       ],
       "forbiddenAsAuthority": [
         "README.md",
@@ -84,7 +86,8 @@
         "docs/machine/tests.v1.yaml",
         "docs/machine/ui.v1.yaml",
         "docs/machine/flows.v1.yaml",
-        "tests/e2e/qa-homi.spec.ts"
+        "internal/server/server_test.go",
+        "internal/homi/domain_test.go"
       ],
       "shouldRead": [
         "docs/machine/coverage.v1.yaml",

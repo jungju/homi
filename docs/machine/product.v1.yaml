@@ -5,15 +5,27 @@
   "schemaRef": "schemas/machine/product.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-13",
+  "updated": "2026-05-31",
   "rules": [
     {
-      "id": "product.storage.localstorage.single_key",
-      "statement": "store persistence는 localStorage 단일 키 homi.store.v1만 사용한다."
+      "id": "product.runtime.go_server",
+      "statement": "Homi는 Go 웹서버가 HTML 템플릿과 정적 자산을 제공하는 서버 앱이다."
     },
     {
-      "id": "product.storage.recover_to_empty_on_corruption",
-      "statement": "localStorage parse 실패/스키마 불일치/손상 시 빈 스토어로 복구한다."
+      "id": "product.auth.ohmesh_login_required",
+      "statement": "Homi 클라이언트는 시작 시 Ohmesh /auth/me optional check를 수행하고 세션이 없으면 Ohmesh login URL로 이동한다."
+    },
+    {
+      "id": "product.storage.ohmesh_records",
+      "statement": "영속 데이터는 Ohmesh Records API를 credentials include 방식으로 호출해 사용자와 app slug 범위 안에 저장한다."
+    },
+    {
+      "id": "product.storage.dataset_record_per_dataset",
+      "statement": "각 Homi dataset은 Ohmesh record type homi.dataset.v1 한 개로 저장한다."
+    },
+    {
+      "id": "product.storage.ui_single_record",
+      "statement": "테마, 로봇 스타일, 조용히 모드, URL 연결 상태는 Ohmesh record type homi.ui.v1의 최신 record에 저장한다."
     },
     {
       "id": "product.import.bundle_level_only",
@@ -25,59 +37,23 @@
     },
     {
       "id": "product.import.preview_required",
-      "statement": "Import는 검증 후 미리보기를 거치고 사용자 확정 시에만 저장한다."
-    },
-    {
-      "id": "product.import.url_share_link_inline_bundle",
-      "statement": "URL Import는 https 공유 링크 안의 inline bundle(import query/hash)을 fetch 없이 preview 후 confirm으로 처리할 수 있다."
-    },
-    {
-      "id": "product.import.url_full_bundle_auto_sync",
-      "statement": "URL Import에서 번들 전체를 confirm하면 현재 store는 해당 URL과 연결되고, 앱은 주기적으로 원본 JSON을 다시 가져와 datasets 내용이 바뀌면 replace 방식으로 자동 갱신한다."
-    },
-    {
-      "id": "product.import.url_sync_disconnect_on_local_change",
-      "statement": "URL 연결 상태에서 자료 세트 추가/수정/삭제/enabled 토글 또는 비-URL import가 일어나면 자동 URL 동기화 연결은 해제되지만, 마지막으로 저장한 brain JSON URL 자체는 store에 유지한다."
-    },
-    {
-      "id": "product.import.url_saved_persist",
-      "statement": "한 번 confirm된 brain JSON URL은 이후 앱 재실행과 자동 동기화 해제 후에도 저장된 URL로 유지되며, backup URL panel에서 다시 보여야 한다."
+      "statement": "Import는 Go 서버의 bundle preview 검증을 거치고 사용자 확정 시에만 Ohmesh record에 저장한다."
     },
     {
       "id": "product.import.apply_mode.replace",
-      "statement": "Import 적용 모드는 v1에서 replace(전체 교체)만 허용한다."
+      "statement": "Import 적용 모드는 v1에서 replace(기존 dataset records 삭제 후 신규 records 생성)만 허용한다."
     },
     {
       "id": "product.import.collision_dataset_id_regenerate",
       "statement": "Import 중 dataset id 충돌 시 v1 정책으로 새 id를 생성해 추가 처리한다."
     },
     {
-      "id": "product.sample.preview_before_confirm",
-      "statement": "샘플 번들도 일반 import와 동일하게 preview 후 confirm으로 적용한다."
-    },
-    {
       "id": "product.dictation.mode_text.required",
-      "statement": "앱 모드는 홈 말풍선에 텍스트로 항상 표시한다."
+      "statement": "받아쓰기 실행 중 앱 모드는 홈 말풍선에 텍스트로 표시한다."
     },
     {
       "id": "product.dictation.auto_advance_10s",
       "statement": "받아쓰기는 10초 간격 자동 진행을 기본 규칙으로 유지한다."
-    },
-    {
-      "id": "product.dictation.auto_exit_after_last_item",
-      "statement": "받아쓰기는 마지막 항목 완료 시 자동 종료되고 기본 모드로 복귀한다."
-    },
-    {
-      "id": "product.dictation.start_closes_engine_overlay",
-      "statement": "받아쓰기 시작 시 engine 설정 overlay를 닫고 홈 실행 모드로 전환한다."
-    },
-    {
-      "id": "product.dictation.start_requires_selected_dataset",
-      "statement": "받아쓰기 설정에서 dataset 미선택 상태는 시작 버튼 비활성으로 유지한다."
-    },
-    {
-      "id": "product.toast.overlay_only",
-      "statement": "토스트는 engine/brain overlay에서만 표시하고 홈 얼굴 화면(route=/)에서는 표시하지 않는다."
     },
     {
       "id": "product.schedule.no_os_notification_during_dictation",
@@ -85,39 +61,7 @@
     },
     {
       "id": "product.schedule.quiet_mode_30m_suppresses_reminders",
-      "statement": "브레인 설정의 30분 조용히 모드가 켜져 있으면 schedule due reminder는 알림 제목, OS notification, 음성 출력 없이 무시되며 홈 화면에는 quiet mode 상태 문구만 표시할 수 있다."
-    },
-    {
-      "id": "product.schedule.hourly_chime_top_of_hour",
-      "statement": "schedule 설정의 정시 차임이 켜져 있으면 매시 정각에 /sounds/chime.mp3 사운드를 1회 재생한다."
-    },
-    {
-      "id": "product.schedule.hourly_chime_toggle_persisted",
-      "statement": "schedule 설정의 정시 차임 On/Off는 localStorage store.ui에 저장되어 앱 재실행 후에도 유지된다."
-    },
-    {
-      "id": "product.ui.theme_mode_persisted",
-      "statement": "브레인 설정에서 선택한 라이트/다크 모드는 localStorage store.ui.themeMode에 저장되고 홈과 overlay 전체에 즉시 적용되며 앱 재실행 후에도 유지된다."
-    },
-    {
-      "id": "product.ui.robot_style_persisted",
-      "statement": "브레인 설정에서 선택한 로봇 스타일은 localStorage store.ui.robotStyle에 저장되고 홈 얼굴에 즉시 적용되며 앱 재실행 후에도 유지된다."
-    },
-    {
-      "id": "product.ui.debug_control_boxes_toggle_persisted",
-      "statement": "브레인 설정의 디버그 표시에서 home-area 9분할 반투명 오버레이와 독립 debug layer를 함께 Show/Hidden(none)으로 전환할 수 있고, 선택 상태는 localStorage store.ui.debugAreasVisible에 저장되어 유지된다."
-    },
-    {
-      "id": "product.schedule.hourly_chime_suppressed_when_quiet_or_dictation",
-      "statement": "정시 차임은 조용히 모드 또는 받아쓰기 실행 중에는 재생하지 않고 해당 시간 슬롯을 조용히 소비한다."
-    },
-    {
-      "id": "product.schedule.recurrence_daily_yearly_only",
-      "statement": "schedule 항목은 현재 매일(daily) 또는 매년(yearly) 반복 알림만 지원한다. daily는 timeStart 기준, yearly는 monthDay(MM-DD)와 timeStart 기준으로 동작하며 특정일 1회성 알림은 아직 지원하지 않는다."
-    },
-    {
-      "id": "product.schedule.preview_speech_in_engine",
-      "statement": "schedule engine overlay에서는 등록된 schedule 항목을 리스트로 보여주고, 사용자가 각 항목을 눌러 audioUrl 또는 브라우저 음성으로 미리 듣기 테스트를 수행할 수 있다."
+      "statement": "브레인 설정의 30분 조용히 모드가 켜져 있으면 schedule reminder와 chime을 억제한다."
     },
     {
       "id": "product.security.block_javascript_scheme",
@@ -125,7 +69,7 @@
     },
     {
       "id": "product.security.render_text_only",
-      "statement": "외부 입력 데이터는 HTML 파싱 없이 텍스트로만 렌더링한다."
+      "statement": "외부 입력 데이터는 HTML 파싱 없이 텍스트 또는 JSON 값으로만 렌더링한다."
     }
   ],
   "routes": [
@@ -148,16 +92,22 @@
       "path": "/brain",
       "routeType": "overlay",
       "overlay": true,
-      "purpose": "brain settings with import and sample load"
+      "purpose": "brain settings with import and Ohmesh-backed settings"
     }
   ],
   "storage": {
-    "backend": "localStorage",
-    "key": "homi.store.v1",
+    "backend": "ohmesh-records",
+    "key": "ohmesh:homi",
     "storeType": "HomiStoreV1",
     "schemaRef": "schemas/domain/store.v1.schema.json",
-    "loadFunction": "loadStore",
-    "saveFunction": "saveStore"
+    "loadFunction": "loadStoreFromOhmeshRecords",
+    "saveFunction": "saveRecordsToOhmesh",
+    "ohmeshBaseURLDefault": "https://ohmesh.jjgo.io",
+    "appSlugDefault": "homi",
+    "datasetRecordType": "homi.dataset.v1",
+    "uiRecordType": "homi.ui.v1",
+    "recordOwnership": "ohmesh_app_user",
+    "recordShape": "dataset_per_record"
   },
   "modes": [
     {
@@ -215,15 +165,16 @@
     },
     "default": {
       "osNotificationAllowed": true,
-      "fallbackChannel": "overlay_toast_or_home_status"
+      "fallbackChannel": "home_status"
     }
   },
   "securityPolicy": {
     "dangerousSchemes": [
-      "javascript"
+      "javascript:"
     ],
     "allowedUrlSchemes": [
-      "https"
+      "https:",
+      "http://localhost"
     ],
     "allowLocalhostHttp": true,
     "renderTextOnly": true,

@@ -156,10 +156,11 @@
             "properties": {
               "framework": {
                 "type": "string",
-                "enum": [
-                  "playwright",
-                  "vitest"
-                ]
+              "enum": [
+                "playwright",
+                "vitest",
+                "go"
+              ]
               },
               "file": {
                 "type": "string"

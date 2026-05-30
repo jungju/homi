@@ -105,7 +105,7 @@ export async function fileModifiedAt(relativePath) {
 
 export function collectStringPaths(input, out = new Set()) {
   if (typeof input === 'string') {
-    if (/^(docs|schemas|tests|scripts|src|public)\//.test(input)) {
+    if (/^(docs|schemas|tests|scripts|src|public|cmd|internal)\//.test(input) || input === 'go.mod') {
       out.add(input);
     }
     return out;

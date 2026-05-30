@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Homi">
+  <rect width="64" height="64" rx="14" fill="#f7f3ea"/>
+  <rect x="13" y="18" width="38" height="34" rx="13" fill="#305852"/>
+  <circle cx="25" cy="34" r="5" fill="#dff7ec"/>
+  <circle cx="39" cy="34" r="5" fill="#dff7ec"/>
+  <path d="M25 44h14" stroke="#dff7ec" stroke-width="4" stroke-linecap="round"/>
+  <path d="M32 18v-8" stroke="#305852" stroke-width="4" stroke-linecap="round"/>
+</svg>

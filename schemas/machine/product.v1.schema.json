@@ -126,11 +126,14 @@
       "properties": {
         "backend": {
           "type": "string",
-          "const": "localStorage"
+          "enum": [
+            "localStorage",
+            "ohmesh-records"
+          ]
         },
         "key": {
           "type": "string",
-          "const": "homi.store.v1"
+          "minLength": 1
         },
         "storeType": {
           "type": "string",
@@ -142,11 +145,39 @@
         },
         "loadFunction": {
           "type": "string",
-          "const": "loadStore"
+          "minLength": 1
         },
         "saveFunction": {
           "type": "string",
-          "const": "saveStore"
+          "minLength": 1
+        },
+        "ohmeshBaseURLDefault": {
+          "type": "string",
+          "format": "uri"
+        },
+        "appSlugDefault": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,79}$"
+        },
+        "datasetRecordType": {
+          "type": "string",
+          "const": "homi.dataset.v1"
+        },
+        "uiRecordType": {
+          "type": "string",
+          "const": "homi.ui.v1"
+        },
+        "recordOwnership": {
+          "type": "string",
+          "enum": [
+            "ohmesh_app_user"
+          ]
+        },
+        "recordShape": {
+          "type": "string",
+          "enum": [
+            "dataset_per_record"
+          ]
         }
       }
     },

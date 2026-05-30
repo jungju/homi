@@ -5,998 +5,215 @@
   "schemaRef": "schemas/machine/tests.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-14",
+  "updated": "2026-05-31",
   "scenarios": [
     {
-      "id": "test.p0.home.base_layout",
-      "title": "홈 얼굴 화면은 캐릭터 얼굴과 최소 말풍선 구성을 보여야 한다.",
+      "id": "test.p0.server.routes",
+      "title": "Go 서버는 Homi 핵심 route를 HTML 템플릿으로 렌더링한다.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
+        "product.runtime.go_server",
         "ui.home.face_visible",
-        "ui.home.bubble_visible",
-        "ui.home.control_grid_3x3",
-        "ui.home.control_box_2.bubble",
-        "ui.home.control_box_6.clock",
-        "ui.home.control_box_6.clock_content_contained",
-        "ui.home.zone_bounds_soft",
-        "ui.home.face_large_tablet",
-        "ui.home.eyes_prominent",
-        "ui.home.robot_name_prominent",
-        "ui.home.default_text_minimal",
-        "ui.typography.tablet_large_text",
-        "ui.home.control_box_8.idle_controls",
-        "ui.home.control_box_9.settings",
-        "ui.home.no_page_scroll",
-        "ui.home.no_global_header",
-        "ui.home.no_toast_surface",
-        "product.toast.overlay_only"
-      ],
-      "preconditions": [
-        "localStorage clear"
-      ],
-      "actions": [
-        "route=/ 접속"
-      ],
-      "assertions": [
-        "home-face visible",
-        "home-face uses large tablet size",
-        "home-face eyes use enlarged readable size",
-        "home-area-grid has 9 named areas",
-        "home-bubble is anchored from area-2 and spans the top row",
-        "home-clock is anchored from area-6 and spans area-5..6",
-        "home-clock shows date, weekday, and HH:MM",
-        "home-clock date/time text remain fully inside the home-clock text region",
-        "home-clock text region stays fully inside viewport even when it exceeds a single area",
-        "home-clock shows text without a card surface",
-        "home-clock time uses extra-large tablet font size",
-        "home-robot-name contains 호미",
-        "home-status-text absent without alert or quiet mode",
-        "home-open-engines is anchored to area-8",
-        "home-open-backup icon button is anchored to area-9 right bottom",
-        "home-bubble visible",
-        "home-mode-text absent in basic mode",
-        "toast-root absent on home face screen",
-        "home key text and buttons use tablet-large font sizes",
-        "home face screen has no document scroll",
-        "home-engine-btn-schedule/dictation visible"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/home.default*.png",
-        "test-results/ai-artifacts/home.default*.dom-testids.json"
-      ],
-      "gate": {
-        "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.home.base_layout"
-      }
-    },
-    {
-      "id": "test.p0.home.mobile_clock_not_over_face",
-      "title": "모바일 홈 시계는 얼굴 그래픽과 겹치지 않아야 한다.",
-      "priority": "P0",
-      "type": "automated",
-      "contractRefs": [
-        "ui.home.control_box_6.clock",
-        "ui.home.control_box_6.clock_content_contained",
-        "ui.home.face_visible",
-        "ui.home.zone_bounds_soft"
-      ],
-      "preconditions": [
-        "localStorage clear",
-        "viewport=390x844"
-      ],
-      "actions": [
-        "route=/ 접속"
-      ],
-      "assertions": [
-        "home-clock does not overlap home-face at mobile viewport",
-        "home-clock date/time text remain fully inside the home-clock text region",
-        "home-clock text region stays fully inside viewport"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/home.mobile-clock*.png",
-        "test-results/ai-artifacts/home.mobile-clock*.dom-testids.json"
-      ],
-      "gate": {
-        "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.home.mobile_clock_not_over_face"
-      }
-    },
-    {
-      "id": "test.p0.home.alert_message_surface",
-      "title": "기본 모드 알림은 호미 이름 아래 큰 문구로 보여야 한다.",
-      "priority": "P0",
-      "type": "automated",
-      "contractRefs": [
-        "ui.home.control_box_2.bubble",
-        "ui.home.robot_name_prominent",
-        "ui.home.alert_text_under_robot_name",
-        "ui.home.default_text_minimal",
-        "ui.typography.tablet_large_text",
-        "ui.home.no_toast_surface",
-        "product.toast.overlay_only"
-      ],
-      "preconditions": [
-        "schedule dataset repeatIntervalSec > 0",
-        "route=/"
-      ],
-      "actions": [
-        "reminder tick 대기"
-      ],
-      "assertions": [
-        "home-status-text equals schedule item title only",
-        "home-status-text is rendered below home-robot-name",
-        "home-status-text keeps large font size",
-        "toast-root absent while home face screen alert text is visible"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/home.default*.png"
-      ],
-      "gate": {
-        "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.home.alert_message_surface"
-      }
-    },
-    {
-      "id": "test.p0.overlay.engine_stack",
-      "title": "엔진 라우트는 홈 위 오버레이로 열린다.",
-      "priority": "P0",
-      "type": "automated",
-      "contractRefs": [
         "ui.overlay.engine_contract",
-        "ui.engine.no_top_dataset_add_action",
-        "ui.home.face_visible"
+        "ui.overlay.backup_contract"
       ],
       "preconditions": [
-        "route=/"
+        "Go server handler configured with default Ohmesh app slug"
       ],
       "actions": [
-        "home-engine-btn-dictation 클릭"
+        "GET /, /brain, /engines/schedule, /engines/dictation"
       ],
       "assertions": [
-        "overlay-root visible",
-        "overlay-root data-overlay-kind=engine",
-        "engine-dataset-add absent",
-        "home-root remains mounted"
+        "each route returns 200",
+        "HTML includes window.HOMI_CONFIG",
+        "home and overlay testids are present in templates"
       ],
-      "artifacts": [
-        "test-results/ai-artifacts/engine.overlay*.png"
-      ],
+      "artifacts": [],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
+        "layer": "deterministic_unit"
       },
       "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.overlay.engine_stack"
+        "framework": "go",
+        "file": "internal/server/server_test.go",
+        "scenarioTag": "test.p0.server.routes"
       }
     },
     {
-      "id": "test.p0.backup.overlay_contract",
-      "title": "브레인 설정 오버레이는 4개 import 탭과 preview 제어를 제공한다.",
-      "priority": "P0",
-      "type": "automated",
-      "contractRefs": [
-        "ui.overlay.backup_contract",
-        "ui.backup.no_full_export_action",
-        "ui.backup.import_tabs",
-        "ui.backup.single_active_panel",
-        "ui.backup.schedule_quiet_controls",
-        "ui.backup.theme_controls",
-        "ui.backup.robot_style_controls",
-        "ui.backup.debug_control_box_controls",
-        "ui.backup.version_date_visible",
-        "ui.backup.url_sync_status",
-        "product.import.entry_route.backup_only"
-      ],
-      "preconditions": [
-        "route=/brain"
-      ],
-      "actions": [
-        "샘플 탭 선택 후 샘플 버튼 클릭으로 preview 생성"
-      ],
-      "assertions": [
-        "backup-tablist visible",
-        "backup-tab-url/text/file/sample visible in order",
-        "backup quiet status and control buttons visible",
-        "backup theme status and light/dark buttons visible",
-        "backup robot style status and style buttons visible",
-        "backup debug area status and show/hide buttons visible",
-        "backup version date visible",
-        "backup url sync status visible",
-        "only selected backup panel is visible",
-        "backup-url/text/file/sample control available by tab switching",
-        "backup-export-btn absent",
-        "backup-preview visible",
-        "backup-confirm visible"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/backup.overlay*.png"
-      ],
-      "gate": {
-        "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.backup.overlay_contract"
-      }
-    },
-    {
-      "id": "test.p1.home.debug_control_boxes_toggle",
-      "title": "브레인 설정의 디버그 표시로 홈 9분할 area 오버레이를 Show/Hidden 할 수 있다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "ui.backup.debug_control_box_controls",
-        "ui.home.debug_control_boxes_overlay",
-        "ui.debug.layer.page_and_popup_labels",
-        "ui.debug.layer.control_labels",
-        "product.ui.debug_control_boxes_toggle_persisted"
-      ],
-      "preconditions": [
-        "route=/brain"
-      ],
-      "actions": [
-        "Show 클릭",
-        "route=/ 이동",
-        "Hidden (none) 클릭"
-      ],
-      "assertions": [
-        "backup-debug-areas-status shows current mode text",
-        "home-area-grid toggles data-debug-areas visible/hidden",
-        "debug mode persists across route changes",
-        "home-area pseudo overlay is tinted when visible",
-        "home-area debug labels are visible as top-layer identifiers",
-        "debug-layer-root is visible while debug mode is on",
-        "debug-page-name reflects current route",
-        "debug-popup-name reflects current overlay title when overlay is open",
-        "debug-section-label shows visible section names without blocking interaction"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/home.default*.png"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.home.debug_control_boxes_toggle"
-      }
-    },
-    {
-      "id": "test.p1.backup.theme_mode_persisted",
-      "title": "브레인 설정의 라이트/다크 모드는 즉시 적용되고 재실행 후에도 유지된다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "ui.backup.theme_controls",
-        "product.ui.theme_mode_persisted"
-      ],
-      "preconditions": [
-        "route=/brain"
-      ],
-      "actions": [
-        "다크 모드 버튼 클릭",
-        "reload",
-        "라이트 모드 버튼 클릭"
-      ],
-      "assertions": [
-        "backup-theme-status shows current mode text",
-        "document root theme switches immediately",
-        "store.ui.themeMode persists across reload",
-        "light mode can be restored from the same controls"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/backup.overlay*.png"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.backup.theme_mode_persisted"
-      }
-    },
-    {
-      "id": "test.p1.backup.robot_style_persisted",
-      "title": "브레인 설정의 로봇 스타일은 즉시 적용되고 재실행 후에도 유지된다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "ui.backup.robot_style_controls",
-        "product.ui.robot_style_persisted",
-        "ui.home.face_visible",
-        "ui.home.face_position_stable_across_modes"
-      ],
-      "preconditions": [
-        "route=/brain"
-      ],
-      "actions": [
-        "미드나잇형 버튼 클릭",
-        "reload",
-        "route=/ 이동",
-        "기본형 버튼 클릭"
-      ],
-      "assertions": [
-        "backup-robot-style-status shows current style text",
-        "robot style button aria-pressed switches immediately",
-        "store.ui.robotStyle persists across reload",
-        "home-face reflects the selected style variant",
-        "classic style can be restored from the same controls"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/home.default*.png",
-        "test-results/ai-artifacts/backup.overlay*.png"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.backup.robot_style_persisted"
-      }
-    },
-    {
-      "id": "test.p0.import.preview_before_confirm",
-      "title": "import는 preview 후 confirm 단계로만 반영된다.",
+      "id": "test.p0.import.preview",
+      "title": "Go preview API는 Homi bundle을 검증하고 invalid bundle을 거부한다.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
         "product.import.preview_required",
-        "flow.import.preview_before_confirm"
+        "product.import.bundle_level_only",
+        "product.security.render_text_only"
       ],
       "preconditions": [
-        "브레인 설정 overlay open"
+        "Go server handler configured"
       ],
       "actions": [
-        "sample/text/url/file preview 생성",
-        "confirm 클릭"
+        "POST /api/bundles/preview with valid and invalid bundle JSON"
       ],
       "assertions": [
-        "confirm 버튼은 preview 생성 후 활성 가능",
-        "confirm 이후 replace 안내 메시지 표시"
+        "valid bundle returns ok=true",
+        "invalid engine item returns 400"
       ],
-      "artifacts": [
-        "test-results/ai-artifacts/backup.overlay*.meta.json"
-      ],
+      "artifacts": [],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
+        "layer": "deterministic_unit"
       },
       "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.import.preview_before_confirm"
+        "framework": "go",
+        "file": "internal/server/server_test.go",
+        "scenarioTag": "test.p0.import.preview"
       }
     },
     {
-      "id": "test.p0.import.replace_only",
-      "title": "import 적용 모드는 replace only다.",
+      "id": "test.p0.domain.bundle_validation",
+      "title": "Domain parser validates sample, blocks bad items, and blocks javascript URLs.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
-        "product.import.apply_mode.replace",
-        "flow.import.confirm_replace"
+        "product.security.block_javascript_scheme",
+        "product.import.collision_dataset_id_regenerate"
       ],
       "preconditions": [
-        "기존 store에 dataset 존재"
+        "sample bundle fixture is available"
       ],
       "actions": [
-        "brain 설정에서 import confirm 수행"
+        "parse sample bundle",
+        "parse invalid dictation bundle",
+        "normalize javascript and https URLs"
       ],
       "assertions": [
-        "기존 dataset이 교체됨",
-        "append/merge 경로 미존재"
+        "sample parses with expected dataset count",
+        "invalid dictation item is rejected",
+        "javascript scheme is rejected"
       ],
-      "artifacts": [
-        "test-results/ai-artifacts/backup.overlay*.visible-text.txt"
-      ],
+      "artifacts": [],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
+        "layer": "deterministic_unit"
       },
       "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.import.replace_only"
+        "framework": "go",
+        "file": "internal/homi/domain_test.go",
+        "scenarioTag": "test.p0.domain.bundle_validation"
       }
     },
     {
-      "id": "test.p0.import.entry_backup_only",
-      "title": "import 입력 UI는 브레인 설정 route(/brain)에만 존재한다.",
+      "id": "test.p0.ohmesh.record_shape",
+      "title": "Ohmesh records reconstruct Homi store using dataset-per-record shape.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
-        "product.import.entry_route.backup_only",
-        "ui.engine.no_backup_import_controls"
+        "product.storage.ohmesh_records",
+        "product.storage.dataset_record_per_dataset",
+        "product.storage.ui_single_record"
       ],
       "preconditions": [
-        "route=/engines/dictation"
+        "Ohmesh-like record payloads are available"
       ],
       "actions": [
-        "engine overlay DOM 확인"
+        "reconstruct store from homi.dataset.v1 and homi.ui.v1 records"
       ],
       "assertions": [
-        "backup-url-input/json/file testid not present"
+        "dataset is grouped by engine",
+        "dataset id maps to Ohmesh record id",
+        "UI record data is preserved"
       ],
-      "artifacts": [
-        "test-results/ai-artifacts/engine.overlay*.dom-testids.json"
-      ],
+      "artifacts": [],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
+        "layer": "deterministic_unit"
       },
       "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.import.entry_backup_only"
+        "framework": "go",
+        "file": "internal/homi/domain_test.go",
+        "scenarioTag": "test.p0.ohmesh.record_shape"
       }
     },
     {
       "id": "test.p0.dictation.start_sets_mode",
-      "title": "dictation 시작 시 실행 모드 텍스트로 전환된다.",
+      "title": "받아쓰기 시작은 실행 모드 UI를 노출한다.",
       "priority": "P0",
       "type": "automated",
       "contractRefs": [
         "product.dictation.mode_text.required",
-        "flow.dictation.start_sets_mode",
-        "product.dictation.start_closes_engine_overlay",
-        "product.dictation.start_requires_selected_dataset",
-        "product.toast.overlay_only",
-        "ui.home.face_visible",
-        "ui.home.control_box_2.bubble",
-        "ui.home.control_box_8.dictation_runner",
-        "ui.home.no_page_scroll",
-        "ui.home.face_position_stable_across_modes",
-        "ui.dictation.runner_contract",
-        "ui.dictation.runner_home_surface",
-        "ui.home.no_toast_surface"
+        "product.dictation.auto_advance_10s",
+        "ui.dictation.runner_contract"
       ],
       "preconditions": [
-        "dictation dataset 존재"
+        "dictation engine route is rendered"
       ],
       "actions": [
-        "dataset 선택 후 시작"
+        "inspect rendered template and client runner contract"
       ],
       "assertions": [
-        "dataset 미선택 시 시작 버튼 disabled",
-        "home-face visible",
-        "home-face position unchanged vs idle mode",
-        "home-bubble remains anchored to area-2/top-row span",
-        "dictation-root is anchored to area-8",
-        "dictation-root visible",
-        "overlay-root closed",
-        "home face screen has no document scroll",
-        "home-mode-text contains 받아쓰기 실행모드",
-        "toast-root absent on running home face screen",
-        "dictation-next/exit visible"
+        "dictation-root, dictation-next, dictation-exit are present",
+        "client contains 10 second auto advance rule"
       ],
-      "artifacts": [
-        "test-results/ai-artifacts/dictation.running*.png"
-      ],
+      "artifacts": [],
       "gate": {
         "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
+        "layer": "deterministic_unit"
       },
       "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
+        "framework": "go",
+        "file": "internal/server/server_test.go",
         "scenarioTag": "test.p0.dictation.start_sets_mode"
       }
     },
     {
-      "id": "test.p0.dictation.timer_next_exit",
-      "title": "dictation은 10초 자동 진행/Next 즉시 진행/자동 완료/수동 종료를 만족한다.",
-      "priority": "P0",
-      "type": "automated",
-      "contractRefs": [
-        "product.dictation.auto_advance_10s",
-        "product.dictation.auto_exit_after_last_item",
-        "ui.home.no_toast_surface",
-        "product.toast.overlay_only"
-      ],
-      "preconditions": [
-        "dictation running"
-      ],
-      "actions": [
-        "10초 경과 관찰",
-        "Next 클릭",
-        "마지막 항목 자동 완료 대기",
-        "재진입 후 게임 나가기 클릭"
-      ],
-      "assertions": [
-        "progress 증가",
-        "Next 즉시 이동",
-        "자동 완료 후 toast-root absent",
-        "종료 후 basic mode text stays hidden"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/dictation.running*.png"
-      ],
-      "gate": {
-        "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.dictation.timer_next_exit"
-      }
-    },
-    {
       "id": "test.p0.schedule.no_interrupt_during_dictation",
-      "title": "dictation 실행 중 schedule은 토스트 없이 조용히 지나가야 한다.",
+      "title": "받아쓰기 실행 중 schedule reminder는 toast나 OS notification으로 인터럽트하지 않는다.",
       "priority": "P0",
-      "type": "automated",
+      "type": "manual",
       "contractRefs": [
         "product.schedule.no_os_notification_during_dictation",
-        "product.toast.overlay_only",
-        "flow.schedule.reminder_non_interrupt",
         "ui.home.no_toast_surface"
       ],
       "preconditions": [
-        "schedule dataset repeatIntervalSec > 0",
-        "dictation running"
+        "dictation runner active",
+        "schedule item due"
       ],
       "actions": [
-        "reminder tick 유도"
+        "observe reminder behavior during runner"
       ],
       "assertions": [
-        "schedule-toast absent",
-        "toast-root absent",
-        "dictation state 유지"
+        "toast-root and schedule-toast are absent",
+        "OS notification is not triggered"
       ],
-      "artifacts": [
-        "test-results/ai-artifacts/schedule.quiet.during-dictation*.png"
-      ],
-      "gate": {
-        "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.schedule.no_interrupt_during_dictation"
-      }
-    },
-    {
-      "id": "test.p0.security.javascript_scheme_block",
-      "title": "javascript: URL import는 차단된다.",
-      "priority": "P0",
-      "type": "automated",
-      "contractRefs": [
-        "product.security.block_javascript_scheme"
-      ],
-      "preconditions": [
-        "브레인 설정 overlay open"
-      ],
-      "actions": [
-        "backup-url-input에 javascript:alert(1) 입력",
-        "preview 클릭"
-      ],
-      "assertions": [
-        "backup-error 노출",
-        "preview 생성 금지"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/backup.overlay*.visible-text.txt"
-      ],
-      "gate": {
-        "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.security.javascript_scheme_block"
-      }
-    },
-    {
-      "id": "test.p0.security.text_render_only",
-      "title": "XSS 문자열은 텍스트로 렌더링되고 실행되지 않는다.",
-      "priority": "P0",
-      "type": "automated",
-      "contractRefs": [
-        "product.security.render_text_only"
-      ],
-      "preconditions": [
-        "fixture bundle.xss.v1 준비"
-      ],
-      "actions": [
-        "brain 설정에서 xss fixture preview"
-      ],
-      "assertions": [
-        "HTML 실행 이벤트 없음",
-        "문자열 텍스트 표시"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/backup.overlay*.png"
-      ],
-      "gate": {
-        "behavior": "hard_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p0.security.text_render_only"
-      }
-    },
-    {
-      "id": "test.p1.import.share_link_preview",
-      "title": "공유 링크 import는 /brain 진입 시 자동으로 preview를 만든다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "product.import.url_share_link_inline_bundle",
-        "product.import.preview_required",
-        "product.import.entry_route.backup_only"
-      ],
-      "preconditions": [
-        "share link encoded bundle 준비"
-      ],
-      "actions": [
-        "/brain?import=<payload> 로 접속"
-      ],
-      "assertions": [
-        "backup overlay visible",
-        "backup-preview visible",
-        "backup-confirm visible",
-        "URL import payload cleared from location bar"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/backup.overlay*.png"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.import.share_link_preview"
-      }
-    },
-    {
-      "id": "test.p1.import.url_linked_auto_refresh",
-      "title": "URL로 연결된 브레인은 주기 재확인 후 변경 시 자동 교체된다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "product.import.url_full_bundle_auto_sync",
-        "flow.invariant.url_sync_keeps_route",
-        "ui.backup.url_sync_status"
-      ],
-      "preconditions": [
-        "URL import로 전체 bundle confirm",
-        "테스트용 짧은 sync interval 설정",
-        "mock URL bundle이 이후 다른 payload를 반환"
-      ],
-      "actions": [
-        "URL import confirm",
-        "mock payload 변경 후 sync interval 대기"
-      ],
-      "assertions": [
-        "backup-url-sync-status shows connected URL",
-        "변경 전 dataset title visible",
-        "변경 후 dataset title이 수동 confirm 없이 갱신됨",
-        "자동 갱신 후 current route 유지"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/backup.overlay*.meta.json"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.import.url_linked_auto_refresh"
-      }
-    },
-    {
-      "id": "test.p1.import.url_saved_persists",
-      "title": "저장된 brain JSON URL은 자동 동기화 해제 후에도 유지된다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "product.import.url_saved_persist",
-        "product.import.url_sync_disconnect_on_local_change",
-        "flow.invariant.url_sync_disconnect_on_local_change",
-        "ui.backup.url_sync_status"
-      ],
-      "preconditions": [
-        "URL import confirm 이력이 있음",
-        "이후 로컬 dataset 변경으로 auto sync 해제"
-      ],
-      "actions": [
-        "URL import confirm",
-        "dataset local edit",
-        "reload 후 /brain 진입"
-      ],
-      "assertions": [
-        "backup-url-sync-status keeps showing saved URL",
-        "backup-url-sync-status indicates auto sync disabled",
-        "backup-url-input is prefilled with the saved URL after reload"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/backup.overlay*.meta.json"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.import.url_saved_persists"
-      }
-    },
-    {
-      "id": "test.p1.schedule.quiet_mode_suppresses_reminders",
-      "title": "30분 조용히 모드가 켜져 있으면 schedule 알림은 무시된다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "product.schedule.quiet_mode_30m_suppresses_reminders",
-        "flow.schedule.quiet_mode_start",
-        "flow.invariant.schedule_quiet_mode_suppresses_effects",
-        "ui.backup.schedule_quiet_controls",
-        "ui.home.quiet_mode_text_visible"
-      ],
-      "preconditions": [
-        "schedule dataset repeatIntervalSec > 0",
-        "브레인 설정 overlay open"
-      ],
-      "actions": [
-        "backup-quiet-enable 클릭",
-        "reminder tick 대기"
-      ],
-      "assertions": [
-        "backup-quiet-status shows remaining time",
-        "home-status-text shows quiet mode state while quiet mode active",
-        "home-status-text does not show reminder title while quiet mode active",
-        "OS notification 미발생",
-        "speech output 미발생"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/backup.overlay*.png"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.schedule.quiet_mode_suppresses_reminders"
-      }
-    },
-    {
-      "id": "test.p1.schedule.recurring_daily_yearly",
-      "title": "schedule은 매일/매년 반복 시각에 맞춰 한 번씩 알림을 발생시킨다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "product.schedule.recurrence_daily_yearly_only",
-        "ui.schedule.preview_list_in_engine",
-        "ui.schedule.preview_meta_shows_recurrence"
-      ],
-      "preconditions": [
-        "schedule dataset 존재",
-        "clock mock 가능",
-        "speechSynthesis mock 가능"
-      ],
-      "actions": [
-        "daily/yearly schedule dataset import",
-        "route=/engines/schedule 접속",
-        "mock clock을 각 due 시각으로 이동"
-      ],
-      "assertions": [
-        "schedule-preview-item meta shows daily/yearly recurrence text",
-        "daily item fires once at matching HH:MM",
-        "same minute does not duplicate-fire",
-        "yearly item fires once when monthDay and HH:MM both match"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/schedule.overlay*.png"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.schedule.recurring_daily_yearly"
-      }
-    },
-    {
-      "id": "test.p1.schedule.preview_speech",
-      "title": "schedule 엔진에서 등록된 항목을 눌러 음성 미리 듣기를 테스트할 수 있다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "product.schedule.preview_speech_in_engine",
-        "ui.schedule.preview_list_in_engine",
-        "flow.schedule.preview_speech_in_engine"
-      ],
-      "preconditions": [
-        "schedule dataset 존재",
-        "speechSynthesis mock 가능"
-      ],
-      "actions": [
-        "route=/engines/schedule 접속",
-        "schedule-preview-item 클릭"
-      ],
-      "assertions": [
-        "schedule-preview-list visible",
-        "registered schedule item titles are listed",
-        "clicking schedule-preview-item triggers speech playback",
-        "schedule-preview-status reflects the clicked item title"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/schedule.overlay*.png"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.schedule.preview_speech"
-      }
-    },
-    {
-      "id": "test.p1.schedule.toggle_enabled",
-      "title": "schedule dataset enabled 토글이 동작한다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "ui.dataset_row.required"
-      ],
-      "preconditions": [
-        "schedule dataset 존재"
-      ],
-      "actions": [
-        "첫 dataset toggle 클릭"
-      ],
-      "assertions": [
-        "토글 버튼 상태 변경"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/schedule.overlay*.png"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.schedule.toggle_enabled"
-      }
-    },
-    {
-      "id": "test.p1.schedule.hourly_chime_toggle",
-      "title": "schedule 설정의 정시 차임 On/Off가 저장되고 매시 정각에 한 번 재생된다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "product.schedule.hourly_chime_top_of_hour",
-        "product.schedule.hourly_chime_toggle_persisted",
-        "ui.schedule.hourly_chime_controls",
-        "flow.schedule.hourly_chime_toggle"
-      ],
-      "preconditions": [
-        "clock mock 가능",
-        "audio playback mock 가능"
-      ],
-      "actions": [
-        "route=/engines/schedule 접속",
-        "정시 차임 켜기",
-        "reload",
-        "mock clock을 다음 정각으로 이동",
-        "정시 차임 끄기",
-        "다음 정각으로 다시 이동"
-      ],
-      "assertions": [
-        "schedule-hourly-chime-status shows enabled after toggle and reload",
-        "next top-of-hour plays /sounds/chime.mp3 exactly once",
-        "after turning off, the following top-of-hour does not play again"
-      ],
-      "artifacts": [
-        "test-results/ai-artifacts/schedule.overlay*.png"
-      ],
-      "gate": {
-        "behavior": "soft_fail",
-        "layer": "deterministic_e2e"
-      },
-      "implementation": {
-        "framework": "playwright",
-        "file": "tests/e2e/qa-homi.spec.ts",
-        "scenarioTag": "test.p1.schedule.hourly_chime_toggle"
-      }
-    },
-    {
-      "id": "test.p1.source_type_text_roundtrip",
-      "title": "text import source 추적이 export/reimport 경로에서 유지된다.",
-      "priority": "P1",
-      "type": "automated",
-      "contractRefs": [
-        "product.import.bundle_level_only"
-      ],
-      "preconditions": [
-        "text import 가능한 fixture 준비"
-      ],
-      "actions": [
-        "text import",
-        "export",
-        "reimport"
-      ],
-      "assertions": [
-        "source.type=text 추적 확인"
-      ],
-      "artifacts": [
-        "test-results/vitest/results.json"
-      ],
+      "artifacts": [],
       "gate": {
         "behavior": "soft_fail",
         "layer": "deterministic_unit"
-      },
-      "implementation": {
-        "framework": "vitest",
-        "file": "tests/unit/homi.spec.ts",
-        "scenarioTag": "test.p1.source_type_text_roundtrip"
       }
     },
     {
       "id": "test.ai.home.intent",
-      "title": "AI 리뷰: 홈 얼굴 화면은 얼굴 중심 의도를 만족한다.",
+      "title": "AI review checks home face intent and visual dominance.",
       "priority": "P1",
       "type": "ai",
       "contractRefs": [
-        "ai.home.face_dominant",
-        "ai.home.robot_name_prominent"
+        "ui.home.face_visible",
+        "ui.home.robot_name_prominent"
       ],
       "preconditions": [
-        "home.default artifact 캡처"
+        "home screenshot artifacts captured"
       ],
       "actions": [
-        "qa:ai-review 실행"
+        "AI review home.default artifacts"
       ],
       "assertions": [
-        "verdict pass 또는 warn",
-        "hard fail code 부재"
+        "home face remains dominant",
+        "robot name remains visible"
       ],
       "artifacts": [
-        "test-results/ai-reviews/*.ai-review.json"
+        "test-results/ai-artifacts/home.default*.png"
       ],
       "gate": {
         "behavior": "soft_fail",
@@ -1005,23 +222,24 @@
     },
     {
       "id": "test.ai.backup.preview_visible",
-      "title": "AI 리뷰: 브레인 설정 화면에서 preview-before-confirm 의도를 만족한다.",
+      "title": "AI review checks backup import preview visibility.",
       "priority": "P1",
       "type": "ai",
       "contractRefs": [
-        "ai.backup.preview_before_confirm_visible"
+        "product.import.preview_required",
+        "ui.overlay.backup_contract"
       ],
       "preconditions": [
-        "backup.overlay artifact 캡처"
+        "backup screenshot artifacts captured"
       ],
       "actions": [
-        "qa:ai-review 실행"
+        "AI review backup.overlay artifacts"
       ],
       "assertions": [
-        "preview/confirm 의도 판정 결과 저장"
+        "preview and confirm are visually identifiable"
       ],
       "artifacts": [
-        "test-results/ai-reviews/*.ai-review.json"
+        "test-results/ai-artifacts/backup.overlay*.png"
       ],
       "gate": {
         "behavior": "soft_fail",

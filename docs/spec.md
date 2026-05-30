@@ -34,9 +34,9 @@ Primary contract files:
 
 ## Product Scope
 
-Homi is a backend-free static home display app centered on large, readable
-household status UI, schedule reminders, dictation flow control, brain JSON
-import/export, and local browser storage.
+Homi is a Go-served home display app centered on large, readable household
+status UI, schedule reminders, dictation flow control, brain JSON import, and
+Ohmesh-backed user-scoped JSON record storage.
 
 ## Update Rules
 

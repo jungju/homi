@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/change-policy.v1.schema.json",
   "authoritative": true,
   "generated": false,
-  "updated": "2026-03-07",
+  "updated": "2026-05-31",
   "policies": [
     {
       "id": "policy.selector_rename_or_remove",
@@ -14,8 +14,8 @@
       "affectedArtifacts": [
         "docs/machine/ui.v1.yaml",
         "docs/machine/tests.v1.yaml",
-        "tests/e2e/qa-homi.spec.ts",
-        "src/App.svelte"
+        "internal/server/templates/page.html",
+        "internal/server/static/app.js"
       ],
       "safeAdditiveChanges": [
         "새 optional testid 추가",
@@ -54,8 +54,8 @@
       "affectedArtifacts": [
         "docs/machine/product.v1.yaml",
         "docs/machine/flows.v1.yaml",
-        "src/lib/homi.ts",
-        "src/App.svelte"
+        "internal/homi/domain.go",
+        "internal/server/static/app.js"
       ],
       "safeAdditiveChanges": [
         "오류/안내 문구 개선",
@@ -93,7 +93,8 @@
       "requiresVersionBump": "minor",
       "affectedArtifacts": [
         "docs/machine/tests.v1.yaml",
-        "tests/e2e/qa-homi.spec.ts"
+        "internal/server/server_test.go",
+        "internal/homi/domain_test.go"
       ],
       "safeAdditiveChanges": [
         "새 P1/P2 시나리오 추가",
