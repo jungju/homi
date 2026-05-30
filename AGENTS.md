@@ -1,51 +1,32 @@
 # AGENTS.md for homi
 
-## Bootstrap
-- Authoritative contracts are machine-readable files only:
-  - `docs/machine/*.v1.yaml`
-  - `schemas/machine/*.schema.json`
-  - `schemas/domain/*.schema.json`
-- `README.md` is human entrypoint only and is not a source of truth.
-- `docs/spec.md` is a Codex navigation entrypoint only and is not a source of truth.
-- `docs/legacy/*` and `test-results/*` are non-authoritative.
+## Project Shape
 
-## Shared Agent Operations
+Homi is a static browser app.
 
-After finishing any development change:
+- `/` is the public Homi introduction page.
+- `/face` is the logged-in always-on face page.
+- `/face/manage` is the logged-in face/data management page.
+- `/engines/{engineId}` is the logged-in schedule or dictation editor.
+- Ohmesh is the only persistence backend.
 
-1. Run the relevant validation commands below.
-2. Stage only the intended files.
-3. Commit the completed change with `scripts/agent-commit.sh`.
+## Operations
 
-Do not push or deploy unless the user explicitly asks for it.
+After finishing a development change:
 
-Homi is a Go webserver. Do not push or deploy unless the user explicitly asks
-for it.
+1. Run the relevant validation commands.
+2. Stage only intended files.
+3. Commit with `scripts/agent-commit.sh`.
 
-Use the same Conventional Commits shape across Jungju service repos:
+Do not push or deploy unless explicitly requested.
 
-```text
-<type>(<scope>): <summary>
-```
-
-Prefer the helper so the format stays consistent:
+Preferred commit format:
 
 ```sh
-TYPE=fix SUMMARY="preserve linked import state" scripts/agent-commit.sh
-TYPE=docs SUMMARY="update machine contract notes" scripts/agent-commit.sh
+TYPE=feat SUMMARY="update face route" scripts/agent-commit.sh
 ```
 
-The default scope is `homi`. Allowed types are `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`, `deploy`, and `content`.
-
-## First Read
-1. `docs/spec.md` for navigation only
-2. `docs/machine/manifest.v1.yaml`
-3. `docs/machine/truth-order.v1.yaml`
-4. `docs/machine/read-sets.v1.yaml`
-5. Task-specific set from `read-sets.v1.yaml`
-
 ## Validation Commands
-- `go test ./...`
-- `npm run validate:machine-docs`
-- `npm run validate:domain-schemas`
-- `npm run qa:contract`
+
+- `pnpm run check`
+- `pnpm run build`

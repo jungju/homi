@@ -3,16 +3,55 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{.Title}} - Homi</title>
-    <link rel="icon" href="/static/favicon.svg">
-    <link rel="stylesheet" href="/static/app.css">
+    <title>Homi</title>
+    <link rel="icon" href="/favicon.svg">
+    <link rel="stylesheet" href="/app.css">
   </head>
-  <body data-page="{{.Page}}" data-engine-id="{{.EngineID}}">
+  <body>
     <script>
-      window.HOMI_CONFIG = {{.ConfigJSON}};
+      window.HOMI_CONFIG = {
+        ohmeshBaseUrl: "https://ohmesh.jjgo.io",
+        ohmeshAppSlug: "homi",
+        redirectUrl: window.location.origin + "/",
+        recordTypes: {
+          dataset: "homi.dataset.v1",
+          ui: "homi.ui.v1"
+        }
+      };
     </script>
 
-    <div class="layout home-layout" data-testid="app-root">
+    <main class="intro-page" data-page-panel="intro" data-testid="intro-root" hidden>
+      <section class="intro-copy" aria-labelledby="intro-title">
+        <p class="intro-kicker">homi</p>
+        <h1 id="intro-title">Homi</h1>
+        <p class="intro-lead">집 안에 상시 띄워두는 얼굴 화면.</p>
+        <div class="intro-actions">
+          <button type="button" data-action="login-face" data-testid="intro-login">로그인하고 시작</button>
+          <button type="button" data-action="open-face" data-testid="intro-open-face" hidden>페이스 페이지 열기</button>
+        </div>
+        <p class="intro-status" data-testid="intro-status">Ohmesh 세션 확인 중</p>
+      </section>
+      <section class="intro-strip" aria-label="Homi core features">
+        <span>음성 알림</span>
+        <span>받아쓰기</span>
+        <span>Ohmesh 저장</span>
+      </section>
+    </main>
+
+    <main class="login-page" data-page-panel="login" data-testid="login-required-root" hidden>
+      <section class="login-copy" aria-labelledby="login-title">
+        <p class="login-kicker">homi</p>
+        <h1 id="login-title">로그인이 필요합니다</h1>
+        <p class="login-lead">페이스 페이지는 Ohmesh 세션이 확인된 뒤 열립니다.</p>
+        <div class="login-actions">
+          <button type="button" data-action="login-current" data-testid="login-required-login">로그인</button>
+          <a class="secondary-link" href="/" data-testid="login-required-intro">소개로</a>
+        </div>
+        <p class="login-status" data-testid="login-required-status"></p>
+      </section>
+    </main>
+
+    <div class="layout home-layout" data-page-panel="app" data-testid="app-root" hidden>
       <main class="home" data-testid="home-root">
         <section class="home-fullscreen">
           <div class="home-face" data-testid="home-face" data-face-root data-face-mood="idle" role="img" aria-label="친근한 홈 캐릭터 얼굴">
@@ -20,16 +59,10 @@
               <div class="home-face__head" data-face-head data-style="classic">
                 <div class="home-face__shine"></div>
                 <div class="home-face__eyes">
-                  <span class="home-face__eye home-face__eye--left">
-                    <span class="home-face__eye-image"></span>
-                  </span>
-                  <span class="home-face__eye home-face__eye--right">
-                    <span class="home-face__eye-image"></span>
-                  </span>
+                  <span class="home-face__eye home-face__eye--left"><span class="home-face__eye-image"></span></span>
+                  <span class="home-face__eye home-face__eye--right"><span class="home-face__eye-image"></span></span>
                 </div>
-                <div class="home-face__mouth">
-                  <span class="home-face__mouth-image"></span>
-                </div>
+                <div class="home-face__mouth"><span class="home-face__mouth-image"></span></div>
                 <div class="home-face__cheek home-face__cheek--left"></div>
                 <div class="home-face__cheek home-face__cheek--right"></div>
               </div>
@@ -48,18 +81,6 @@
             <div class="home-area" data-area="9" data-testid="home-area-9"></div>
           </div>
 
-          <div class="home-area-label-layer" data-debug-label-layer hidden>
-            <span class="home-area__debug-label" data-testid="home-area-1-label">area-1</span>
-            <span class="home-area__debug-label" data-testid="home-area-2-label">area-2</span>
-            <span class="home-area__debug-label" data-testid="home-area-3-label">area-3</span>
-            <span class="home-area__debug-label" data-testid="home-area-4-label">area-4</span>
-            <span class="home-area__debug-label" data-testid="home-area-5-label">area-5</span>
-            <span class="home-area__debug-label" data-testid="home-area-6-label">area-6</span>
-            <span class="home-area__debug-label" data-testid="home-area-7-label">area-7</span>
-            <span class="home-area__debug-label" data-testid="home-area-8-label">area-8</span>
-            <span class="home-area__debug-label" data-testid="home-area-9-label">area-9</span>
-          </div>
-
           <div class="home-bubble" data-testid="home-bubble">
             <strong class="home-robot-name" data-testid="home-robot-name">호미</strong>
             <p class="home-mode-text" data-testid="home-mode-text" hidden></p>
@@ -76,15 +97,14 @@
             <a class="engine-button" data-testid="home-engine-btn-dictation" href="/engines/dictation">받아쓰기</a>
           </div>
 
-          <a class="settings-button" data-testid="home-open-backup" aria-label="브레인 설정" href="/brain">⚙</a>
+          <a class="settings-button" data-testid="home-open-backup" aria-label="상시 화면 관리" href="/face/manage">⚙</a>
         </section>
       </main>
 
-      {{if eq .Page "brain"}}
-      <section class="overlay" data-testid="overlay-root" data-overlay-kind="backup">
+      <section class="overlay" data-testid="overlay-root" data-overlay="brain" data-overlay-kind="backup" hidden>
         <div class="overlay__bar">
-          <h1 data-testid="overlay-title">브레인 설정</h1>
-          <a class="icon-button" data-testid="overlay-close" aria-label="닫기" href="/">×</a>
+          <h1 data-testid="overlay-title">상시 화면 관리</h1>
+          <a class="icon-button" data-testid="overlay-close" aria-label="닫기" href="/face">×</a>
         </div>
         <div class="overlay__body brain-grid">
           <section class="tool-panel">
@@ -144,25 +164,19 @@
               <button type="button" data-testid="backup-robot-style-mint" data-action="robot-mint">Mint</button>
               <button type="button" data-testid="backup-robot-style-midnight" data-action="robot-midnight">Midnight</button>
             </div>
-            <p data-testid="backup-debug-areas-status" class="muted"></p>
-            <div class="row-actions">
-              <button type="button" data-testid="backup-debug-areas-show" data-action="debug-show">Show</button>
-              <button type="button" data-testid="backup-debug-areas-hide" data-action="debug-hide">Hidden</button>
-            </div>
-            <p data-testid="backup-version" class="muted">Go/Ohmesh</p>
           </section>
         </div>
       </section>
-      {{else if eq .Page "engine"}}
-      <section class="overlay" data-testid="overlay-root" data-overlay-kind="engine" data-engine-id="{{.EngineID}}">
+
+      <section class="overlay" data-testid="overlay-root" data-overlay="engine" data-overlay-kind="engine" hidden>
         <div class="overlay__bar">
-          <h1 data-testid="overlay-title">{{.Title}}</h1>
-          <a class="icon-button" data-testid="overlay-close" aria-label="닫기" href="/">×</a>
+          <h1 data-testid="overlay-title" data-engine-title>설정</h1>
+          <a class="icon-button" data-testid="overlay-close" aria-label="닫기" href="/face">×</a>
         </div>
         <div class="overlay__body engine-grid">
           <section class="tool-panel">
             <div class="engine-head">
-              <h2 data-engine-title>{{.Title}}</h2>
+              <h2 data-engine-title>설정</h2>
               <p data-testid="engine-status" class="muted"></p>
             </div>
             <div class="dataset-list" data-testid="dataset-list"></div>
@@ -183,16 +197,15 @@
             </div>
           </section>
 
-          {{if eq .EngineID "schedule"}}
-          <section class="tool-panel">
+          <section class="tool-panel" data-engine-panel="schedule">
             <h2>미리 듣기</h2>
             <p data-testid="schedule-hourly-chime-status" class="muted"></p>
             <button type="button" data-testid="schedule-hourly-chime-toggle" data-action="toggle-chime">정시 차임</button>
             <p data-testid="schedule-preview-status" class="muted"></p>
             <div data-testid="schedule-preview-list" class="preview-list"></div>
           </section>
-          {{else}}
-          <section class="tool-panel">
+
+          <section class="tool-panel" data-engine-panel="dictation" hidden>
             <h2>실행</h2>
             <button type="button" data-action="start-dictation">시작</button>
             <div data-testid="dictation-root" class="dictation-runner" hidden>
@@ -205,19 +218,10 @@
               </div>
             </div>
           </section>
-          {{end}}
         </div>
       </section>
-      {{else if eq .Page "not-found"}}
-      <section class="overlay" data-testid="not-found-root">
-        <div class="overlay__bar">
-          <h1>페이지 없음</h1>
-          <a class="icon-button" aria-label="홈" href="/">×</a>
-        </div>
-      </section>
-      {{end}}
     </div>
 
-    <script src="/static/app.js" defer></script>
+    <script src="/app.js" defer></script>
   </body>
 </html>

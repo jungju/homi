@@ -1,8 +1,17 @@
 (() => {
-  const config = window.HOMI_CONFIG;
-  const page = document.body.dataset.page || 'home';
-  const engineId = document.body.dataset.engineId || '';
+  const config = {
+    ohmeshBaseUrl: 'https://ohmesh.jjgo.io',
+    ohmeshAppSlug: 'homi',
+    redirectUrl: `${location.origin}/`,
+    recordTypes: {
+      dataset: 'homi.dataset.v1',
+      ui: 'homi.ui.v1',
+    },
+    ...(window.HOMI_CONFIG || {}),
+  };
+  const postLoginKey = 'homi:post-login-path';
   const state = {
+    route: readRoute(),
     session: null,
     datasetRecords: [],
     datasetsByEngine: {},
@@ -13,6 +22,8 @@
     activeTab: 'url',
     dictation: null,
     dictationTimer: null,
+    reminderTimer: null,
+    reminderSlots: new Map(),
     faceSpeakingUntil: 0,
   };
 
@@ -24,55 +35,118 @@
     setInterval(updateClock, 1000);
     startFaceMotion();
     bindActions();
+    bindNavigation();
     void boot();
   });
 
+  window.addEventListener('popstate', () => {
+    state.route = readRoute();
+    void boot();
+  });
+
+  function readRoute() {
+    const path = location.pathname.replace(/\/$/, '') || '/';
+    if (path === '/' || path === '/index.html') return { page: 'intro' };
+    if (path === '/face') return { page: 'home' };
+    if (path === '/face/manage' || path === '/brain') return { page: 'brain' };
+    const match = path.match(/^\/engines\/([^/?#]+)$/);
+    if (match && isEngineId(match[1])) return { page: 'engine', engineId: match[1] };
+    return { page: 'intro', unknownPath: path };
+  }
+
+  function isProtectedRoute() {
+    return state.route.page === 'home' || state.route.page === 'brain' || state.route.page === 'engine';
+  }
+
   async function boot() {
     try {
-      if (config.loginOnStartup) {
-        await ensureLogin();
+      setPanels('intro');
+      await refreshSession();
+      if (state.session) {
+        const pendingPath = sessionStorage.getItem(postLoginKey);
+        sessionStorage.removeItem(postLoginKey);
+        if (pendingPath && state.route.page === 'intro') {
+          navigate(pendingPath, true);
+          return;
+        }
       }
+
+      if (state.route.page === 'intro') {
+        stopReminderLoop();
+        renderIntro();
+        setPanels('intro');
+        return;
+      }
+
+      if (!state.session) {
+        stopReminderLoop();
+        renderLoginRequired();
+        setPanels('login');
+        return;
+      }
+
       await loadStore();
       renderAll();
+      startReminderLoop();
+      setPanels('app');
     } catch (error) {
-      showStatus(error.message || '오류가 발생했습니다.', 'error');
+      if (isProtectedRoute()) {
+        renderLoginRequired(error.message || 'Ohmesh 상태를 확인하지 못했습니다.');
+        setPanels('login');
+      } else {
+        setText('[data-testid="intro-status"]', error.message || 'Ohmesh 상태를 확인하지 못했습니다.');
+        setPanels('intro');
+      }
     }
   }
 
-  async function ensureLogin() {
-    const status = $('[data-testid="auth-status"]');
-    if (status) status.textContent = 'Ohmesh 로그인 확인 중';
-
-    const response = await fetch(`${config.ohmeshBaseUrl}/auth/me?app=${encodeURIComponent(config.ohmeshAppSlug)}&optional=1`, {
-      credentials: 'include',
+  function setPanels(active) {
+    $$('[data-page-panel]').forEach((panel) => {
+      panel.hidden = panel.dataset.pagePanel !== active;
     });
+  }
 
+  async function refreshSession() {
+    const url = new URL(`${config.ohmeshBaseUrl}/auth/me`);
+    url.searchParams.set('app', config.ohmeshAppSlug);
+    url.searchParams.set('optional', '1');
+    const response = await fetch(url, { credentials: 'include', cache: 'no-store' });
     if (response.status === 204 || response.status === 401) {
-      location.href = loginURL();
-      return new Promise(() => {});
+      state.session = null;
+      return;
     }
     if (!response.ok) {
       throw new Error('Ohmesh 로그인 상태를 확인하지 못했습니다.');
     }
-
     state.session = await response.json();
-    if (status) {
-      const email = state.session?.user?.email || state.session?.user?.name || '로그인됨';
-      status.textContent = `${email} · ${state.session?.app?.slug || config.ohmeshAppSlug}`;
-    }
   }
 
-  function loginURL() {
+  function renderIntro() {
+    const user = sessionLabel();
+    const login = $('[data-testid="intro-login"]');
+    const open = $('[data-testid="intro-open-face"]');
+    if (login) login.hidden = Boolean(state.session);
+    if (open) open.hidden = !state.session;
+    setText('[data-testid="intro-status"]', state.session ? `${user} · 로그인됨` : '로그인 후 페이스 페이지를 열 수 있습니다.');
+  }
+
+  function renderLoginRequired(message = '로그인하면 페이스 페이지를 열 수 있습니다.') {
+    setText('[data-testid="login-required-status"]', message);
+  }
+
+  function loginURL(nextPath = '/face') {
+    sessionStorage.setItem(postLoginKey, nextPath);
     const url = new URL(`${config.ohmeshBaseUrl}/login`);
     url.searchParams.set('app', config.ohmeshAppSlug);
-    url.searchParams.set('redirect_url', location.href);
+    url.searchParams.set('redirect_url', config.redirectUrl || `${location.origin}/`);
     return url.toString();
   }
 
   function logoutURL() {
+    sessionStorage.removeItem(postLoginKey);
     const url = new URL(`${config.ohmeshBaseUrl}/logout`);
     url.searchParams.set('app', config.ohmeshAppSlug);
-    url.searchParams.set('redirect_url', location.origin + '/');
+    url.searchParams.set('redirect_url', config.redirectUrl || `${location.origin}/`);
     return url.toString();
   }
 
@@ -95,9 +169,7 @@
     state.datasetsByEngine = {};
     for (const record of state.datasetRecords) {
       const dataset = record.data;
-      if (!state.datasetsByEngine[dataset.engineId]) {
-        state.datasetsByEngine[dataset.engineId] = [];
-      }
+      if (!state.datasetsByEngine[dataset.engineId]) state.datasetsByEngine[dataset.engineId] = [];
       state.datasetsByEngine[dataset.engineId].push(dataset);
     }
 
@@ -110,13 +182,12 @@
     url.searchParams.set('type', type);
     url.searchParams.set('limit', '500');
     url.searchParams.set('offset', '0');
-    const response = await fetch(url, { credentials: 'include' });
+    const response = await fetch(url, { credentials: 'include', cache: 'no-store' });
     if (response.status === 401) {
-      location.href = loginURL();
-      return new Promise(() => {});
+      throw new Error('Ohmesh 로그인이 필요합니다.');
     }
     if (!response.ok) {
-      throw new Error('Ohmesh 데이터를 읽지 못했습니다.');
+      throw new Error('저장된 데이터를 불러오지 못했습니다.');
     }
     const payload = await response.json();
     return Array.isArray(payload.records) ? payload.records : [];
@@ -129,9 +200,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, data }),
     });
-    if (!response.ok) {
-      throw new Error(await apiError(response, 'Ohmesh record를 생성하지 못했습니다.'));
-    }
+    if (!response.ok) throw new Error(await apiError(response, 'Ohmesh record를 생성하지 못했습니다.'));
     return response.json();
   }
 
@@ -143,9 +212,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-    if (!response.ok) {
-      throw new Error(await apiError(response, 'Ohmesh record를 수정하지 못했습니다.'));
-    }
+    if (!response.ok) throw new Error(await apiError(response, 'Ohmesh record를 수정하지 못했습니다.'));
     return response.json();
   }
 
@@ -166,6 +233,27 @@
     } catch {
       return fallback;
     }
+  }
+
+  function bindNavigation() {
+    document.addEventListener('click', (event) => {
+      const anchor = event.target.closest('a[href^="/"]');
+      if (!anchor || anchor.target || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      navigate(anchor.getAttribute('href'));
+    });
+  }
+
+  function navigate(path, replace = false) {
+    if (replace) {
+      history.replaceState({}, '', path);
+    } else {
+      history.pushState({}, '', path);
+    }
+    state.route = readRoute();
+    state.selectedDataset = null;
+    state.importSelection = null;
+    void boot();
   }
 
   function bindActions() {
@@ -194,6 +282,13 @@
   }
 
   const actionHandlers = {
+    'login-face': () => {
+      location.href = loginURL('/face');
+    },
+    'login-current': () => {
+      location.href = loginURL(location.pathname || '/face');
+    },
+    'open-face': () => navigate('/face'),
     logout: () => {
       location.href = logoutURL();
     },
@@ -213,8 +308,6 @@
     'robot-classic': () => saveUI({ robotStyle: 'classic' }),
     'robot-mint': () => saveUI({ robotStyle: 'mint' }),
     'robot-midnight': () => saveUI({ robotStyle: 'midnight' }),
-    'debug-show': () => saveUI({ debugAreasVisible: true }),
-    'debug-hide': () => saveUI({ debugAreasVisible: false }),
     'save-dataset': saveDatasetFromForm,
     'new-dataset': () => {
       state.selectedDataset = null;
@@ -229,13 +322,19 @@
 
   function renderAll() {
     applyTheme();
+    renderRouteChrome();
     renderHome();
-    if (page === 'brain') {
-      renderBrain();
-    }
-    if (page === 'engine') {
-      renderEngine();
-    }
+    if (state.route.page === 'brain') renderBrain();
+    if (state.route.page === 'engine') renderEngine();
+  }
+
+  function renderRouteChrome() {
+    $('[data-overlay="brain"]').hidden = state.route.page !== 'brain';
+    $('[data-overlay="engine"]').hidden = state.route.page !== 'engine';
+    const schedulePanel = $('[data-engine-panel="schedule"]');
+    const dictationPanel = $('[data-engine-panel="dictation"]');
+    if (schedulePanel) schedulePanel.hidden = state.route.engineId !== 'schedule';
+    if (dictationPanel) dictationPanel.hidden = state.route.engineId !== 'dictation';
   }
 
   function renderHome() {
@@ -256,7 +355,7 @@
         status.hidden = false;
         status.dataset.tone = 'default';
         status.textContent = `조용히 모드 ${formatRemaining(quietUntil - Date.now())}`;
-      } else if (count === 0 && page !== 'home') {
+      } else if (count === 0) {
         status.hidden = false;
         status.dataset.tone = 'default';
         status.textContent = '저장된 자료 세트가 없습니다';
@@ -265,64 +364,55 @@
         status.textContent = '';
       }
     }
-
-    const grid = $('[data-testid="home-area-grid"]');
-    const labelLayer = $('[data-debug-label-layer]');
-    if (grid) grid.dataset.debugAreas = state.ui.debugAreasVisible ? 'visible' : 'hidden';
-    if (labelLayer) labelLayer.hidden = !state.ui.debugAreasVisible;
     updateFaceMood(status);
-    renderDebugLayer();
   }
 
   function renderBrain() {
     selectTab(state.activeTab);
     const sync = $('[data-testid="backup-url-sync-status"]');
     if (sync) {
-      sync.textContent = state.ui.linkedImport?.url
-        ? `연결된 URL: ${state.ui.linkedImport.url}`
-        : '연결된 URL 없음';
+      sync.textContent = state.ui.linkedImport?.url ? `연결된 URL: ${state.ui.linkedImport.url}` : '연결된 URL 없음';
     }
     const quiet = $('[data-testid="backup-quiet-status"]');
     if (quiet) {
       const until = state.ui.scheduleQuietUntil ? Date.parse(state.ui.scheduleQuietUntil) : 0;
       quiet.textContent = until > Date.now() ? `조용히 모드 ${formatRemaining(until - Date.now())}` : '조용히 모드 꺼짐';
     }
+    setText('[data-testid="auth-status"]', `${sessionLabel()} · ${config.ohmeshAppSlug}`);
     setText('[data-testid="backup-theme-status"]', `테마: ${themeMode()}`);
     setText('[data-testid="backup-robot-style-status"]', `로봇: ${robotStyle()}`);
-    setText('[data-testid="backup-debug-areas-status"]', `디버그 영역: ${state.ui.debugAreasVisible ? 'Show' : 'Hidden'}`);
     renderImportPreview();
   }
 
   function renderEngine() {
-    const datasets = state.datasetsByEngine[engineId] || [];
+    const titleText = state.route.engineId === 'schedule' ? '스케줄' : '받아쓰기';
+    $$('[data-engine-title]').forEach((node) => {
+      node.textContent = titleText;
+    });
+
+    const datasets = state.datasetsByEngine[state.route.engineId] || [];
     const list = $('[data-testid="dataset-list"]');
     if (list) {
       list.replaceChildren(...datasets.map((dataset) => {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'dataset-row';
-        button.dataset.testid = 'dataset-row';
         button.setAttribute('data-testid', 'dataset-row');
         button.dataset.engineId = dataset.engineId;
         button.dataset.datasetId = dataset.id;
         button.dataset.datasetTitle = dataset.title;
         button.setAttribute('aria-selected', state.selectedDataset?.id === dataset.id ? 'true' : 'false');
-        button.innerHTML = `<strong></strong><span></span>`;
+        button.innerHTML = '<strong></strong><span></span>';
         button.querySelector('strong').textContent = dataset.title;
         button.querySelector('span').textContent = `${dataset.items?.length || 0} items`;
         return button;
       }));
     }
 
-    if (!state.selectedDataset && datasets.length > 0) {
-      state.selectedDataset = datasets[0];
-    }
+    if (!state.selectedDataset && datasets.length > 0) state.selectedDataset = datasets[0];
     fillDatasetForm();
     setText('[data-testid="engine-status"]', `${datasets.length}개 자료 세트`);
-
-    if (engineId === 'schedule') {
-      renderSchedulePreview();
-    }
+    if (state.route.engineId === 'schedule') renderSchedulePreview();
   }
 
   function fillDatasetForm() {
@@ -330,7 +420,6 @@
     const items = $('[data-testid="dataset-items-input"]');
     const enabled = $('[data-testid="schedule-enabled-toggle"]');
     if (!title || !items || !enabled) return;
-
     const dataset = state.selectedDataset;
     title.value = dataset?.title || '';
     items.value = JSON.stringify(dataset?.items || [], null, 2);
@@ -372,7 +461,6 @@
       confirm.disabled = true;
       return;
     }
-
     const items = state.importSelection.datasets.map((dataset) => {
       const row = document.createElement('div');
       row.className = 'preview-item';
@@ -388,7 +476,7 @@
 
   async function previewTextImport() {
     const raw = $('[data-testid="backup-text-input"]')?.value || '';
-    await previewRaw(raw, 'text');
+    previewRaw(raw, 'text');
   }
 
   async function previewFileImport() {
@@ -398,7 +486,7 @@
       showStatus('파일을 선택해주세요.', 'error');
       return;
     }
-    await previewRaw(await file.text(), 'file');
+    previewRaw(await file.text(), 'file');
   }
 
   async function previewSampleImport() {
@@ -407,7 +495,7 @@
       showStatus('샘플을 읽지 못했습니다.', 'error');
       return;
     }
-    await previewRaw(await response.text(), 'sample');
+    previewRaw(await response.text(), 'sample');
   }
 
   async function previewURLImport() {
@@ -423,21 +511,16 @@
         showStatus('URL 데이터를 읽지 못했습니다.', 'error');
         return;
       }
-      await previewRaw(await response.text(), 'url', normalized.url);
+      previewRaw(await response.text(), 'url', normalized.url);
     } catch {
       showStatus('URL fetch가 실패했습니다. CORS 설정을 확인해주세요.', 'error');
     }
   }
 
-  async function previewRaw(raw, sourceType, sourceUrl = null) {
-    const response = await fetch('/api/bundles/preview', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: raw,
-    });
-    const payload = await response.json();
-    if (!response.ok || !payload.ok) {
-      showStatus((payload.errors || ['미리보기 실패']).join(', '), 'error');
+  function previewRaw(raw, sourceType, sourceUrl = null) {
+    const payload = parseBundle(raw);
+    if (!payload.ok) {
+      showStatus(payload.error, 'error');
       return;
     }
     state.importSelection = {
@@ -450,50 +533,51 @@
     renderImportPreview();
   }
 
+  function parseBundle(raw) {
+    let bundle;
+    try {
+      bundle = JSON.parse(raw);
+    } catch {
+      return { ok: false, error: 'JSON 형식이 올바르지 않습니다.' };
+    }
+    if (!bundle || !Array.isArray(bundle.datasets)) {
+      return { ok: false, error: 'datasets 배열이 필요합니다.' };
+    }
+    const now = new Date().toISOString();
+    const datasets = [];
+    for (const input of bundle.datasets) {
+      if (!isEngineId(input.engineId)) return { ok: false, error: '지원하지 않는 engineId가 있습니다.' };
+      if (!input.title || !Array.isArray(input.items)) return { ok: false, error: 'dataset title과 items가 필요합니다.' };
+      datasets.push({
+        id: input.id || createId('ds'),
+        engineId: input.engineId,
+        engineSchemaVersion: input.engineSchemaVersion || 1,
+        title: input.title,
+        items: input.items,
+        meta: input.meta || {},
+        source: input.source,
+        createdAt: input.createdAt || now,
+        updatedAt: now,
+      });
+    }
+    return { ok: true, bundle, datasets };
+  }
+
   async function confirmImport() {
     if (!state.importSelection) return;
     const now = new Date().toISOString();
     const selected = state.importSelection.datasets;
-    const seen = new Set();
-    const imported = selected.map((payload) => {
-      const hadConflict = payload.id && seen.has(payload.id);
-      const id = payload.id && !hadConflict ? payload.id : createId('ds');
-      seen.add(id);
-      const source = {
-        type: state.importSelection.sourceType,
-        importedAt: now,
-        bundleId: state.importSelection.bundle.bundleId,
-      };
-      if (state.importSelection.sourceType === 'url') {
-        source.url = state.importSelection.sourceUrl;
-      }
-      if (hadConflict) {
-        source.originalDatasetId = payload.id;
-      }
-      return {
-        ...clone(payload),
-        id,
-        createdAt: now,
+    for (const record of state.datasetRecords) await deleteRecord(record.id);
+    for (const payload of selected) {
+      await createRecord(config.recordTypes.dataset, {
+        ...payload,
+        id: payload.id || createId('ds'),
         updatedAt: now,
-        source,
-      };
-    });
-
-    for (const record of state.datasetRecords) {
-      await deleteRecord(record.id);
-    }
-    for (const dataset of imported) {
-      await createRecord(config.recordTypes.dataset, dataset);
+      });
     }
     if (state.importSelection.sourceType === 'url' && state.importSelection.sourceUrl) {
-      await saveUI({
-        linkedImport: {
-          sourceType: 'url',
-          url: state.importSelection.sourceUrl,
-        },
-      }, false);
+      await saveUI({ linkedImport: { sourceType: 'url', url: state.importSelection.sourceUrl } }, false);
     }
-
     state.importSelection = null;
     await loadStore();
     renderAll();
@@ -515,40 +599,24 @@
       showStatus('items JSON 형식이 올바르지 않습니다.', 'error');
       return;
     }
+    if (!Array.isArray(items)) {
+      showStatus('items는 배열이어야 합니다.', 'error');
+      return;
+    }
     const now = new Date().toISOString();
     const current = state.selectedDataset;
     const dataset = stripPrivate({
       ...(current || {}),
       id: current?.id || createId('ds'),
-      engineId,
-      engineSchemaVersion: 1,
+      engineId: state.route.engineId,
+      engineSchemaVersion: current?.engineSchemaVersion || 1,
       title,
       items,
-      meta: {
-        ...(current?.meta || {}),
-        enabled,
-      },
+      meta: { ...(current?.meta || {}), enabled },
+      source: current?.source || { type: 'manual' },
       createdAt: current?.createdAt || now,
       updatedAt: now,
-      source: current?.source,
     });
-
-    const bundle = {
-      format: 'homi',
-      version: 1,
-      bundleType: 'import',
-      datasets: [dataset],
-    };
-    const response = await fetch('/api/bundles/preview', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bundle),
-    });
-    const payload = await response.json();
-    if (!response.ok || !payload.ok) {
-      showStatus((payload.errors || ['검증 실패']).join(', '), 'error');
-      return;
-    }
 
     if (current?.__recordId) {
       await patchRecord(current.__recordId, dataset, config.recordTypes.dataset);
@@ -556,69 +624,59 @@
       await createRecord(config.recordTypes.dataset, dataset);
     }
     await loadStore();
-    state.selectedDataset = findDataset(dataset.id);
+    state.selectedDataset = (state.datasetsByEngine[state.route.engineId] || []).find((item) => item.id === dataset.id) || null;
     renderAll();
     showStatus('자료 세트를 저장했습니다.', 'default');
   }
 
   async function deleteSelectedDataset() {
     if (!state.selectedDataset?.__recordId) return;
+    if (!confirm(`"${state.selectedDataset.title}"를 삭제할까요?`)) return;
     await deleteRecord(state.selectedDataset.__recordId);
-    state.selectedDataset = null;
     await loadStore();
+    state.selectedDataset = null;
+    renderAll();
+    showStatus('자료 세트를 삭제했습니다.', 'default');
+  }
+
+  async function saveUI(patch, shouldReload = true) {
+    const next = { ...(state.ui || {}), ...patch };
+    Object.keys(next).forEach((key) => {
+      if (next[key] === null || next[key] === undefined) delete next[key];
+    });
+    if (state.uiRecord?.id) {
+      await patchRecord(state.uiRecord.id, next, config.recordTypes.ui);
+    } else {
+      state.uiRecord = await createRecord(config.recordTypes.ui, next);
+    }
+    if (shouldReload) await loadStore();
     renderAll();
   }
 
-  async function saveUI(patch, rerender = true) {
-    state.ui = {
-      ...state.ui,
-      ...patch,
-      updatedAt: new Date().toISOString(),
-    };
-    if (state.uiRecord?.id) {
-      state.uiRecord = await patchRecord(state.uiRecord.id, state.ui, config.recordTypes.ui);
-    } else {
-      state.uiRecord = await createRecord(config.recordTypes.ui, state.ui);
-    }
-    if (rerender) {
-      await loadStore();
-      renderAll();
-    }
-  }
-
-  function selectTab(tab) {
-    state.activeTab = tab || 'url';
-    $$('[data-tab]').forEach((button) => {
-      button.setAttribute('aria-selected', button.dataset.tab === state.activeTab ? 'true' : 'false');
-    });
-    $$('[data-panel]').forEach((panel) => {
-      panel.hidden = panel.dataset.panel !== state.activeTab;
-    });
-  }
-
-  function selectDataset(datasetID) {
-    state.selectedDataset = findDataset(datasetID);
+  function selectDataset(id) {
+    const datasets = state.datasetsByEngine[state.route.engineId] || [];
+    state.selectedDataset = datasets.find((dataset) => dataset.id === id) || null;
     renderEngine();
   }
 
-  function findDataset(datasetID) {
-    for (const list of Object.values(state.datasetsByEngine)) {
-      const found = list.find((dataset) => dataset.id === datasetID);
-      if (found) return found;
-    }
-    return null;
+  function selectTab(tabId) {
+    state.activeTab = tabId;
+    $$('[data-tab]').forEach((button) => {
+      button.setAttribute('aria-selected', button.dataset.tab === tabId ? 'true' : 'false');
+    });
+    $$('[data-panel]').forEach((panel) => {
+      panel.hidden = panel.dataset.panel !== tabId;
+    });
   }
 
   function startDictation() {
-    const dataset = state.selectedDataset || (state.datasetsByEngine.dictation || [])[0];
-    if (!dataset || !Array.isArray(dataset.items) || dataset.items.length === 0) {
-      showStatus('실행할 받아쓰기 자료가 없습니다.', 'error');
+    const datasets = state.datasetsByEngine.dictation || [];
+    const dataset = state.selectedDataset?.engineId === 'dictation' ? state.selectedDataset : datasets[0];
+    if (!dataset || !dataset.items?.length) {
+      showStatus('받아쓰기 자료가 없습니다.', 'error');
       return;
     }
-    state.dictation = {
-      dataset,
-      index: 0,
-    };
+    state.dictation = { dataset, index: 0 };
     renderDictationRunner();
     scheduleDictationTick();
   }
@@ -628,6 +686,7 @@
     const nextIndex = state.dictation.index + 1;
     if (nextIndex >= state.dictation.dataset.items.length) {
       exitDictation();
+      showStatus('받아쓰기를 마쳤습니다.', 'default');
       return;
     }
     state.dictation.index = nextIndex;
@@ -636,10 +695,8 @@
   }
 
   function exitDictation() {
-    if (state.dictationTimer) {
-      clearTimeout(state.dictationTimer);
-      state.dictationTimer = null;
-    }
+    if (state.dictationTimer) clearTimeout(state.dictationTimer);
+    state.dictationTimer = null;
     state.dictation = null;
     renderDictationRunner();
     renderHome();
@@ -665,6 +722,43 @@
     setText('[data-testid="dictation-meaning"]', item.meaning || item.hint || '');
     speakOrAudio(item.word || '', item.audioUrl);
     renderHome();
+  }
+
+  function startReminderLoop() {
+    if (state.reminderTimer) return;
+    tickScheduleReminder();
+    state.reminderTimer = setInterval(tickScheduleReminder, 1000);
+  }
+
+  function stopReminderLoop() {
+    if (state.reminderTimer) clearInterval(state.reminderTimer);
+    state.reminderTimer = null;
+  }
+
+  function tickScheduleReminder() {
+    if (state.dictation) return;
+    const quietUntil = state.ui.scheduleQuietUntil ? Date.parse(state.ui.scheduleQuietUntil) : 0;
+    if (quietUntil > Date.now()) return;
+
+    const now = new Date();
+    const hhmm = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+    const monthDay = `${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+    const datasets = (state.datasetsByEngine.schedule || []).filter((dataset) => dataset.meta?.enabled !== false);
+    for (const dataset of datasets) {
+      for (const item of dataset.items || []) {
+        const dueDaily = item.repeat === 'daily' && item.timeStart === hhmm;
+        const dueYearly = item.repeat === 'yearly' && item.monthDay === monthDay && item.timeStart === hhmm;
+        const dueInterval = Number.isFinite(Number(item.repeatIntervalSec)) && Number(item.repeatIntervalSec) > 0
+          && Math.floor(Date.now() / 1000) % Number(item.repeatIntervalSec) === 0;
+        if (!dueDaily && !dueYearly && !dueInterval) continue;
+
+        const slot = `${dataset.id}:${item.title || ''}:${hhmm}:${Math.floor(Date.now() / 60_000)}`;
+        if (state.reminderSlots.get(slot)) continue;
+        state.reminderSlots.set(slot, true);
+        showStatus(item.title || dataset.title || '알림', 'default');
+        speakOrAudio(item.title || dataset.title || '알림', item.audioUrl);
+      }
+    }
   }
 
   function speakOrAudio(text, audioUrl) {
@@ -749,9 +843,7 @@
           : mood === 'concern'
             ? 0.05
             : 0.14 + Math.max(0, Math.sin(t * 1.8)) * 0.04;
-        const mouthOpen = speaking
-          ? 0.28 + Math.max(0, Math.sin(t * 10.4)) * 0.72
-          : idleMouth;
+        const mouthOpen = speaking ? 0.28 + Math.max(0, Math.sin(t * 10.4)) * 0.72 : idleMouth;
 
         face.style.setProperty('--eye-x', `${(Math.sin(t * 0.7) * 4.8 + Math.sin(t * 0.23) * 2.4).toFixed(2)}%`);
         face.style.setProperty('--eye-y', `${(Math.sin(t * 0.52 + 1.3) * 2.6).toFixed(2)}%`);
@@ -762,25 +854,6 @@
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
-  }
-
-  function renderDebugLayer() {
-    let layer = $('#debug-layer-root');
-    if (!state.ui.debugAreasVisible) {
-      layer?.remove();
-      return;
-    }
-    if (!layer) {
-      layer = document.createElement('div');
-      layer.id = 'debug-layer-root';
-      document.body.append(layer);
-    }
-    const popup = page === 'brain' ? 'brain' : page === 'engine' ? engineId : '';
-    layer.innerHTML = `
-      <span data-testid="debug-page-name">page=${page}</span>
-      ${popup ? `<span data-testid="debug-popup-name">popup=${popup}</span>` : ''}
-      <span class="debug-section-label" data-debug-target-kind="section" data-debug-target-id="home-bubble-section">home-bubble-section</span>
-    `;
   }
 
   function updateClock() {
@@ -804,17 +877,11 @@
   function normalizeImportURL(raw) {
     const value = raw.trim();
     if (!value) return { ok: false, error: 'URL을 입력해주세요.' };
-    if (value.toLowerCase().startsWith('javascript:')) {
-      return { ok: false, error: 'javascript: 스킴은 사용할 수 없습니다.' };
-    }
+    if (value.toLowerCase().startsWith('javascript:')) return { ok: false, error: 'javascript: 스킴은 사용할 수 없습니다.' };
     try {
       const parsed = new URL(value);
-      if (parsed.protocol === 'javascript:') {
-        return { ok: false, error: 'javascript: 스킴은 사용할 수 없습니다.' };
-      }
-      if (parsed.protocol === 'https:' || (parsed.protocol === 'http:' && parsed.hostname === 'localhost')) {
-        return { ok: true, url: parsed.href };
-      }
+      if (parsed.protocol === 'javascript:') return { ok: false, error: 'javascript: 스킴은 사용할 수 없습니다.' };
+      if (parsed.protocol === 'https:' || (parsed.protocol === 'http:' && parsed.hostname === 'localhost')) return { ok: true, url: parsed.href };
       return { ok: false, error: '현재 v1에서는 https URL만 허용합니다.' };
     } catch {
       return { ok: false, error: '올바른 URL 형식이 아닙니다.' };
@@ -858,6 +925,10 @@
 
   function robotStyle() {
     return ['classic', 'mint', 'midnight'].includes(state.ui.robotStyle) ? state.ui.robotStyle : 'classic';
+  }
+
+  function sessionLabel() {
+    return state.session?.user?.email || state.session?.user?.name || '로그인됨';
   }
 
   function pad2(value) {

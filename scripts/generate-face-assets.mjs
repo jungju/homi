@@ -4,7 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 const repoRoot = process.cwd();
-const outputDir = path.join(repoRoot, 'internal', 'server', 'static', 'assets', 'homi-face');
+const outputDir = path.join(repoRoot, 'public', 'assets', 'homi-face');
 const apiBaseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
 
 const jobs = [

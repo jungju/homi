@@ -1,29 +1,19 @@
 {
   "name": "homi",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "packageManager": "pnpm@10.34.1",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "dev": "go run ./cmd/homi",
+    "dev": "vite --host 0.0.0.0",
     "generate:face-assets": "node scripts/generate-face-assets.mjs",
-    "build": "go build ./cmd/homi",
-    "check": "go test ./...",
-    "test:unit": "go test ./...",
-    "validate:machine-docs": "node scripts/validate-machine-docs.mjs",
-    "validate:domain-schemas": "node scripts/validate-domain-schemas.mjs",
-    "build:coverage": "node scripts/build-coverage-matrix.mjs",
-    "build:dependency-graph": "node scripts/build-dependency-graph.mjs",
-    "qa:fast": "pnpm run validate:machine-docs && pnpm run validate:domain-schemas && pnpm run test:unit",
-    "qa:contract": "pnpm run validate:machine-docs && pnpm run validate:domain-schemas && pnpm run build:coverage && pnpm run build:dependency-graph",
-    "qa:gate": "pnpm run qa:fast && pnpm run qa:contract",
-    "next-step": "node scripts/next-step.mjs"
+    "build": "vite build",
+    "check": "node --check public/app.js && node --check scripts/generate-face-assets.mjs"
   },
   "devDependencies": {
-    "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1"
+    "vite": "^8.0.14"
   }
 }

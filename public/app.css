@@ -77,6 +77,113 @@ button,
   padding: 0.7rem 1rem;
 }
 
+.secondary-link {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  font-weight: 800;
+}
+
+.intro-page,
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  padding: clamp(20px, 5vw, 72px);
+}
+
+.intro-page::before,
+.login-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(247, 243, 234, 0.96) 0%, rgba(247, 243, 234, 0.76) 52%, rgba(247, 243, 234, 0.24) 100%),
+    radial-gradient(circle at 76% 54%, rgba(255, 190, 92, 0.28), transparent 42%);
+  pointer-events: none;
+}
+
+.intro-copy,
+.login-copy {
+  position: relative;
+  z-index: 2;
+  width: min(680px, 94vw);
+  display: grid;
+  gap: clamp(0.8rem, 2vw, 1.2rem);
+  justify-items: start;
+}
+
+.intro-kicker,
+.login-kicker {
+  margin: 0;
+  color: var(--accent);
+  font-weight: 900;
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  text-transform: uppercase;
+}
+
+.intro-page h1,
+.login-page h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(4rem, 12vw, 9rem);
+  line-height: 0.9;
+}
+
+.login-page h1 {
+  font-size: clamp(2.8rem, 8vw, 6.2rem);
+}
+
+.intro-lead,
+.login-lead {
+  margin: 0;
+  max-width: 16em;
+  color: var(--ink);
+  font-size: clamp(1.25rem, 2.5vw, 2rem);
+  font-weight: 800;
+}
+
+.intro-actions,
+.login-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 0.4rem;
+}
+
+.intro-status,
+.login-status {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.intro-strip {
+  position: absolute;
+  left: clamp(20px, 5vw, 72px);
+  right: clamp(20px, 5vw, 72px);
+  bottom: clamp(20px, 4vw, 52px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  z-index: 2;
+}
+
+.intro-strip span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.58);
+  padding: 0.52rem 0.78rem;
+  font-size: 0.96rem;
+  font-weight: 800;
+}
+
 .layout {
   min-height: 100vh;
 }
@@ -119,9 +226,9 @@ button,
 }
 
 .home-face {
-  --face-image: url("/static/assets/homi-face/face-base.png");
-  --eye-image: url("/static/assets/homi-face/eye.png");
-  --mouth-image: url("/static/assets/homi-face/mouth.png");
+  --face-image: url("/assets/homi-face/face-base.png");
+  --eye-image: url("/assets/homi-face/eye.png");
+  --mouth-image: url("/assets/homi-face/mouth.png");
   --eye-x: 0%;
   --eye-y: 0%;
   --mouth-open: 0.14;
