@@ -63,16 +63,16 @@ Homi는 지금 아래 기능을 중심으로 동작합니다.
 ### 개발 서버 실행
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
-기본 개발 서버는 Vite를 사용합니다.
+Node 22 이상과 pnpm 10을 사용합니다. 기본 개발 서버는 Vite를 사용합니다.
 
 ### 빌드
 
 ```bash
-npm run build
+pnpm build
 ```
 
 `prebuild` 단계에서 `public/version.json`이 생성됩니다.
@@ -80,24 +80,24 @@ npm run build
 ## 주요 스크립트
 
 ```bash
-npm run check
-npm run validate:machine-docs
-npm run validate:domain-schemas
-npm run qa:contract
-npm run qa:smoke
-npm run qa:ai-review
-npm run qa:gate
+pnpm check
+pnpm run validate:machine-docs
+pnpm run validate:domain-schemas
+pnpm run qa:contract
+pnpm run qa:smoke
+pnpm run qa:ai-review
+pnpm run qa:gate
 ```
 
 간단한 용도별 설명:
 
-- `npm run check`: Svelte/TypeScript 정적 검사
-- `npm run validate:machine-docs`: machine docs 스키마 검증
-- `npm run validate:domain-schemas`: domain schema 검증
-- `npm run qa:contract`: 계약 기반 문서/그래프 생성 포함 검증
-- `npm run qa:smoke`: Playwright E2E 실행
-- `npm run qa:ai-review`: AI 기반 UI 리뷰 실행
-- `npm run qa:gate`: 계약 검증 + 스모크 + AI 리뷰를 한 번에 실행
+- `pnpm check`: Svelte/TypeScript 정적 검사
+- `pnpm run validate:machine-docs`: machine docs 스키마 검증
+- `pnpm run validate:domain-schemas`: domain schema 검증
+- `pnpm run qa:contract`: 계약 기반 문서/그래프 생성 포함 검증
+- `pnpm run qa:smoke`: Playwright E2E 실행
+- `pnpm run qa:ai-review`: AI 기반 UI 리뷰 실행
+- `pnpm run qa:gate`: 계약 검증 + 스모크 + AI 리뷰를 한 번에 실행
 
 ## 데이터와 저장 방식
 

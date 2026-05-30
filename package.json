@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.3.0",
   "type": "module",
+  "packageManager": "pnpm@10.34.1",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/write-version.mjs",
@@ -18,12 +22,12 @@
     "build:coverage": "node scripts/build-coverage-matrix.mjs",
     "build:dependency-graph": "node scripts/build-dependency-graph.mjs",
     "build:qa-failure-taxonomy": "node scripts/build-qa-failure-taxonomy.mjs",
-    "qa:fast": "npm run validate:machine-docs && npm run validate:domain-schemas && npm run test:unit",
-    "qa:contract": "npm run validate:machine-docs && npm run validate:domain-schemas && npm run build:coverage && npm run build:dependency-graph",
+    "qa:fast": "pnpm run validate:machine-docs && pnpm run validate:domain-schemas && pnpm run test:unit",
+    "qa:contract": "pnpm run validate:machine-docs && pnpm run validate:domain-schemas && pnpm run build:coverage && pnpm run build:dependency-graph",
     "qa:smoke": "playwright test",
     "qa:ai-review": "node scripts/ai-ui-review.mjs --config docs/machine/ai-review.v1.yaml --schema schemas/ai-ui-review-result.schema.json --artifacts test-results/ai-artifacts --out test-results/ai-reviews",
-    "qa:gate": "npm run qa:fast && npm run qa:smoke && npm run qa:ai-review && npm run build:coverage && npm run build:qa-failure-taxonomy",
-    "qa:gate:strict": "npm run qa:fast && npm run qa:smoke && npm run qa:ai-review -- --strict && npm run build:coverage && npm run build:qa-failure-taxonomy",
+    "qa:gate": "pnpm run qa:fast && pnpm run qa:smoke && pnpm run qa:ai-review && pnpm run build:coverage && pnpm run build:qa-failure-taxonomy",
+    "qa:gate:strict": "pnpm run qa:fast && pnpm run qa:smoke && pnpm run qa:ai-review -- --strict && pnpm run build:coverage && pnpm run build:qa-failure-taxonomy",
     "next-step": "node scripts/next-step.mjs"
   },
   "devDependencies": {
