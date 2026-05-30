@@ -156,6 +156,21 @@ async function expectHomeClockAnchoredToAreas5And6(page: Page) {
   expect(clockStyles.boxShadow).toBe('none');
 }
 
+async function expectHomeClockDoesNotOverlapFace(page: Page) {
+  const clockBox = await page.getByTestId('home-clock').boundingBox();
+  const faceBox = await page.getByTestId('home-face').boundingBox();
+  expect(clockBox).not.toBeNull();
+  expect(faceBox).not.toBeNull();
+
+  const overlaps =
+    clockBox!.x < faceBox!.x + faceBox!.width &&
+    clockBox!.x + clockBox!.width > faceBox!.x &&
+    clockBox!.y < faceBox!.y + faceBox!.height &&
+    clockBox!.y + clockBox!.height > faceBox!.y;
+
+  expect(overlaps).toBe(false);
+}
+
 async function expectElementAnchoredToArea8(page: Page, testId: string) {
   const elementBox = await page.getByTestId(testId).boundingBox();
   const areaBox = await page.getByTestId('home-area-8').boundingBox();
@@ -240,6 +255,22 @@ test.describe('Homi v1 실행 시각화 기본 체크', () => {
       'home-mode-text is absent in basic mode',
       'home typography is tablet-large',
       'engine entry buttons are visible',
+    ]);
+  });
+
+  test('[test.p0.home.mobile_clock_not_over_face] 모바일 홈 시계는 얼굴 그래픽과 겹치지 않아야 한다', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await resetLocalData(page);
+    await page.goto('/');
+
+    await expect(page.getByTestId('home-root')).toBeVisible();
+    await expectHomeClockDoesNotOverlapFace(page);
+    await expectHomeClockAnchoredToAreas5And6(page);
+
+    await captureState(page, 'home.mobile-clock', '모바일 시계 배치', [
+      'home-clock does not overlap home-face at mobile viewport',
+      'home-clock date/time text stay inside the home-clock text region',
+      'home-clock text region stays inside the viewport',
     ]);
   });
 

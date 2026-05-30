@@ -76,6 +76,43 @@
       }
     },
     {
+      "id": "test.p0.home.mobile_clock_not_over_face",
+      "title": "모바일 홈 시계는 얼굴 그래픽과 겹치지 않아야 한다.",
+      "priority": "P0",
+      "type": "automated",
+      "contractRefs": [
+        "ui.home.control_box_6.clock",
+        "ui.home.control_box_6.clock_content_contained",
+        "ui.home.face_visible",
+        "ui.home.zone_bounds_soft"
+      ],
+      "preconditions": [
+        "localStorage clear",
+        "viewport=390x844"
+      ],
+      "actions": [
+        "route=/ 접속"
+      ],
+      "assertions": [
+        "home-clock does not overlap home-face at mobile viewport",
+        "home-clock date/time text remain fully inside the home-clock text region",
+        "home-clock text region stays fully inside viewport"
+      ],
+      "artifacts": [
+        "test-results/ai-artifacts/home.mobile-clock*.png",
+        "test-results/ai-artifacts/home.mobile-clock*.dom-testids.json"
+      ],
+      "gate": {
+        "behavior": "hard_fail",
+        "layer": "deterministic_e2e"
+      },
+      "implementation": {
+        "framework": "playwright",
+        "file": "tests/e2e/qa-homi.spec.ts",
+        "scenarioTag": "test.p0.home.mobile_clock_not_over_face"
+      }
+    },
+    {
       "id": "test.p0.home.alert_message_surface",
       "title": "기본 모드 알림은 호미 이름 아래 큰 문구로 보여야 한다.",
       "priority": "P0",

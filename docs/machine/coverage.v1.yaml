@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/coverage.v1.schema.json",
   "authoritative": false,
   "generated": true,
-  "generatedAt": "2026-03-16T20:00:25.287Z",
+  "generatedAt": "2026-05-30T05:55:54.819Z",
   "generatedFrom": {
     "testsContract": "docs/machine/tests.v1.yaml",
     "testCode": [
@@ -14,19 +14,30 @@
     ],
     "testResults": {
       "deterministicE2E": "test-results/.last-run.json#status=passed",
-      "deterministicUnit": "test-results/vitest/results.json#status=passed",
-      "aiSemantic": "test-results/ai-reviews/summary.json#status=pass(total=4)"
+      "deterministicUnit": "test-results/vitest/results.json#status=missing",
+      "aiSemantic": "test-results/ai-reviews/summary.json#status=missing"
     }
   },
   "summary": {
-    "totalScenarios": 25,
-    "coveredScenarios": 23,
+    "totalScenarios": 27,
+    "coveredScenarios": 25,
     "partialScenarios": 2,
     "gapScenarios": 0
   },
   "rows": [
     {
       "scenarioId": "test.p0.home.base_layout",
+      "priority": "P0",
+      "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p0.home.mobile_clock_not_over_face",
       "priority": "P0",
       "type": "automated",
       "implementationFramework": "playwright",
@@ -82,6 +93,17 @@
     },
     {
       "scenarioId": "test.p1.backup.theme_mode_persisted",
+      "priority": "P1",
+      "type": "automated",
+      "implementationFramework": "playwright",
+      "gateLayer": "deterministic_e2e",
+      "coverageStatus": "covered",
+      "evidence": [
+        "scenarioTag found in tests/e2e/qa-homi.spec.ts"
+      ]
+    },
+    {
+      "scenarioId": "test.p1.backup.robot_style_persisted",
       "priority": "P1",
       "type": "automated",
       "implementationFramework": "playwright",
@@ -287,7 +309,7 @@
       "coverageStatus": "partial",
       "evidence": [
         "artifact evidence found for home.default",
-        "ai review fallback/issues=AI_REVIEW_SKIPPED"
+        "ai review result missing: test-results/ai-reviews/home.default.ai-review.json"
       ]
     },
     {
@@ -299,7 +321,7 @@
       "coverageStatus": "partial",
       "evidence": [
         "artifact evidence found for backup.overlay",
-        "ai review fallback/issues=AI_REVIEW_SKIPPED"
+        "ai review result missing: test-results/ai-reviews/backup.overlay.ai-review.json"
       ]
     }
   ]

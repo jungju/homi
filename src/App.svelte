@@ -481,7 +481,12 @@
       padding-bottom: max(6px, env(safe-area-inset-bottom));
     }
     .home-area-placement--clock {
+      align-items: flex-start;
       padding: clamp(8px, 2vw, 12px);
+      transform: translate(var(--home-area-offset-x), calc(var(--home-area-offset-y) - clamp(96px, 16vh, 140px)));
+    }
+    .home-area-placement--clock :global(.home-clock) {
+      height: auto;
     }
     .home-area-placement--settings {
       padding-right: max(6px, env(safe-area-inset-right));
