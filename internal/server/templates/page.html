@@ -15,15 +15,23 @@
     <div class="layout home-layout" data-testid="app-root">
       <main class="home" data-testid="home-root">
         <section class="home-fullscreen">
-          <div class="home-face" data-testid="home-face" role="img" aria-label="친근한 홈 캐릭터 얼굴">
+          <div class="home-face" data-testid="home-face" data-face-root data-face-mood="idle" role="img" aria-label="친근한 홈 캐릭터 얼굴">
             <div class="home-face__frame" data-face-frame data-style="classic">
               <div class="home-face__head" data-face-head data-style="classic">
-                <div class="home-face__antenna"></div>
+                <div class="home-face__shine"></div>
                 <div class="home-face__eyes">
-                  <span class="home-face__eye"></span>
-                  <span class="home-face__eye"></span>
+                  <span class="home-face__eye home-face__eye--left">
+                    <span class="home-face__eye-image"></span>
+                  </span>
+                  <span class="home-face__eye home-face__eye--right">
+                    <span class="home-face__eye-image"></span>
+                  </span>
                 </div>
-                <div class="home-face__mouth"></div>
+                <div class="home-face__mouth">
+                  <span class="home-face__mouth-image"></span>
+                </div>
+                <div class="home-face__cheek home-face__cheek--left"></div>
+                <div class="home-face__cheek home-face__cheek--right"></div>
               </div>
             </div>
           </div>

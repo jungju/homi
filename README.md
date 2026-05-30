@@ -35,6 +35,7 @@ HOMI_ADDR=:8080
 HOMI_OHMESH_BASE_URL=https://ohmesh.jjgo.io
 HOMI_OHMESH_APP_SLUG=homi
 HOMI_LOGIN_ON_STARTUP=true
+OPENAI_API_KEY=
 ```
 
 The Homi origin must be registered in Ohmesh for the `homi` app so CORS and
@@ -55,11 +56,15 @@ dataset records for the current Ohmesh app user.
 ## Scripts
 
 ```bash
+pnpm run generate:face-assets
 pnpm run check
 pnpm run validate:machine-docs
 pnpm run validate:domain-schemas
 pnpm run qa:contract
 ```
+
+`pnpm run generate:face-assets` reads `OPENAI_API_KEY` from `.env` and writes
+generated face layer images to `internal/server/static/assets/homi-face/`.
 
 `README.md` is a human entrypoint only. Authoritative contracts live in
 `docs/machine/*.v1.yaml`, `schemas/machine/*.schema.json`, and

@@ -119,80 +119,224 @@ button,
 }
 
 .home-face {
+  --face-image: url("/static/assets/homi-face/face-base.png");
+  --eye-image: url("/static/assets/homi-face/eye.png");
+  --mouth-image: url("/static/assets/homi-face/mouth.png");
+  --eye-x: 0%;
+  --eye-y: 0%;
+  --mouth-open: 0.14;
+  --blink: 0;
   position: absolute;
   left: 50%;
   top: 52%;
-  width: min(56vw, 520px);
+  width: min(64vw, 640px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   display: grid;
   place-items: center;
+  pointer-events: none;
 }
 
 .home-face__frame {
+  position: relative;
   width: 88%;
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  border-radius: 28%;
-  background: #dce9df;
-  border: 5px solid rgba(36, 66, 61, 0.28);
+  border-radius: 50%;
+  background: transparent;
+  border: 0;
+  box-shadow:
+    0 18px 42px rgba(144, 86, 38, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.34);
+}
+
+.home-face__frame::after {
+  content: "";
+  position: absolute;
+  inset: -3%;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 215, 150, 0.25) 0%, transparent 58%),
+    radial-gradient(circle at 50% 62%, rgba(255, 170, 97, 0.12) 0%, transparent 72%);
+  filter: blur(18px);
+  pointer-events: none;
 }
 
 .home-face__head {
   position: relative;
-  width: 76%;
-  aspect-ratio: 1.05;
-  border-radius: 28%;
-  background: #315852;
-  box-shadow: inset 0 -18px rgba(0, 0, 0, 0.12);
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.12) 19%, transparent 36%),
+    var(--face-image),
+    linear-gradient(180deg, #ffe0ab 0%, #ffd28b 44%, #f2b466 100%);
+  background-size: cover, cover, cover;
+  background-position: center;
+  box-shadow:
+    inset 0 12px 18px rgba(255, 255, 255, 0.22),
+    inset 0 -18px 26px rgba(185, 103, 30, 0.16);
+  transition: border-radius 260ms ease, filter 260ms ease, transform 260ms ease;
 }
 
-.home-face__head[data-style="mint"] {
-  background: #277a65;
-}
-
-.home-face__head[data-style="midnight"] {
-  border-radius: 18%;
-  background: #26364f;
-}
-
-.home-face__antenna {
+.home-face__shine {
   position: absolute;
-  left: 50%;
-  bottom: 96%;
-  width: 8px;
-  height: 44px;
-  border-radius: 8px;
-  background: currentColor;
-  transform: translateX(-50%);
+  inset: 3.5%;
+  border-radius: inherit;
+  border: clamp(2px, 0.55vmin, 5px) solid rgba(255, 255, 255, 0.42);
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .home-face__eyes {
   position: absolute;
-  left: 18%;
-  right: 18%;
+  left: 17%;
+  right: 17%;
   top: 35%;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  transform: translateY(var(--eye-y));
 }
 
 .home-face__eye {
   display: block;
-  width: clamp(42px, 7vw, 78px);
+  width: clamp(58px, 13.5vw, 132px);
   aspect-ratio: 1;
   border-radius: 999px;
-  background: #e9fff5;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 42% 34%, #5f7899 0%, #425b7a 20%, #2d415c 44%, #1a2a40 76%, #121f31 100%);
+  box-shadow:
+    inset 0 10px 18px rgba(255, 255, 255, 0.18),
+    inset 0 -10px 14px rgba(8, 15, 25, 0.26),
+    0 8px 14px rgba(29, 43, 64, 0.1);
+  transform: scaleY(calc(1 - (var(--blink) * 0.88)));
+  transform-origin: 50% 50%;
+  transition: transform 120ms ease;
+}
+
+.home-face__eye-image {
+  display: block;
+  width: 126%;
+  height: 126%;
+  margin: -13%;
+  border-radius: inherit;
+  background:
+    var(--eye-image),
+    radial-gradient(circle at 42% 34%, #6f8bab 0%, #425b7a 22%, #1b2b42 74%, #111d2e 100%);
+  background-size: cover, cover;
+  background-position: center;
+  transform: translate(var(--eye-x), calc(var(--eye-y) * 0.35));
+  transition: filter 180ms ease;
 }
 
 .home-face__mouth {
   position: absolute;
-  left: 35%;
-  right: 35%;
-  bottom: 27%;
-  height: 8px;
+  left: 35.5%;
+  right: 35.5%;
+  top: 64%;
+  height: clamp(12px, 2.5vw, 25px);
   border-radius: 999px;
-  background: #e9fff5;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f09155 0%, #bc5a2b 100%);
+  transform:
+    translateY(calc(var(--mouth-open) * 10px))
+    scaleX(calc(0.92 + var(--mouth-open) * 0.32))
+    scaleY(calc(0.55 + var(--mouth-open) * 1.45));
+  transform-origin: 50% 50%;
+  box-shadow:
+    0 4px 10px rgba(168, 83, 35, 0.14),
+    inset 0 1px 0 rgba(255, 236, 220, 0.46);
+  transition: transform 120ms ease, border-radius 180ms ease;
+}
+
+.home-face__mouth-image {
+  display: block;
+  width: 140%;
+  height: 220%;
+  margin: -30% -20%;
+  background:
+    var(--mouth-image),
+    linear-gradient(180deg, #ff9d73 0%, #d66a3e 52%, #8f3f25 100%);
+  background-size: cover, cover;
+  background-position: center;
+}
+
+.home-face__cheek {
+  position: absolute;
+  width: clamp(24px, 5vw, 52px);
+  height: clamp(18px, 3.8vw, 34px);
+  border-radius: 50%;
+  top: 52%;
+  background: radial-gradient(circle, rgba(255, 170, 176, 0.54) 0%, rgba(255, 170, 176, 0.2) 58%, transparent 100%);
+  filter: blur(1.4px);
+  opacity: 0.82;
+}
+
+.home-face__cheek--left {
+  left: 11%;
+}
+
+.home-face__cheek--right {
+  right: 11%;
+}
+
+.home-face[data-face-mood="curious"] .home-face__eyes {
+  top: 33%;
+}
+
+.home-face[data-face-mood="speaking"] .home-face__mouth,
+.home-face[data-face-mood="smile"] .home-face__mouth {
+  left: 32%;
+  right: 32%;
+}
+
+.home-face[data-face-mood="concern"] .home-face__mouth {
+  top: 67%;
+  transform:
+    translateY(calc(var(--mouth-open) * 8px))
+    scaleX(0.76)
+    scaleY(calc(0.5 + var(--mouth-open) * 0.8));
+}
+
+.home-face[data-style="mint"] .home-face__frame {
+  border-radius: 44% 44% 40% 40% / 36% 36% 48% 48%;
+}
+
+.home-face[data-style="mint"] .home-face__head {
+  border-radius: 42% 42% 38% 38% / 34% 34% 48% 48%;
+  filter: hue-rotate(54deg) saturate(0.9) brightness(1.08);
+  transform: translateY(2.5%) scale(0.96, 0.92);
+}
+
+.home-face[data-style="midnight"] .home-face__frame {
+  width: 84%;
+  border-radius: 24%;
+  box-shadow:
+    0 20px 46px rgba(8, 16, 32, 0.28),
+    0 0 0 1px rgba(193, 230, 255, 0.16);
+}
+
+.home-face[data-style="midnight"] .home-face__head {
+  border-radius: 24%;
+  filter: hue-rotate(170deg) saturate(0.78) brightness(0.82);
+}
+
+.home-face[data-style="midnight"] .home-face__eye-image {
+  filter: hue-rotate(20deg) saturate(1.25) brightness(1.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-face__eye,
+  .home-face__eye-image,
+  .home-face__mouth,
+  .home-face__head {
+    transition: none;
+  }
 }
 
 .home-bubble {

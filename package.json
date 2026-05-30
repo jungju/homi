@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "go run ./cmd/homi",
+    "generate:face-assets": "node scripts/generate-face-assets.mjs",
     "build": "go build ./cmd/homi",
     "check": "go test ./...",
     "test:unit": "go test ./...",

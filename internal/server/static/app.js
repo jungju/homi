@@ -13,6 +13,7 @@
     activeTab: 'url',
     dictation: null,
     dictationTimer: null,
+    faceSpeakingUntil: 0,
   };
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -21,6 +22,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     updateClock();
     setInterval(updateClock, 1000);
+    startFaceMotion();
     bindActions();
     void boot();
   });
@@ -268,6 +270,7 @@
     const labelLayer = $('[data-debug-label-layer]');
     if (grid) grid.dataset.debugAreas = state.ui.debugAreasVisible ? 'visible' : 'hidden';
     if (labelLayer) labelLayer.hidden = !state.ui.debugAreasVisible;
+    updateFaceMood(status);
     renderDebugLayer();
   }
 
@@ -665,9 +668,14 @@
   }
 
   function speakOrAudio(text, audioUrl) {
+    markFaceSpeaking();
     if (audioUrl) {
       const audio = new Audio(audioUrl);
       audio.play().catch(() => speak(text));
+      audio.addEventListener('ended', () => {
+        state.faceSpeakingUntil = Date.now();
+        renderHome();
+      }, { once: true });
       return;
     }
     speak(text);
@@ -678,15 +686,82 @@
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ko-KR';
+    utterance.onend = () => {
+      state.faceSpeakingUntil = Date.now();
+      renderHome();
+    };
     window.speechSynthesis.speak(utterance);
   }
 
   function applyTheme() {
     document.documentElement.dataset.theme = themeMode();
     const style = robotStyle();
-    $$('[data-face-head], [data-face-frame]').forEach((node) => {
+    $$('[data-face-root], [data-face-head], [data-face-frame]').forEach((node) => {
       node.dataset.style = style;
     });
+  }
+
+  function updateFaceMood(status) {
+    const face = $('[data-face-root]');
+    if (!face) return;
+    if (Date.now() < state.faceSpeakingUntil || state.dictation) {
+      face.dataset.faceMood = 'speaking';
+      return;
+    }
+    if (status && !status.hidden && status.dataset.tone === 'error') {
+      face.dataset.faceMood = 'concern';
+      return;
+    }
+    if (state.datasetRecords.length === 0) {
+      face.dataset.faceMood = 'curious';
+      return;
+    }
+    face.dataset.faceMood = 'idle';
+  }
+
+  function markFaceSpeaking(durationMs = 2200) {
+    state.faceSpeakingUntil = Math.max(state.faceSpeakingUntil, Date.now() + durationMs);
+    updateFaceMood($('.home-status-text'));
+  }
+
+  function startFaceMotion() {
+    const face = $('[data-face-root]');
+    if (!face) return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      face.style.setProperty('--eye-x', '0%');
+      face.style.setProperty('--eye-y', '0%');
+      face.style.setProperty('--mouth-open', '0.14');
+      face.style.setProperty('--blink', '0');
+      return;
+    }
+
+    let startedAt = 0;
+    let lastFrameAt = 0;
+    const tick = (now) => {
+      if (!startedAt) startedAt = now;
+      if (now - lastFrameAt >= 33) {
+        const t = (now - startedAt) / 1000;
+        const mood = face.dataset.faceMood || 'idle';
+        const speaking = mood === 'speaking';
+        const blink = Math.min(1, Math.max(0, Math.sin(t * 1.15) - 0.985) * 55);
+        const idleMouth = mood === 'curious'
+          ? 0.22 + Math.max(0, Math.sin(t * 3.2)) * 0.12
+          : mood === 'concern'
+            ? 0.05
+            : 0.14 + Math.max(0, Math.sin(t * 1.8)) * 0.04;
+        const mouthOpen = speaking
+          ? 0.28 + Math.max(0, Math.sin(t * 10.4)) * 0.72
+          : idleMouth;
+
+        face.style.setProperty('--eye-x', `${(Math.sin(t * 0.7) * 4.8 + Math.sin(t * 0.23) * 2.4).toFixed(2)}%`);
+        face.style.setProperty('--eye-y', `${(Math.sin(t * 0.52 + 1.3) * 2.6).toFixed(2)}%`);
+        face.style.setProperty('--mouth-open', mouthOpen.toFixed(3));
+        face.style.setProperty('--blink', blink.toFixed(3));
+        lastFrameAt = now;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   function renderDebugLayer() {
@@ -721,6 +796,7 @@
       homeStatus.hidden = false;
       homeStatus.dataset.tone = tone;
       homeStatus.textContent = text;
+      updateFaceMood(homeStatus);
     }
     setText('[data-testid="engine-status"]', text);
   }
