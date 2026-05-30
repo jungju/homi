@@ -481,12 +481,20 @@
       padding-bottom: max(6px, env(safe-area-inset-bottom));
     }
     .home-area-placement--clock {
+      grid-column: 3 / 4;
+      grid-row: 1 / 2;
+      justify-content: flex-end;
       align-items: flex-start;
-      padding: clamp(8px, 2vw, 12px);
-      transform: translate(var(--home-area-offset-x), calc(var(--home-area-offset-y) - clamp(96px, 16vh, 140px)));
+      width: 100%;
+      max-width: min(42vw, 232px);
+      margin-left: auto;
+      padding: clamp(6px, 1.8vw, 10px) max(6px, env(safe-area-inset-right)) 0 0;
+      transform: translate(0, clamp(-18px, -3.2vh, -8px));
     }
     .home-area-placement--clock :global(.home-clock) {
       height: auto;
+      width: min(42vw, 232px);
+      max-width: min(42vw, 232px);
     }
     .home-area-placement--settings {
       padding-right: max(6px, env(safe-area-inset-right));

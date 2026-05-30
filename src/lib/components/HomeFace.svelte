@@ -427,8 +427,8 @@
 
   @media (max-width: 720px) {
     .home-face {
-      width: clamp(220px, min(82vmin, calc(100dvh - 8rem)), 560px);
-      height: clamp(220px, min(82vmin, calc(100dvh - 8rem)), 560px);
+      width: clamp(210px, min(76vmin, calc(100dvh - 10rem)), 500px);
+      height: clamp(210px, min(76vmin, calc(100dvh - 10rem)), 500px);
     }
   }
 </style>
