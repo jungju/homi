@@ -5,7 +5,7 @@
   "schemaRef": "schemas/machine/coverage.v1.schema.json",
   "authoritative": false,
   "generated": true,
-  "generatedAt": "2026-05-30T05:55:54.819Z",
+  "generatedAt": "2026-05-30T14:06:52.713Z",
   "generatedFrom": {
     "testsContract": "docs/machine/tests.v1.yaml",
     "testCode": [
@@ -14,7 +14,7 @@
     ],
     "testResults": {
       "deterministicE2E": "test-results/.last-run.json#status=passed",
-      "deterministicUnit": "test-results/vitest/results.json#status=missing",
+      "deterministicUnit": "test-results/vitest/results.json#status=passed",
       "aiSemantic": "test-results/ai-reviews/summary.json#status=missing"
     }
   },

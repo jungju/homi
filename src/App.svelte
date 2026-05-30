@@ -481,20 +481,19 @@
       padding-bottom: max(6px, env(safe-area-inset-bottom));
     }
     .home-area-placement--clock {
-      grid-column: 3 / 4;
+      grid-column: 2 / 4;
       grid-row: 1 / 2;
       justify-content: flex-end;
       align-items: flex-start;
       width: 100%;
-      max-width: min(42vw, 232px);
       margin-left: auto;
       padding: clamp(6px, 1.8vw, 10px) max(6px, env(safe-area-inset-right)) 0 0;
-      transform: translate(0, clamp(-18px, -3.2vh, -8px));
+      transform: translate(0, 0);
     }
     .home-area-placement--clock :global(.home-clock) {
       height: auto;
-      width: min(42vw, 232px);
-      max-width: min(42vw, 232px);
+      width: min(62vw, 232px);
+      max-width: min(62vw, 232px);
     }
     .home-area-placement--settings {
       padding-right: max(6px, env(safe-area-inset-right));
