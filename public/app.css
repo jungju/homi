@@ -726,3 +726,61 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* Short viewports (landscape phones, small screens): prevent clock/face overlap */
+@media (max-height: 540px) {
+  .home-fullscreen {
+    min-height: 100vh;
+    padding: 8px;
+  }
+
+  .home-area-grid,
+  .home-area-label-layer {
+    inset: 8px;
+  }
+
+  .home-face {
+    top: 52%;
+    width: min(44vw, 200px);
+  }
+
+  .home-clock {
+    top: clamp(4px, 2vh, 16px);
+    width: min(calc(100vw - 20px), 240px);
+  }
+
+  .home-clock-date {
+    font-size: 0.85rem;
+  }
+
+  .home-clock-time {
+    font-size: clamp(1.4rem, 6vw, 2.2rem);
+    line-height: 1;
+  }
+
+  .home-bubble {
+    display: none;
+  }
+
+  .home-robot-name {
+    font-size: clamp(1rem, 3vh, 1.4rem);
+  }
+
+  .home-controls {
+    bottom: clamp(6px, 2vh, 14px);
+  }
+
+  .engine-button {
+    font-size: 0.82rem;
+    min-height: 36px;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .settings-button {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    right: clamp(8px, 2vw, 16px);
+    bottom: clamp(6px, 2vh, 14px);
+  }
+}
