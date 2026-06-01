@@ -235,8 +235,8 @@ button,
   --blink: 0;
   position: absolute;
   left: 50%;
-  top: 52%;
-  width: min(64vw, 640px);
+  top: 59%;
+  width: min(52vw, 420px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   display: grid;
