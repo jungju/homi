@@ -61,7 +61,7 @@
   async function boot() {
     try {
       setPanels('intro');
-      await refreshSession();
+      await refreshSession({ optional: !isProtectedRoute() });
       if (state.session) {
         const pendingPath = sessionStorage.getItem(postLoginKey);
         sessionStorage.removeItem(postLoginKey);
@@ -106,16 +106,27 @@
     });
   }
 
-  async function refreshSession() {
+  async function refreshSession({ optional = false } = {}) {
     const url = new URL(`${config.ohmeshBaseUrl}/auth/me`);
     url.searchParams.set('app', config.ohmeshAppSlug);
     url.searchParams.set('optional', '1');
-    const response = await fetch(url, { credentials: 'include', cache: 'no-store' });
+    let response;
+    try {
+      response = await fetch(url, { credentials: 'include', cache: 'no-store' });
+    } catch {
+      state.session = null;
+      if (optional) return;
+      throw new Error('Ohmesh 로그인 상태를 확인하지 못했습니다.');
+    }
     if (response.status === 204 || response.status === 401) {
       state.session = null;
       return;
     }
     if (!response.ok) {
+      if (optional) {
+        state.session = null;
+        return;
+      }
       throw new Error('Ohmesh 로그인 상태를 확인하지 못했습니다.');
     }
     state.session = await response.json();
